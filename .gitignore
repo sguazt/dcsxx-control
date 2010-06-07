@@ -1,3 +1,5 @@
+config.mk
+config.sh.log
 tags
 tmp
 user-config.sh
