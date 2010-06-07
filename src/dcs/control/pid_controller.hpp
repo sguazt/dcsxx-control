@@ -158,7 +158,7 @@ class pid_controller
 	 *         &= K_P e(k) + K_I \sum_{i=0}^{k} e(i) + K_D (e(k)-e(k-1))
 	 *  \f}
 	 */
-	public: real_type compute(real_type error)
+	public: real_type compute_output(real_type error)
 	{
 		// Update if the error magnitude is below the threshold.
 		if (
@@ -194,7 +194,7 @@ class pid_controller
 
 	// Use the incremental algorithm (aka velocity algorithm)
 	// u(t_k)=u(t_{k-1})+K_p\left[\left(1+\dfrac{\Delta t}{T_i}+\dfrac{T_d}{\Delta t}\right)e(t_k)+\left(-1-\dfrac{2T_d}{\Delta t}\right)e(t_{k-1})+\dfrac{T_d}{\Delta t}e(t_{k-2})\right] 
-	//real_type compute(real_type error);
+	//real_type compute_output(real_type error);
 
 
 	/// Proportional gain.
@@ -307,7 +307,7 @@ class multiloop_pid_controller
 	 *         &= K_P e(k) + K_I \sum_{i=0}^{k} e(i) + K_D (e(k)-e(k-1))
 	 *  \f}
 	 */
-	public: vector_type compute(vector_type error)
+	public: vector_type compute_output(vector_type error)
 	{
 		// preconditions
 		DCS_ASSERT(
@@ -358,7 +358,7 @@ class multiloop_pid_controller
 
 	// Use the incremental algorithm (aka velocity algorithm)
 	// u(k) = u(k-1) + K_P \left[\left(1+\frac{\Delta t}{T_I}+\frac{T_D}{\Delta t}\right)e(k)+\left(-1-\frac{2T_D}{\Delta t}e(k-1)+\frac{T_D}{\Delta t}e(k-2)\right)\right]
-	//vector_type compute(vector_type error);
+	//vector_type compute_output(vector_type error);
 
 
 	/// Proportional gain.
@@ -469,7 +469,7 @@ class mimo_pid_controller
 	 *         &= K_P e(k) + K_I \sum_{i=0}^{k} e(i) + K_D (e(k)-e(k-1))
 	 *  \f}
 	 */
-	public: vector_type compute(vector_type error)
+	public: vector_type compute_output(vector_type error)
 	{
 		// preconditions
 		DCS_ASSERT(
@@ -520,7 +520,7 @@ class mimo_pid_controller
 
 	// Use the incremental algorithm (aka velocity algorithm)
 	// u(k) = u(k-1) + K_P \left[\left(1+\frac{\Delta t}{T_I}+\frac{T_D}{\Delta t}\right)e(k)+\left(-1-\frac{2T_D}{\Delta t}e(k-1)+\frac{T_D}{\Delta t}e(k-2)\right)\right]
-	//vector_type compute(vector_type error);
+	//vector_type compute_output(vector_type error);
 
 
 	/// Proportional gain.
@@ -582,9 +582,9 @@ class std_pid_controller
 	}
 
 
-	public: real_type compute(real_type error)
+	public: real_type compute_output(real_type error)
 	{
-		return pid_.compute(error);
+		return pid_.compute_output(error);
 	}
 
 
