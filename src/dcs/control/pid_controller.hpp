@@ -146,6 +146,30 @@ class pid_controller
 	}
 
 
+	public: real_type sampling_time() const
+	{
+		return ts_;
+	}
+
+
+	public: real_type proportional_gain() const
+	{
+		return kp_;
+	}
+
+
+	public: real_type integral_gain() const
+	{
+		return ki_;
+	}
+
+
+	public: real_type derivative_gain() const
+	{
+		return kd_;
+	}
+
+
 	/**
 	 * \brief Update the control signal according to the given control error.
 	 * \param error The current control error.
@@ -292,6 +316,30 @@ class multiloop_pid_controller
 				err_thresh_[m++] = val;
 			}
 		}
+	}
+
+
+	public: real_type sampling_time() const
+	{
+		return ts_;
+	}
+
+
+	public: vector_type proportional_gain() const
+	{
+		return kp_;
+	}
+
+
+	public: vector_type integral_gain() const
+	{
+		return ki_;
+	}
+
+
+	public: vector_type derivative_gain() const
+	{
+		return kd_;
 	}
 
 
@@ -457,6 +505,30 @@ class mimo_pid_controller
 	}
 
 
+	public: real_type sampling_time() const
+	{
+		return ts_;
+	}
+
+
+	public: matrix_type proportional_gain() const
+	{
+		return kp_;
+	}
+
+
+	public: matrix_type integral_gain() const
+	{
+		return ki_;
+	}
+
+
+	public: matrix_type derivative_gain() const
+	{
+		return kd_;
+	}
+
+
 	/**
 	 * \brief Update the control signal according to the given control error.
 	 * \param error The current control error.
@@ -579,6 +651,30 @@ class std_pid_controller
 		: pid_(kp, kp/int_time, kp*deriv_time, err_thresh)
 	{
 		// Empty
+	}
+
+
+	public: real_type sampling_time() const
+	{
+		return pid_.sampling_time();
+	}
+
+
+	public: real_type proportional_gain() const
+	{
+		return pid_.proportional_gain();
+	}
+
+
+	public: real_type integral_time() const
+	{
+		return pid_.proportional_gain()/pid_.integral_gain();
+	}
+
+
+	public: real_type derivative_time() const
+	{
+		return pid_.derivative_gain()/pid_.proportional_gain();
 	}
 
 
