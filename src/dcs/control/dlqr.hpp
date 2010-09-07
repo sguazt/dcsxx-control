@@ -26,16 +26,21 @@
 #define DCS_CONTROL_DLQR_HPP
 
 
+#include <algorithm>
+#include <boost/numeric/ublas/expression_types.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/matrix_expression.hpp>
+#include <boost/numeric/ublas/traits.hpp>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/vector_expression.hpp>
+#include <boost/numeric/ublasx/operation/cat.hpp>
+#include <boost/numeric/ublasx/operation/eigen.hpp>
+#include <boost/numeric/ublasx/operation/max.hpp>
+#include <boost/numeric/ublasx/operation/min.hpp>
+#include <boost/numeric/ublasx/operation/num_columns.hpp>
+#include <boost/numeric/ublasx/operation/num_rows.hpp>
 #include <dcs/debug.hpp>
-#include <dcs/math/la/container/dense_matrix.hpp>
-#include <dcs/math/la/matrix_basic_operations.hpp>
-#include <dcs/math/la/operation/cat.hpp>
-#include <dcs/math/la/operation/eigen.hpp>
-#include <dcs/math/la/operation/min.hpp>
-#include <dcs/math/la/operation/num_columns.hpp>
-#include <dcs/math/la/operation/num_rows.hpp>
-#include <dcs/math/la/traits/matrix.hpp>
-#include <dcs/math/la/traits/promote.hpp>
+#include <dcs/control/dare.hpp>
 #include <stdexcept>
 
 
@@ -97,53 +102,53 @@ template <
 	typename Matrix4T,
 	typename Matrix5T
 >
-void dlqr(Matrix1T const& A, Matrix2T& const B, Matrix3T& const Q, Matrix4T& const R, Matrix5T& const N)
+void dlqr(boost::numeric::ublas::matrix_expression<Matrix1T> const& A, boost::numeric::ublas::matrix_expression<Matrix2T> const& B, boost::numeric::ublas::matrix_expression<Matrix3T> const& Q, boost::numeric::ublas::matrix_expression<Matrix4T> const& R, boost::numeric::ublas::matrix_expression<Matrix5T> const& N)
 {
-	namespace dcs_la = ::dcs::math::la;
+	namespace ublasx = ::boost::numeric::ublasx;
+	namespace ublas = ::boost::numeric::ublas;
 
-	typedef Matrix1T A_matrix1_type;
-	typedef Matrix2T B_matrix2_type;
-	typedef Matrix3T Q_matrix3_type;
-	typedef Matrix4T R_matrix4_type;
-	typedef Matrix5T N_matrix5_type;
-	typedef typename dcs_la::promote_traits<
-				typename dcs_la::matrix_traitsA_<matrix_type>::value_type,
-				typename dcs_la::promote_traits<
-					typename dcs_la::matrix_traits<B_matrix_type>::value_type,
-					typename dcs_la::promote_traits<
-						typename dcs_la::matrix_traits<Q_matrix_type>::value_type,
-						typename dcs_la::promote_traits<
-							typename dcs_la::matrix_traits<R_matrix_type>::value_type,
-							typename dcs_la::matrix_traits<N_matrix_type>::value_type
+	typedef Matrix1T A_matrix_type;
+	typedef Matrix2T B_matrix_type;
+	typedef Matrix3T Q_matrix_type;
+	typedef Matrix4T R_matrix_type;
+	typedef Matrix5T N_matrix_type;
+	typedef typename ublasx::promote_traits<
+				typename ublasx::matrix_traits<A_matrix_type>::value_type,
+				typename ublasx::promote_traits<
+					typename ublasx::matrix_traits<B_matrix_type>::value_type,
+					typename ublasx::promote_traits<
+						typename ublasx::matrix_traits<Q_matrix_type>::value_type,
+						typename ublasx::promote_traits<
+							typename ublasx::matrix_traits<R_matrix_type>::value_type,
+							typename ublasx::matrix_traits<N_matrix_type>::value_type
 						>::promote_type
 					>::promote_type
 				>::promote_type
 			>::promote_type value_type;
-	typedef typename dcs_la::promote_traits<
-				typename dcs_la::matrix_traits<A_matrix_type>::size_type,
-				typename dcs_la::promote_traits<
-					typename dcs_la::matrix_traits<B_matrix_type>::size_type,
-					typename dcs_la::promote_traits<
-						typename dcs_la::matrix_traits<Q_matrix_type>::size_type,
-						typename dcs_la::promote_traits<
-							typename dcs_la::matrix_traits<R_matrix_type>::size_type,
-							typename dcs_la::matrix_traits<N_matrix_type>::size_type
+	typedef typename ublasx::promote_traits<
+				typename ublasx::matrix_traits<A_matrix_type>::size_type,
+				typename ublasx::promote_traits<
+					typename ublasx::matrix_traits<B_matrix_type>::size_type,
+					typename ublasx::promote_traits<
+						typename ublasx::matrix_traits<Q_matrix_type>::size_type,
+						typename ublasx::promote_traits<
+							typename ublasx::matrix_traits<R_matrix_type>::size_type,
+							typename ublasx::matrix_traits<N_matrix_type>::size_type
 						>::promote_type
 					>::promote_type
 				>::promote_type
 			>::promote_type size_type;
-	typedef dcs_la::dense_matrix<value_type> tmp_matrix_type;
 
-	size_type A_nr = dcs_la::num_rows(A);
-	size_type A_nc = dcs_la::num_columns(A);
-	size_type B_nr = dcs_la::num_rows(B);
-	size_type B_nc = dcs_la::num_columns(B);
-	size_type Q_nr = dcs_la::num_rows(Q);
-	size_type Q_nc = dcs_la::num_columns(Q);
-	size_type R_nr = dcs_la::num_rows(Q);
-	size_type R_nc = dcs_la::num_columns(Q);
-	size_type N_nr = dcs_la::num_rows(S);
-	size_type N_nc = dcs_la::num_columns(S);
+	size_type A_nr = ublasx::num_rows(A);
+	size_type A_nc = ublasx::num_columns(A);
+	size_type B_nr = ublasx::num_rows(B);
+	size_type B_nc = ublasx::num_columns(B);
+	size_type Q_nr = ublasx::num_rows(Q);
+	size_type Q_nc = ublasx::num_columns(Q);
+	size_type R_nr = ublasx::num_rows(Q);
+	size_type R_nc = ublasx::num_columns(Q);
+	size_type N_nr = ublasx::num_rows(N);
+	size_type N_nc = ublasx::num_columns(N);
 
 	// precondition: A is square
 	DCS_ASSERT(
@@ -187,45 +192,64 @@ void dlqr(Matrix1T const& A, Matrix2T& const B, Matrix3T& const Q, Matrix4T& con
 	Q_matrix_type tmp_Q;
 	R_matrix_type tmp_R;
 
-	if (dcs_la::norm_1(dcs_la::trans(Q)-Q) > (100*eps*dcs_la::norm_1(Q)))
+	// Check/enforce symmetry and check positivity
+
+	if (ublas::norm_1(ublas::trans(Q)-Q) > (100*eps*ublas::norm_1(Q)))
 	{
 		DCS_DEBUG_TRACE("The error weighted matrix Q is not symmetric and has been replaced by (Q+Q')/2.");
-		tmp_Q = (Q+dcs_la::trans(Q))/static_cast<value_type>(2);
+	//	tmp_Q = (Q+ublas::trans(Q))/static_cast<value_type>(2);
 	}
-	else
-	{
-		tmp_Q = Q;
-	}
-	if (dcs_la::norm_1(dcs_la::trans(R)-R) > (100*eps*dcs_la::norm_1(R)))
+	//else
+	//{
+	//	tmp_Q = Q;
+	//}
+	tmp_Q = (Q+ublas::trans(Q))/static_cast<value_type>(2);
+	if (ublas::norm_1(ublas::trans(R)-R) > (100*eps*ublas::norm_1(R)))
 	{
 		DCS_DEBUG_TRACE("The control weighted matrix R is not symmetric and has been replaced by (R+R')/2.");
-		tmp_R = (R+dcs_la::trans(R))/static_cast<value_type>(2);
+	//	tmp_R = (R+ublas::trans(R))/static_cast<value_type>(2);
 	}
-	else
-	{
-		tmp_R = R;
-	}
+	//else
+	//{
+	//	tmp_R = R;
+	//}
+	tmp_R = (R+ublas::trans(R))/static_cast<value_type>(2);
 
 
-	v_R = dcs_la::eigenvalues(tmp_R);
-	v_QNR = dcs_la::real(
-				dcs_la::eigenvalues(
-					dcs_la::cat_rows<tmp_matrix_type>(
-						dcs_la::cat_columns<tmp_matrix_type>(tmp_Q, NN), 
-						dcs_la::cat_columns<tmp_matrix_type>(dcs_la::trans(NN), tmp_R) 
-					)
-				)
-		);
-	if (dcs_la::min(v_R) <= 0)
+	ublas::vector< std::complex<value_type> > v;
+
+	ublas::vector<value_type> v_R;
+	ublasx::eigenvalues(tmp_R, v);
+	v_R = ublas::real(v);
+
+	//FIXME: why using real(...)?
+	//ublas::vector< std::complex<value_type> > v_QNR;
+	ublas::vector<value_type> v_QNR;
+	ublasx::eigenvalues(
+		ublasx::cat_columns(
+			ublasx::cat_rows(tmp_Q, N), 
+			ublasx::cat_rows(ublas::trans(N), tmp_R) 
+		),
+		v
+	);
+	v_QNR = ublas::real(v);
+
+	if (ublasx::min(v_R) <= value_type()/*zero*/)
 	{
 		throw ::std::runtime_error("[dcs::control::dlqr] The control weighted matrix R is not positive definite.");
 	}
-	else if (dcs_la::min(v_QNR) < (1e2*eps*::std::max(0, dcs_la::max(v_QNR))))
+	else if (ublasx::min(v_QNR) < (-1.0e+2*eps*::std::max(value_type()/*zero*/, ublasx::max(v_QNR))))
 	{
 		DCS_DEBUG_TRACE("The matrix [Q N;N' R] is not positive semi-definite.");
 	}
 
-	dare(A, B, Q, R, NN, E);
+	ublas::matrix<value_type> E = ublas::identity_matrix<value_type>(A_nr);
+
+	dare_solver<value_type> solver;
+	solver.solve(A, B, Q, R, N, E);
+std::cerr << "Solution = " << solver.solution() << std::endl;
+std::cerr << "Gain = " << solver.gain() << std::endl;
+std::cerr << "Eigenvalues = " << solver.eigenvalues() << std::endl;
 }
 
 }} // Namespace dcs::control

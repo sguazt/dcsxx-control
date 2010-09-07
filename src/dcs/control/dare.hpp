@@ -75,8 +75,10 @@ class dare_solver
 {
 	public: typedef ValueT value_type;
 	public: typedef typename ublas::type_traits<value_type>::real_type real_type;
-	private: typedef ublas::matrix<value_type> work_matrix_type;
+	private: typedef ublas::matrix<value_type,ublas::column_major> work_matrix_type;
+	private: typedef ublas::vector< ::std::complex<value_type> > work_vector_type;
 	public: typedef work_matrix_type matrix_type;
+	public: typedef work_vector_type vector_type;
 	private: typedef typename ublas::matrix_traits<work_matrix_type>::size_type size_type;
 
 
@@ -369,6 +371,12 @@ class dare_solver
 		qz.decompose(J, H);
 		qz.reorder(ublasx::udo_qz_eigenvalues);
 		Z = qz.Z();
+		// Compute the n stable closed-loop eigenvalues of the system matrix
+		// A-BG, where G is the optimal feedback matrix computed based on the
+		// solution matrix X.
+		// These eigenvalues correspond to the the trailing n generalized
+		// eigenvalues of the QZ decomposition
+		l_ = ublas::subrange(qz.eigenvalues(), n, n2);
 
 		// Select submatrices X1 and X2 out of the matrix Z which define the
 		// solution X = X2 * inv(X1).
@@ -430,10 +438,19 @@ class dare_solver
 	}
 
 
-//	/// Return the closed-loop eigenvalues: \f$\operatorname{eig}(A-BG, E)\f$ where \f$G\f$ is the gain matrix.
-//	public: L_matrix_type eigenvalues() const
-//	{
-//	}
+	/**
+	 * \brief Return the closed-loop eigenvalues vector.
+	 *
+	 * The closed-loop eigenvalues vector \f$\lambda\f$ is computed as:
+	 * \f[
+	 *   \lambda = \operatorname{eig}(A-BG, E)
+	 * \f]
+	 * where \f$G\f$ is the gain matrix.
+	 */
+	public: vector_type eigenvalues() const
+	{
+		return l_;
+	}
 
 
 	private: static const real_type eps;
@@ -441,6 +458,7 @@ class dare_solver
 
 	private: work_matrix_type X_; /// The solution matrix
 	private: work_matrix_type G_; /// The gain matrix
+	private: work_vector_type l_; /// The closed-loop eigenvalues vector.
 };
 
 

@@ -70,6 +70,7 @@ DCS_TEST_DEF( test_2 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(2);
 	const std::size_t m(1);
@@ -118,6 +119,7 @@ DCS_TEST_DEF( test_2 )
 	DCS_DEBUG_TRACE( "E = " << E );
 	DCS_DEBUG_TRACE( "Solution X = " << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
 }
@@ -129,6 +131,7 @@ DCS_TEST_DEF( test_darex_ex_1_1 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(2);
 	const std::size_t m(1);
@@ -152,9 +155,9 @@ DCS_TEST_DEF( test_darex_ex_1_1 )
 	expect_X(0,0) = 1.0; expect_X(0,1) = 0.0;
 	expect_X(1,0) = 0.0; expect_X(1,1) = 1.0;
 
-//	vector_type expect_L(n);
-//	expect_L(0) = 0.0;
-//	expect_L(1) = 0.0;
+	vector_type expect_l(n);
+	expect_l(0) = 0.0;
+	expect_l(1) = 0.0;
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) = 2.0; expect_G(0,1) = -1.0;
@@ -169,8 +172,10 @@ DCS_TEST_DEF( test_darex_ex_1_1 )
 	DCS_DEBUG_TRACE( "R = " << R );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
@@ -180,6 +185,7 @@ DCS_TEST_DEF( test_darex_ex_1_2 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(2);
 	const std::size_t m(2);
@@ -208,9 +214,9 @@ DCS_TEST_DEF( test_darex_ex_1_2 )
 	expect_X(0,0) = -0.014021341244239*1e+2; expect_X(0,1) =  0.130568663991581*1e+2;
 	expect_X(1,0) =  0.130568663991581*1e+2; expect_X(1,1) = -1.256364927952908*1e+2;
 
-//	vector_type expect_L(n);
-//	expect_L(0) = -0.217058149756746;
-//	expect_L(1) =  0.687271691663810;
+	vector_type expect_l(n);
+	expect_l(0) = -0.217058149756746;
+	expect_l(1) =  0.687271691663810;
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) =  0.940453958559404; expect_G(0,1) = -11.009835262327730;
@@ -227,8 +233,10 @@ DCS_TEST_DEF( test_darex_ex_1_2 )
 	DCS_DEBUG_TRACE( "S = " << S );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
@@ -238,6 +246,7 @@ DCS_TEST_DEF( test_darex_ex_1_3 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(2);
 	const std::size_t m(1);
@@ -261,9 +270,9 @@ DCS_TEST_DEF( test_darex_ex_1_3 )
 	expect_X(0,0) = 1; expect_X(0,1) = 2;
 	expect_X(1,0) = 2; expect_X(1,1) = 2+std::sqrt(5);
 
-//	vector_type expect_L(n);
-//	expect_L(0) =  0.0;
-//	expect_L(1) =  0.381966011250105;
+	vector_type expect_l(n);
+	expect_l(0) =   0.0;
+	expect_l(1) =  -0.381966011250105;
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) =  0.0; expect_G(0,1) = 0.381966011250105;
@@ -278,8 +287,10 @@ DCS_TEST_DEF( test_darex_ex_1_3 )
 	DCS_DEBUG_TRACE( "R = " << R );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
@@ -289,6 +300,7 @@ DCS_TEST_DEF( test_darex_ex_1_4 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(3);
 	const std::size_t m(2);
@@ -318,10 +330,15 @@ DCS_TEST_DEF( test_darex_ex_1_4 )
 	expect_X(1,0) =    0; expect_X(1,1) = 1e+3; expect_X(1,2) = 0;
 	expect_X(2,0) =    0; expect_X(2,1) =    0; expect_X(2,2) = 0;
 
-//	vector_type expect_L(n);
-//	expect_L(0) =  -1.0e-14*0.195676808090185;
-//	expect_L(1) =   1.0e-14*0.0;
-//	expect_L(2) =   1.0e-14*0.0;
+	vector_type expect_l(n);
+	//This is the result we got with MATLAB 2008a
+	//expect_l(0) =  -1.0e-14*0.195676808090185;
+	//expect_l(1) =   1.0e-14*0.0;
+	//expect_l(2) =   1.0e-14*0.0;
+	//Instead, this is the one we got with SLICOT 5.0
+	expect_l(0) = 0;
+	expect_l(1) = 0;
+	expect_l(2) = 0;
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) =  0.0; expect_G(0,1) = 0.100000000000000; expect_G(0,2) =  0;
@@ -337,8 +354,10 @@ DCS_TEST_DEF( test_darex_ex_1_4 )
 	DCS_DEBUG_TRACE( "R = " << R );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
@@ -348,6 +367,7 @@ DCS_TEST_DEF( test_darex_ex_1_5 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(4);
 	const std::size_t m(2);
@@ -381,11 +401,11 @@ DCS_TEST_DEF( test_darex_ex_1_5 )
 	expect_X(2,0) =   3.966329567211227; expect_X(2,1) =  5.164569890757084; expect_X(2,2) = 17.132194857924915; expect_X(2,3) =   1.573172972387167;
 	expect_X(3,0) = - 4.901197596654578; expect_X(3,1) =  0.278956010969030; expect_X(3,2) =  1.573172972387167; expect_X(3,3) =  14.880017305642834;
 
-//	vector_type expect_L(n);
-//	expect_L(0) = std::complex<value_type>(0.924483957358999, 0.065175187407695);
-//	expect_L(1) = std::complex<value_type>(0.924483957358999,-0.065175187407695);
-//	expect_L(2) = std::complex<value_type>(0.921554823634630, 0.141844900635441);
-//	expect_L(3) = std::complex<value_type>(0.921554823634630,-0.141844900635441);
+	vector_type expect_l(n);
+	expect_l(0) = std::complex<value_type>(0.924483957358999, 0.065175187407695);
+	expect_l(1) = std::complex<value_type>(0.924483957358999,-0.065175187407695);
+	expect_l(2) = std::complex<value_type>(0.921554823634630, 0.141844900635441);
+	expect_l(3) = std::complex<value_type>(0.921554823634630,-0.141844900635441);
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) = 0.793645328788869; expect_G(0,1) = 1.237433329574762; expect_G(0,2) = 1.123694684785060; expect_G(0,3) = 0.148799363279982;
@@ -401,8 +421,10 @@ DCS_TEST_DEF( test_darex_ex_1_5 )
 	DCS_DEBUG_TRACE( "R = " << R );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
@@ -412,6 +434,7 @@ DCS_TEST_DEF( test_darex_ex_1_6 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(4);
 	const std::size_t m(2);
@@ -445,11 +468,11 @@ DCS_TEST_DEF( test_darex_ex_1_6 )
 	expect_X(2,0) = -0.011098670659026; expect_X(2,1) = -0.058560616915151; expect_X(2,2) =  0.022777326427066; expect_X(2,3) =  0.000813683559603;
 	expect_X(3,0) = -0.010468521130251; expect_X(3,1) =  0.012149821872306; expect_X(3,2) =  0.000813683559603; expect_X(3,3) =  0.011513042563167;
 
-//	vector_type expect_L(n);
-//	expect_L(0) = std::complex<value_type>(-0.265917895550618, 0.397244093831420);
-//	expect_L(1) = std::complex<value_type>(-0.265917895550618,-0.397244093831420);
-//	expect_L(2) = std::complex<value_type>( 0.985595115476772, 0.074682359706905);
-//	expect_L(3) = std::complex<value_type>( 0.985595115476772,-0.074682359706905);
+	vector_type expect_l(n);
+	expect_l(0) = std::complex<value_type>(-0.265917895550618, 0.397244093831420);
+	expect_l(1) = std::complex<value_type>(-0.265917895550618,-0.397244093831420);
+	expect_l(2) = std::complex<value_type>( 0.985595115476772, 0.074682359706905);
+	expect_l(3) = std::complex<value_type>( 0.985595115476772,-0.074682359706905);
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) = -0.037713153454583; expect_G(0,1) = -0.124793386469019; expect_G(0,2) =  0.042252018670424; expect_G(0,3) =  0.003031617008049;
@@ -465,8 +488,10 @@ DCS_TEST_DEF( test_darex_ex_1_6 )
 	DCS_DEBUG_TRACE( "R = " << R );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
@@ -476,6 +501,7 @@ DCS_TEST_DEF( test_darex_ex_1_7 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(4);
 	const std::size_t m(4);
@@ -511,11 +537,12 @@ DCS_TEST_DEF( test_darex_ex_1_7 )
 	expect_X(2,0) =  4.997305238829639; expect_X(2,1) =  6.257605864699351; expect_X(2,2) = 13.192802180652688; expect_X(2,3) = 24.447703263082389;
 	expect_X(3,0) = 10.025262087702128; expect_X(3,1) = 12.998245151137297; expect_X(3,2) = 24.447703263082389; expect_X(3,3) = 47.471191943996843;
 
-//	vector_type expect_L(n);
-//	expect_L(0) =  0.348653414953445;
-//	expect_L(1) =  0.067912325238634;
-//	expect_L(2) =  0.163207174929614;
-//	expect_L(3) = -0.999981233198760;
+	vector_type expect_l(n);
+	expect_l(0) = 0.067912325238694;
+	expect_l(1) = 0.163207174929605;
+	expect_l(2) = 0.348653414955625;
+	expect_l(3) = -0.999981999984721;
+
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) =  0.250004803979136; expect_G(0,1) =  0.216553352201969; expect_G(0,2) =  0.460193182636258; expect_G(0,3) =  0.926746747874340;
@@ -539,8 +566,10 @@ DCS_TEST_DEF( test_darex_ex_1_7 )
 	DCS_DEBUG_TRACE( "R = " << R );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol2);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
@@ -550,6 +579,7 @@ DCS_TEST_DEF( test_darex_ex_1_8 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(5);
 	const std::size_t m(2);
@@ -587,12 +617,12 @@ DCS_TEST_DEF( test_darex_ex_1_8 )
 	expect_X(3,0) =  2.183442069546651; expect_X(3,1) = 0.368582157291515; expect_X(3,2) = 0.373785641698017; expect_X(3,3) = 1.246083057616368; expect_X(3,4) =  2.056868888863928;
 	expect_X(4,0) = 24.049867925873606; expect_X(4,1) = 2.810035381375605; expect_X(4,2) = 2.685608599483135; expect_X(4,3) = 2.056868888863928; expect_X(4,4) = 27.429360377605320;
 
-//	vector_type expect_L(n);
-//	expect_L(0) = 0.240702660917669;
-//	expect_L(1) = 0.632461076685745;
-//	expect_L(2) = 0.976994439625732;
-//	expect_L(3) = 0.958597232843032;
-//	expect_L(4) = 0.050274226759839;
+	vector_type expect_l(n);
+	expect_l(0) = 0.240702660917670;
+	expect_l(1) = 0.050274226759839;
+	expect_l(2) = 0.632461076685746;
+	expect_l(3) = 0.958597232843032;
+	expect_l(4) = 0.976994439625731;
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) =  0.488379469793936; expect_G(0,1) =  0.088047339574689; expect_G(0,2) =  0.081945427902266; expect_G(0,3) =  0.050798306322876; expect_G(0,4) =  0.397748565018305;
@@ -608,8 +638,10 @@ DCS_TEST_DEF( test_darex_ex_1_8 )
 	DCS_DEBUG_TRACE( "R = " << R );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
@@ -619,6 +651,7 @@ DCS_TEST_DEF( test_darex_ex_1_9 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(6);
 	const std::size_t m(2);
@@ -668,13 +701,13 @@ DCS_TEST_DEF( test_darex_ex_1_9 )
 	expect_X(4,0) =  0.256594368987001; expect_X(4,1) = -0.005040700871270; expect_X(4,2) = -0.016336231909491; expect_X(4,3) = -0.743405631012998; expect_X(4,4) =  1.481770561154726; expect_X(4,5) = -0.741674246035512;
 	expect_X(5,0) = -0.002115177331576; expect_X(5,1) =  0.254095399301336; expect_X(5,2) =  0.077827181137999; expect_X(5,3) = -0.002115177331577; expect_X(5,4) = -0.741674246035512; expect_X(5,5) =  1.235707250512302;
 
-//	vector_type expect_L(n);
-//	expect_L(0) = std::complex<value_type>( 0.195825301202028, 0.642361399464209);
-//	expect_L(1) = std::complex<value_type>( 0.195825301202028,-0.642361399464209);
-//	expect_L(2) = std::complex<value_type>( 0.376862701311676, 0.000000000000000);
-//	expect_L(3) = std::complex<value_type>(-0.000000000000001, 0.000000013433172);
-//	expect_L(4) = std::complex<value_type>(-0.000000000000001,-0.000000013433172);
-//	expect_L(5) = std::complex<value_type>(-0.587066411126228, 0.000000000000000);
+	vector_type expect_l(n);
+	expect_l(0) = std::complex<value_type>( 0.195825301202028, 0.642361399464209);
+	expect_l(1) = std::complex<value_type>( 0.195825301202028,-0.642361399464209);
+	expect_l(2) = std::complex<value_type>( 0.376862701311676, 0.000000000000000);
+	expect_l(3) = std::complex<value_type>(-0.000000000000001, 0.000000013433172);
+	expect_l(4) = std::complex<value_type>(-0.000000000000001,-0.000000013433172);
+	expect_l(5) = std::complex<value_type>(-0.587066411126228, 0.000000000000000);
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) =  0.223068620703031; expect_G(0,1) =  0.189542872419061; expect_G(0,2) =  0.150367062101950; expect_G(0,3) =  0.223068620703031; expect_G(0,4) = -0.256594368987002; expect_G(0,5) =  0.002115177331576;
@@ -691,8 +724,10 @@ DCS_TEST_DEF( test_darex_ex_1_9 )
 	DCS_DEBUG_TRACE( "S = " << S );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
@@ -702,6 +737,7 @@ DCS_TEST_DEF( test_darex_ex_1_10 )
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< std::complex<value_type> > vector_type;
 
 	const std::size_t n(9);
 	const std::size_t m(3);
@@ -757,16 +793,16 @@ DCS_TEST_DEF( test_darex_ex_1_10 )
 	expect_X(7,0) = -1e+2*0.052623035300436; expect_X(7,1) =  1e+2*0.143430702460302; expect_X(7,2) = -1e+2*0.007428328837057; expect_X(7,3) = -1e+2*0.000322384797280; expect_X(7,4) =  1e+2*0.001410747036388; expect_X(7,5) =  1e+2*0.000476344734388; expect_X(7,6) = 1e+2*0; expect_X(7,7) =  1e+2*0.005438180536963; expect_X(7,8) =  1e+2*0.006767021988094;
 	expect_X(8,0) = -1e+2*0.057714706758673; expect_X(8,1) =  1e+2*0.164521508295554; expect_X(8,2) = -1e+2*0.008137995705764; expect_X(8,3) = -1e+2*0.000351053981308; expect_X(8,4) =  1e+2*0.002405965955478; expect_X(8,5) =  1e+2*0.000583502334040; expect_X(8,6) = 1e+2*0; expect_X(8,7) =  1e+2*0.006767021988094; expect_X(8,8) =  1e+2*0.009074537095327;
 
-//	vector_type expect_L(n);
-//	expect_L(0) =  0.109742041841021;
-//	expect_L(1) =  0.031219248468963;
-//	expect_L(2) = -0.000067593223497;
-//	expect_L(3) =  0.391467974585296;
-//	expect_L(4) =  0.960701961469204;
-//	expect_L(5) =  0.741737357474985;
-//	expect_L(6) =  0.829792949878015;
-//	expect_L(7) =  0.792194440332421;
-//	expect_L(8) =  0.000106300000000;
+	vector_type expect_l(n);
+	expect_l(0) =  0.109742041841021;
+	expect_l(1) =  0.031219248468963;
+	expect_l(2) = -0.000067593223497;
+	expect_l(3) =  0.391467974585296;
+	expect_l(4) =  0.960701961469204;
+	expect_l(5) =  0.741737357474985;
+	expect_l(6) =  0.829792949878015;
+	expect_l(7) =  0.792194440332421;
+	expect_l(8) =  0.000106300000000;
 
 
 	matrix_type expect_G(m,n);
@@ -784,8 +820,10 @@ DCS_TEST_DEF( test_darex_ex_1_10 )
 	DCS_DEBUG_TRACE( "R = " << R );
 	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
 	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
 }
 
 
