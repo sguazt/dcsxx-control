@@ -23,7 +23,7 @@
  */
 
 #include <cstddef>
-#include <dcs/control/pid_controller.hpp>
+#include <dcs/control/design/pid_controller.hpp>
 #include <dcs/math/la/container/dense_matrix.hpp>
 #include <dcs/math/la/container/dense_vector.hpp>
 #include <dcs/math/la/operation/io.hpp>

@@ -1,7 +1,7 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <complex>
-#include <dcs/control/dare.hpp>
+#include <dcs/control/solver/dare.hpp>
 #include <dcs/debug.hpp>
 #include <dcs/test.hpp>
 #include <iostream>

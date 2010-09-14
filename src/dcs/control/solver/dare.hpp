@@ -1,7 +1,7 @@
 /**
- * \file src/dcs/control/dare.hpp
+ * \file src/dcs/control/solver/dare.hpp
  *
- * \brief Solve discrete-time algebraic Riccati equations.
+ * \brief Discrete-time Algebraic Riccati Equations solver.
  *
  * Computes the unique stabilizing solution \f$X\f$ of the discrete-time
  * algebraic Riccati equation
