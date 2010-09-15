@@ -1,7 +1,7 @@
 /**
  * \file dcs/control/design/dlqr.hpp
  *
- * \brief Infinite-horizon Discrete Linear Quadratic Regulator.
+ * \brief Infinite-horizon Discrete Linear Quadratic state-feedback Regulator.
  *
  * Given a dicrete time-invariant state-space system model:
  * \f{align*}{
@@ -16,8 +16,8 @@
  *       \f$\mathbf{B} \in \mathbb{R}^{n \times m}\f$,
  *       \f$\mathbf{C} \in \mathbb{R}^{p \times n}\f$, and
  *       \f$\mathbf{D} \in \mathbb{R}^{p \times m}\f$,
- * and assuming that \f$(A,B)\f$ is \e stabilizable and \f$(C,A)\f$ is
- * \e detectable, the <em>Infinite-horizon, Discrete Linear Quadratic
+ * and assuming that \f$(A,B)\f$ is \e stabilizable,
+ * the <em>Infinite-horizon, Discrete Linear Quadratic (LQ) state-feedback
  * Regulator</em> controller problem calculates the optimal \e gain matrix
  * \f$\mathbf{K}\f$ such that the state-feedback law:
  * \f[
@@ -28,13 +28,13 @@
  *   J(\mathbf{u}) &= \sum_{k=1}^{\infty}{\mathbf{x}^T(k)\mathbf{Q}\mathbf{x}(k) + \mathbf{u}^T(k)\mathbf{R}\mathbf{u}(k) + 2\mathbf{x}^T(k)\mathbf{N}\mathbf{u}(k)} \\
  *                 &= \sum_{k=1}^{\infty}{\begin{pmatrix}\mathbf{x}^T(k) & \mathbf{u}^T(k)\end{pmatrix}\begin{pmatrix}\mathbf{Q} & \mathbf{N} \\ \mathbf{N}^T & \mathbf{R}\end{pmatrix}\begin{pmatrix}\mathbf{x}(k) \\ \mathbf{u}(k)\end{pmatrix}}
  * \f}
- * where the <em>error weighted matrix</em>
+ * where the <em>error weighting matrix</em>
  *           \f$\mathbf{Q}\in\mathbb{R}^{n \times n}\f$ is a positive
  *           semi-definite real matrix,
- *       the <em>control weighted matrix</em>
+ *       the <em>control weighting matrix</em>
  *           \f$\mathbf{R}\in\mathbb{R}^{m \times m}\f$ is a positive
  *           definite real matrix, and
- *       the <em>cross-coupling weighted matrix</em>
+ *       the <em>cross-coupling weighting matrix</em>
  *           \f$\mathbf{N}\in\mathbb{R}^{n \times m}\f$ is a real matrix.
  * Matrices \f$\mathbf{Q}\f$ and \f$\mathbf{R}\f$ should be symmetric; if they
  * are not, they are replaced with \f$\mathbf{Q}'\f$ and \f$\mathbf{R}'\f$ such
@@ -209,27 +209,27 @@ void dlqr(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	// precondition: Q is square
 	DCS_ASSERT(
 		Q_nr == Q_nc,
-		throw ::std::invalid_argument("[dcs::control::dlqr] Error weighted matrix Q must be a square matrix.")
+		throw ::std::invalid_argument("[dcs::control::dlqr] Error weighting matrix Q must be a square matrix.")
 	);
 	// precondition: num_rows(Q) == num_rows(A)
 	DCS_ASSERT(
 		Q_nr == A_nr,
-		throw ::std::invalid_argument("[dcs::control::dlqr] The number of rows of the error weighted matrix Q must be the same of the state matrix A.")
+		throw ::std::invalid_argument("[dcs::control::dlqr] The number of rows of the error weighting matrix Q must be the same of the state matrix A.")
 	);
 	// precondition: R is square
 	DCS_ASSERT(
 		R_nr == R_nc,
-		throw ::std::invalid_argument("[dcs::control::dlqr] Control weighted matrix Q must be a square matrix.")
+		throw ::std::invalid_argument("[dcs::control::dlqr] Control weighting matrix Q must be a square matrix.")
 	);
 	// precondition: num_rows(R) == num_rows(B)
 	DCS_ASSERT(
 		R_nr == A_nr,
-		throw ::std::invalid_argument("[dcs::control::dlqr] The number of rows of the control weighted matrix Q must be the same of the control matrix B.")
+		throw ::std::invalid_argument("[dcs::control::dlqr] The number of rows of the control weighting matrix Q must be the same of the input matrix B.")
 	);
 	// precondition: num_rows(N) == num_rows(A) && num_columns(N) == num_columns(B)
 	DCS_ASSERT(
 		N_nr == A_nr && N_nc == B_nc,
-		throw ::std::invalid_argument("[dcs::control::dlqr] The cross-term weighted matrix N must have the same number of rows of the state matrix A and be the same number of columns of the control matrix B.")
+		throw ::std::invalid_argument("[dcs::control::dlqr] The cross-term weighting matrix N must have the same number of rows of the state matrix A and be the same number of columns of the input matrix B.")
 	);
 
 
@@ -241,7 +241,7 @@ void dlqr(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	//// Check/enforce symmetry and check positivity
 	//if (ublas::norm_1(ublas::trans(Q)-Q) > (100*eps*ublas::norm_1(Q)))
 	//{
-	//	DCS_DEBUG_TRACE("The error weighted matrix Q is not symmetric and will be replaced by (Q+Q')/2.");
+	//	DCS_DEBUG_TRACE("The error weighting matrix Q is not symmetric and will be replaced by (Q+Q')/2.");
 	//	tmp_Q = (Q+ublas::trans(Q))/static_cast<value_type>(2);
 	//}
 	//else
@@ -250,7 +250,7 @@ void dlqr(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	//}
 	//if (ublas::norm_1(ublas::trans(R)-R) > (100*eps*ublas::norm_1(R)))
 	//{
-	//	DCS_DEBUG_TRACE("The control weighted matrix R is not symmetric and has been replaced by (R+R')/2.");
+	//	DCS_DEBUG_TRACE("The control weighting matrix R is not symmetric and has been replaced by (R+R')/2.");
 	//	tmp_R = (R+ublas::trans(R))/static_cast<value_type>(2);
 	//}
 	//else
@@ -283,7 +283,7 @@ void dlqr(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 
 	if (ublasx::min(v_R) <= real_type/*zero*/())
 	{
-		throw ::std::runtime_error("[dcs::control::detail::dlqr] The control weighted matrix R is not positive definite.");
+		throw ::std::runtime_error("[dcs::control::detail::dlqr] The control weighting matrix R is not positive definite.");
 	}
 	else if (ublasx::min(v_QNR) < (-1.0e+2*eps*::std::max(real_type/*zero*/(), ublasx::max(v_QNR))))
 	{
@@ -386,11 +386,11 @@ class dlqr_controller
 	 *
 	 * \tparam AMatrixT The type of the state matrix for the state-space system
 	 *  model.
-	 * \tparam BMatrixT The type of the control matrix for the state-space
+	 * \tparam BMatrixT The type of the input matrix for the state-space
 	 *  system model.
 	 *
 	 *  \param A The state matrix for the state-space system model.
-	 *  \param B The control matrix for the state-space system model.
+	 *  \param B The input matrix for the state-space system model.
 	 */
 	public: template <typename AMatrixT, typename BMatrixT>
 		void solve(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B)
@@ -442,15 +442,15 @@ class dlqr_controller
  *  model.
  * \tparam BMatrixT The type of the input matrix for the controlled state-space
  *  model.
- * \tparam QMatrixT The type of the error weighted matrix.
- * \tparam RMatrixT The type of the control weighted matrix.
- * \tparam NMatrixT The type of the cross-coupling weighted matrix.
+ * \tparam QMatrixT The type of the error weighting matrix.
+ * \tparam RMatrixT The type of the control weighting matrix.
+ * \tparam NMatrixT The type of the cross-coupling weighting matrix.
  *
  * \param A The state matrix for the controlled state-space model.
- * \param B The contrl matrix for the controlled state-space model.
- * \param Q The error weighted matrix.
- * \param R The control weighted matrix.
- * \param N The cross-coupling weighted matrix.
+ * \param B The input matrix for the controlled state-space model.
+ * \param Q The error weighting matrix.
+ * \param R The control weighting matrix.
+ * \param N The cross-coupling weighting matrix.
  * \return An object representing an Infinite-horizon Discrete-time Linear
  *  Quadratic state-feedback Regulator controller.
  */
@@ -489,13 +489,13 @@ dlqr_controller<
  *  model.
  * \tparam BMatrixT The type of the input matrix for the controlled state-space
  *  model.
- * \tparam QMatrixT The type of the error weighted matrix.
- * \tparam RMatrixT The type of the control weighted matrix.
+ * \tparam QMatrixT The type of the error weighting matrix.
+ * \tparam RMatrixT The type of the control weighting matrix.
  *
  * \param A The state matrix for the controlled state-space model.
- * \param B The contrl matrix for the controlled state-space model.
- * \param Q The error weighted matrix.
- * \param R The control weighted matrix.
+ * \param B The input matrix for the controlled state-space model.
+ * \param Q The error weighting matrix.
+ * \param R The control weighting matrix.
  * \return An object representing an Infinite-horizon Discrete-time Linear
  *  Quadratic state-feedback Regulator controller.
  */
@@ -533,15 +533,15 @@ dlqr_controller<
  *  model.
  * \tparam BMatrixT The type of the input matrix for the controlled state-space
  *  model.
- * \tparam QMatrixT The type of the error weighted matrix.
- * \tparam RMatrixT The type of the control weighted matrix.
- * \tparam NMatrixT The type of the cross-coupling weighted matrix.
+ * \tparam QMatrixT The type of the error weighting matrix.
+ * \tparam RMatrixT The type of the control weighting matrix.
+ * \tparam NMatrixT The type of the cross-coupling weighting matrix.
  *
  * \param A The state matrix for the controlled state-space model.
- * \param B The contrl matrix for the controlled state-space model.
- * \param Q The error weighted matrix.
- * \param R The control weighted matrix.
- * \param N The cross-coupling weighted matrix.
+ * \param B The input matrix for the controlled state-space model.
+ * \param Q The error weighting matrix.
+ * \param R The control weighting matrix.
+ * \param N The cross-coupling weighting matrix.
  * \return The optimal state-feedback gain matrix \f$\mathbf{K}\f$.
  */
 template <
@@ -602,13 +602,13 @@ inline
  *  model.
  * \tparam BMatrixT The type of the input matrix for the controlled state-space
  *  model.
- * \tparam QMatrixT The type of the error weighted matrix.
- * \tparam RMatrixT The type of the control weighted matrix.
+ * \tparam QMatrixT The type of the error weighting matrix.
+ * \tparam RMatrixT The type of the control weighting matrix.
  *
  * \param A The state matrix for the controlled state-space model.
- * \param B The contrl matrix for the controlled state-space model.
- * \param Q The error weighted matrix.
- * \param R The control weighted matrix.
+ * \param B The input matrix for the controlled state-space model.
+ * \param Q The error weighting matrix.
+ * \param R The control weighting matrix.
  * \return The optimal state-feedback gain matrix \f$\mathbf{K}\f$.
  */
 template <

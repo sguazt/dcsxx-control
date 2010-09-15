@@ -33,12 +33,6 @@ DCS_TEST_DEF( test_free_func )
 	B(0,0) = 0;
 	B(1,0) = 1;
 
-	matrix_type C(m,n);
-	C(0,0) = 2.011946497e-6; C(0,1) = 0;
-
-	matrix_type D(m,m);
-	D(0,0) = 0;
-
 	matrix_type Q(n,n);
 	Q(0,0) = 4.04792870679057178e-12; Q(0,1) = 0;
 	Q(1,0) = 0;                       Q(1,1) = 0;
@@ -91,12 +85,6 @@ DCS_TEST_DEF( test_oo )
 	matrix_type B(n,m);
 	B(0,0) = 0;
 	B(1,0) = 1;
-
-	matrix_type C(m,n);
-	C(0,0) = 2.011946497e-6; C(0,1) = 0;
-
-	matrix_type D(m,m);
-	D(0,0) = 0;
 
 	matrix_type Q(n,n);
 	Q(0,0) = 4.04792870679057178e-12; Q(0,1) = 0;
