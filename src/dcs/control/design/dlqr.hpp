@@ -430,7 +430,7 @@ class dlqr_controller
 	private: matrix_type K_;
 	/// The solution to the associated DARE.
 	private: matrix_type S_;
-	/// The closed-loop eigenvalues.
+	/// The closed-loop eigenvalues which gives the closed-loop poles of \f$A-BK\f$.
 	private: vector_type e_;
 };
 
