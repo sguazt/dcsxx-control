@@ -132,7 +132,7 @@ class pid_controller
 	 * \param err_thresh The error cutoff level used for mitigating the
 	 *  integrator windup problem; set to \f$\infty\f$ for not using it.
 	 */
-	public: pid_controller(real_type kp, real_type ki, real_type kd, real_type step_time, real_type err_thresh = std::numeric_limits<real_type>::infinity())
+	public: pid_controller(real_type kp, real_type ki, real_type kd, real_type step_time, real_type err_thresh = ::std::numeric_limits<real_type>::infinity())
 		: kp_(kp),
 		  ki_(ki),
 		  kd_(kd),
@@ -182,12 +182,12 @@ class pid_controller
 	 *         &= K_P e(k) + K_I \sum_{i=0}^{k} e(i) + K_D (e(k)-e(k-1))
 	 *  \f}
 	 */
-	public: real_type compute_output(real_type error)
+	public: real_type control(real_type error)
 	{
 		// Update if the error magnitude is below the threshold.
 		if (
-				err_thresh_ == std::numeric_limits<real_type>::infinity()
-				|| ::std::fabs(error) < err_thresh_
+				err_thresh_ == ::std::numeric_limits<real_type>::infinity()
+				|| ::std::abs(error) < err_thresh_
 		) {
 			// Update the error integral according to the forward difference
 			// equation:
@@ -218,7 +218,7 @@ class pid_controller
 
 	// Use the incremental algorithm (aka velocity algorithm)
 	// u(t_k)=u(t_{k-1})+K_p\left[\left(1+\dfrac{\Delta t}{T_i}+\dfrac{T_d}{\Delta t}\right)e(t_k)+\left(-1-\dfrac{2T_d}{\Delta t}\right)e(t_{k-1})+\dfrac{T_d}{\Delta t}e(t_{k-2})\right] 
-	//real_type compute_output(real_type error);
+	//real_type control(real_type error);
 
 
 	/// Proportional gain.
@@ -283,7 +283,7 @@ class multiloop_pid_controller
 	 * \param err_thresh The error cutoff level used for mitigating the
 	 *  integrator windup problem; set to \f$\infty\f$ for not using it.
 	 */
-	public: multiloop_pid_controller(vector_type kp, vector_type ki, vector_type kd, real_type step_time, vector_type err_thresh = vector_type(1, std::numeric_limits<real_type>::infinity()))
+	public: multiloop_pid_controller(vector_type kp, vector_type ki, vector_type kd, real_type step_time, vector_type err_thresh = vector_type(1, ::std::numeric_limits<real_type>::infinity()))
 		: kp_(kp),
 		  ki_(ki),
 		  kd_(kd),
@@ -310,7 +310,7 @@ class multiloop_pid_controller
 		if (m < n)
 		{
 			err_thresh_.resize(n, true);
-			real_type val = (m > 0) ? err_thresh_(m-1) : std::numeric_limits<real_type>::infinity();
+			real_type val = (m > 0) ? err_thresh_(m-1) : ::std::numeric_limits<real_type>::infinity();
 			while (m < n)
 			{
 				err_thresh_[m++] = val;
@@ -355,7 +355,7 @@ class multiloop_pid_controller
 	 *         &= K_P e(k) + K_I \sum_{i=0}^{k} e(i) + K_D (e(k)-e(k-1))
 	 *  \f}
 	 */
-	public: vector_type compute_output(vector_type error)
+	public: vector_type control(vector_type error)
 	{
 		// preconditions
 		DCS_ASSERT(
@@ -370,9 +370,9 @@ class multiloop_pid_controller
 		for (size_type i = 0; i < err_len; ++i)
 		{
 			if (
-				(err_thresh_(i) == std::numeric_limits<real_type>::infinity())
+				(err_thresh_(i) == ::std::numeric_limits<real_type>::infinity())
 				||
-				(std::fabs(error(i)) < err_thresh_(i))
+				(::std::abs(error(i)) < err_thresh_(i))
 			) {
 				// Update the error integral according to the forward difference
 				// equation:
@@ -406,7 +406,7 @@ class multiloop_pid_controller
 
 	// Use the incremental algorithm (aka velocity algorithm)
 	// u(k) = u(k-1) + K_P \left[\left(1+\frac{\Delta t}{T_I}+\frac{T_D}{\Delta t}\right)e(k)+\left(-1-\frac{2T_D}{\Delta t}e(k-1)+\frac{T_D}{\Delta t}e(k-2)\right)\right]
-	//vector_type compute_output(vector_type error);
+	//vector_type control(vector_type error);
 
 
 	/// Proportional gain.
@@ -465,7 +465,7 @@ class mimo_pid_controller
 	 * \param err_thresh The error cutoff level used for mitigating the
 	 *  integrator windup problem; set to \f$\infty\f$ for not using it.
 	 */
-	public: mimo_pid_controller(matrix_type kp, matrix_type ki, matrix_type kd, real_type step_time, vector_type err_thresh = vector_type(std::numeric_limits<real_type>::infinity()))
+	public: mimo_pid_controller(matrix_type kp, matrix_type ki, matrix_type kd, real_type step_time, vector_type err_thresh = vector_type(::std::numeric_limits<real_type>::infinity()))
 		: kp_(kp),
 		  ki_(ki),
 		  kd_(kd),
@@ -496,7 +496,7 @@ class mimo_pid_controller
 		if (m < n)
 		{
 			err_thresh_.resize(n, true);
-			real_type val = (m > 0) ? err_thresh_(m-1) : std::numeric_limits<real_type>::infinity();
+			real_type val = (m > 0) ? err_thresh_(m-1) : ::std::numeric_limits<real_type>::infinity();
 			while (m < n)
 			{
 				err_thresh_[m++] = val;
@@ -541,7 +541,7 @@ class mimo_pid_controller
 	 *         &= K_P e(k) + K_I \sum_{i=0}^{k} e(i) + K_D (e(k)-e(k-1))
 	 *  \f}
 	 */
-	public: vector_type compute_output(vector_type error)
+	public: vector_type control(vector_type error)
 	{
 		// preconditions
 		DCS_ASSERT(
@@ -556,9 +556,9 @@ class mimo_pid_controller
 		for (size_type i = 0; i < err_len; ++i)
 		{
 			if (
-				(err_thresh_(i) == std::numeric_limits<real_type>::infinity())
+				(err_thresh_(i) == ::std::numeric_limits<real_type>::infinity())
 				||
-				(std::fabs(error(i)) < err_thresh_(i))
+				(::std::abs(error(i)) < err_thresh_(i))
 			) {
 				// Update the error integral according to the forward difference
 				// equation:
@@ -592,7 +592,7 @@ class mimo_pid_controller
 
 	// Use the incremental algorithm (aka velocity algorithm)
 	// u(k) = u(k-1) + K_P \left[\left(1+\frac{\Delta t}{T_I}+\frac{T_D}{\Delta t}\right)e(k)+\left(-1-\frac{2T_D}{\Delta t}e(k-1)+\frac{T_D}{\Delta t}e(k-2)\right)\right]
-	//vector_type compute_output(vector_type error);
+	//vector_type control(vector_type error);
 
 
 	/// Proportional gain.
@@ -647,7 +647,7 @@ class std_pid_controller
 	public: typedef RealT real_type;
 
 
-	public: std_pid_controller(real_type kp, real_type int_time, real_type deriv_time, real_type step_time, real_type err_thresh = std::numeric_limits<real_type>::infinity())
+	public: std_pid_controller(real_type kp, real_type int_time, real_type deriv_time, real_type step_time, real_type err_thresh = ::std::numeric_limits<real_type>::infinity())
 		: pid_(kp, kp/int_time, kp*deriv_time, err_thresh)
 	{
 		// Empty
@@ -678,9 +678,9 @@ class std_pid_controller
 	}
 
 
-	public: real_type compute_output(real_type error)
+	public: real_type control(real_type error)
 	{
-		return pid_.compute_output(error);
+		return pid_.control(error);
 	}
 
 

@@ -420,6 +420,32 @@ class dlqr_controller
 	}
 
 
+	public: template <typename VectorExprT>
+		vector_type control(::boost::numeric::ublas::vector_expression<VectorExprT> const& x) const
+	{
+		// preconditions: size(x) == num_columns(K_)
+		DCS_ASSERT(
+			::boost::numeric::ublasx::size(x) == ::boost::numeric::ublasx::num_columns(K_),
+			throw ::std::invalid_argument("[dcs::control::dlqr_controller::control] Wrong state dimensiion.")
+		);
+
+		return -::boost::numeric::ublas::prod(K_, x);
+	}
+
+
+	public: template <typename MatrixExprT>
+		matrix_type control(::boost::numeric::ublas::matrix_expression<MatrixExprT> const& X) const
+	{
+		// preconditions: num_columns(X) == num_columns(K_)
+		DCS_ASSERT(
+			::boost::numeric::ublasx::num_columns(X) == ::boost::numeric::ublasx::num_columns(K_),
+			throw ::std::invalid_argument("[dcs::control::dlqr_controller::control] Wrong state dimensiion.")
+		);
+
+		return -::boost::numeric::ublas::prod(K_, ::boost::numeric::ublas::trans(X)); 
+	}
+
+
 	/// The error weigthed matrix.
 	private: matrix_type Q_;
 	/// The control weigthed matrix.

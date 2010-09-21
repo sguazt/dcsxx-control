@@ -61,7 +61,7 @@ DCS_TEST_DEF( test_single_pid_controller )
 	{
 		real_type e = errors[i];
 		real_type u_ok = signals_ok[i];
-		real_type u = pid.compute_output(e);
+		real_type u = pid.control(e);
 
 		DCS_DEBUG_TRACE("e = " << e << ", u = " << u << " ==> " << u_ok);
 
@@ -99,7 +99,7 @@ DCS_TEST_DEF( test_single_pid_controller_nonunit_step_time )
 	{
 		real_type e = errors[i];
 		real_type u_ok = signals_ok[i];
-		real_type u = pid.compute_output(e);
+		real_type u = pid.control(e);
 
 		DCS_DEBUG_TRACE("e = " << e << ", u = " << u << " ==> " << u_ok);
 
@@ -205,7 +205,7 @@ DCS_TEST_DEF( test_multiloop_pid_controller )
 	{
 		vector_type e = errors[r];
 		vector_type u_ok = signals_ok[r];
-		vector_type u = pid.compute_output(e);
+		vector_type u = pid.control(e);
 
 		DCS_DEBUG_TRACE("e = " << e << ", u = " << u << " ==> " << u_ok);
 
@@ -314,7 +314,7 @@ DCS_TEST_DEF( test_multiloop_pid_controller_nonunit_step_time )
 	{
 		vector_type e = errors[r];
 		vector_type u_ok = signals_ok[r];
-		vector_type u = pid.compute_output(e);
+		vector_type u = pid.control(e);
 
 		DCS_DEBUG_TRACE("e = " << e << ", u = " << u << " ==> " << u_ok);
 
@@ -432,7 +432,7 @@ DCS_TEST_DEF( test_mimo_pid_controller )
 	{
 		vector_type e = errors[r];
 		vector_type u_ok = signals_ok[r];
-		vector_type u = pid.compute_output(e);
+		vector_type u = pid.control(e);
 
 		DCS_DEBUG_TRACE("e = " << e << ", u = " << u << " ==> " << u_ok);
 
@@ -551,7 +551,7 @@ DCS_TEST_DEF( test_mimo_pid_controller_nonunit_step_time )
 	{
 		vector_type e = errors[r];
 		vector_type u_ok = signals_ok[r];
-		vector_type u = pid.compute_output(e);
+		vector_type u = pid.control(e);
 
 		DCS_DEBUG_TRACE("e = " << e << ", u = " << u << " ==> " << u_ok);
 

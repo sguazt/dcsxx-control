@@ -122,6 +122,36 @@ DCS_TEST_DEF( test_oo )
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, dlqr.gain(), m, n, tol );
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_S, dlqr.are_solution(), n, n, tol );
 	DCS_TEST_CHECK_VECTOR_CLOSE( expect_e, dlqr.eigenvalues(), n, tol );
+
+	matrix_type X(16,n);
+
+	X( 0,0) = -0.08; X( 0,1) =  0.04;
+	X( 1,0) = -0.06; X( 1,1) =  0.02;
+	X( 2,0) = -0.05; X( 2,1) = -0.02;
+	X( 3,0) =  0.04; X( 3,1) = -0.01;
+	X( 4,0) = -0.38; X( 4,1) =  0.09;
+	X( 5,0) =  0.48; X( 5,1) =  0.12;
+	X( 6,0) =  0.34; X( 6,1) =  0.04;
+	X( 7,0) =  0.76; X( 7,1) =  0.50;
+	X( 8,0) = -0.07; X( 8,1) =  0.33;
+	X( 9,0) =  0.18; X( 9,1) =  0.20;
+	X(10,0) = -0.07; X(10,1) =  0.02;
+	X(11,0) = -0.31; X(11,1) = -0.04;
+	X(12,0) =  0.06; X(12,1) = -0.09;
+	X(13,0) =  0.69; X(13,1) = -1.00;
+	X(14,0) = -0.32; X(14,1) = -0.02;
+	X(15,0) =  0.36; X(15,1) =  0.40;
+
+	matrix_type expect_U(m,16);
+
+  expect_U(0,0) = -0.000095538139106; expect_U(0,1) = -0.000063625878600; expect_U(0,2) = -0.000023586571158; expect_U(0,3) =  0.000039741343823; expect_U(0,4) = -0.000373528903456; expect_U(0,5) =  0.000284230708368; expect_U(0,6) =  0.000237454850877; expect_U(0,7) =  0.000201172457297; expect_U(0,8) = -0.000320413780742; expect_U(0,9) = -0.000017843233171; expect_U(0,10) = -0.000071554283123; expect_U(0,11) = -0.000213669637307; expect_U(0,12) =  0.000119819958707; expect_U(0,13) =  0.001349832485079; expect_U(0,14) = -0.000237653493290; expect_U(0,15) = -0.000035686466343;
+
+	matrix_type U;
+	U = dlqr.control(X);
+	DCS_DEBUG_TRACE("Input X = " << X);
+	DCS_DEBUG_TRACE("Control U = " << U);
+	DCS_DEBUG_TRACE("Control expect U = " << expect_U);
+	DCS_TEST_CHECK_MATRIX_CLOSE(U, expect_U, m, 16, tol);
 }
 
 
