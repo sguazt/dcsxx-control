@@ -104,7 +104,7 @@
 
 namespace dcs { namespace control {
 
-namespace detail { namespace {
+namespace detail { namespace /*<unnamed>*/ {
 
 /// Solve the Infinite-horizon, Discrete-time Linear Quadratic Regulator problem.
 template <
@@ -306,7 +306,7 @@ void dlqr(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	}
 }
 
-}} // Namespace detail::<anonymous>
+}} // Namespace detail::<unnamed>
 
 
 /**
@@ -324,6 +324,13 @@ class dlqr_controller
 	public: typedef ::std::complex<real_type> complex_type;
 	public: typedef ::boost::numeric::ublas::matrix<real_type> matrix_type;
 	public: typedef ::boost::numeric::ublas::vector<complex_type> vector_type;
+
+
+	/// Default constructor
+	public: dlqr_controller()
+	{
+		// empty
+	}
 
 
 	/// A constructor
