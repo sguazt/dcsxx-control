@@ -387,6 +387,21 @@ class dlqr_controller
 	}
 
 
+	/// A constructor
+	public: template <
+				typename QMatrixT,
+				typename RMatrixT,
+				typename NMatrixT
+		> dlqr_controller(::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
+						  ::boost::numeric::ublas::matrix_expression<RMatrixT> const& R)
+		: Q_(Q),
+		  R_(R),
+		  N_(::boost::numeric::ublas::zero_matrix<real_type>(::boost::numeric::ublasx::num_rows(Q),::boost::numeric::ublasx::num_rows(R)))
+	{
+		// Empty
+	}
+
+
 	/**
 	 * \brief Solve the Infinite-horizon Discrete-time Linear Quadratic Regulator
 	 *  problem.
