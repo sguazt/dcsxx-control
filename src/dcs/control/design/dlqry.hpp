@@ -118,7 +118,7 @@
 
 namespace dcs { namespace control {
 
-namespace detail { namespace {
+namespace detail { namespace /*<unnamed>*/ {
 
 /// Solve the Infinite-horizon, Discrete-time Linear Quadratic Regulator problem.
 template <
@@ -169,43 +169,24 @@ void dlqry2dlqr(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 
 	// Derive parameters of equivalent LQR problem
 	// ND = N'*D
-DCS_DEBUG_TRACE("HERE.1");
-DCS_DEBUG_TRACE("HERE.1 - A = " << A);
-DCS_DEBUG_TRACE("HERE.1 - B = " << B);
-DCS_DEBUG_TRACE("HERE.1 - C = " << C);
-DCS_DEBUG_TRACE("HERE.1 - D = " << D);
-DCS_DEBUG_TRACE("HERE.1 - Q = " << Q);
-DCS_DEBUG_TRACE("HERE.1 - R = " << R);
-DCS_DEBUG_TRACE("HERE.1 - N = " << N);
 	work_matrix_type ND = ublas::prod(ublas::trans(N), D);
 	// QQ = C'*Q*C
-DCS_DEBUG_TRACE("HERE.2");
 	work_matrix_type QQ = ublas::prod(ublas::trans(C), Q);
-DCS_DEBUG_TRACE("HERE.3");
 	QQ = ublas::prod(QQ, C);
-DCS_DEBUG_TRACE("HERE.4");
 	// RR = R + D'*Q*D + ND + ND';
 	work_matrix_type RR = ublas::prod(ublas::trans(D), Q);
-DCS_DEBUG_TRACE("HERE.5");
 	RR = ublas::prod(RR, D);
-DCS_DEBUG_TRACE("HERE.6");
 	RR += R + ND + ublas::trans(ND);
 	// NN = C'*(Q*D + N);
-DCS_DEBUG_TRACE("HERE.7");
 	work_matrix_type NN = ublas::prod(Q, D) + N;
-DCS_DEBUG_TRACE("HERE.8");
 	NN = ublas::prod(ublas::trans(C), NN);
-DCS_DEBUG_TRACE("HERE.9");
 
 	Q() = QQ;
-DCS_DEBUG_TRACE("HERE.10");
 	R() = RR;
-DCS_DEBUG_TRACE("HERE.11");
 	N() = NN;
-DCS_DEBUG_TRACE("HERE.12");
 }
 
-}} // Namespace detail::<anonymous>
+}} // Namespace detail::<unnamed>
 
 
 /**
@@ -228,6 +209,7 @@ class dlqry_controller
 	/// Default constructor
 	public: dlqry_controller()
 	{
+		// empty
 	}
 
 
@@ -250,8 +232,7 @@ class dlqry_controller
 	/// A constructor
 	public: template <
 				typename QMatrixT,
-				typename RMatrixT,
-				typename NMatrixT
+				typename RMatrixT
 		> dlqry_controller(::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
 						   ::boost::numeric::ublas::matrix_expression<RMatrixT> const& R)
 		: Q_(Q),
@@ -375,13 +356,39 @@ class dlqry_controller
 	}
 
 
+	public: template <typename VectorExprT>
+		vector_type control(::boost::numeric::ublas::vector_expression<VectorExprT> const& x) const
+	{
+		// pre: size(x) == num_columns(K_)
+		DCS_ASSERT(
+			::boost::numeric::ublasx::size(x) == ::boost::numeric::ublasx::num_columns(K_),
+			throw ::std::invalid_argument("[dcs::control::dlqry_controller::control] Wrong state dimensiion.")
+		);
+
+		return -::boost::numeric::ublas::prod(K_, x);
+	}
+
+
+	public: template <typename MatrixExprT>
+		matrix_type control(::boost::numeric::ublas::matrix_expression<MatrixExprT> const& X) const
+	{
+		// pre: num_columns(X) == num_columns(K_)
+		DCS_ASSERT(
+			::boost::numeric::ublasx::num_columns(X) == ::boost::numeric::ublasx::num_columns(K_),
+			throw ::std::invalid_argument("[dcs::control::dlqry_controller::control] Wrong state dimensiion.")
+		);
+
+		return -::boost::numeric::ublas::prod(K_, ::boost::numeric::ublas::trans(X)); 
+	}
+
+
 	/// The error weigthed matrix.
 	private: matrix_type Q_;
 	/// The control weigthed matrix.
 	private: matrix_type R_;
 	/// The cross-coupling weigthed matrix.
 	private: matrix_type N_;
-	/// The optimal gain matrix.
+	/// The optimal feedback gain matrix.
 	private: matrix_type K_;
 	/// The solution to the associated DARE.
 	private: matrix_type S_;

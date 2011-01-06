@@ -390,8 +390,7 @@ class dlqr_controller
 	/// A constructor
 	public: template <
 				typename QMatrixT,
-				typename RMatrixT,
-				typename NMatrixT
+				typename RMatrixT
 		> dlqr_controller(::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
 						  ::boost::numeric::ublas::matrix_expression<RMatrixT> const& R)
 		: Q_(Q),
@@ -474,7 +473,7 @@ class dlqr_controller
 	private: matrix_type R_;
 	/// The cross-coupling weigthed matrix.
 	private: matrix_type N_;
-	/// The optimal gain matrix.
+	/// The optimal feedback gain matrix.
 	private: matrix_type K_;
 	/// The solution to the associated DARE.
 	private: matrix_type S_;

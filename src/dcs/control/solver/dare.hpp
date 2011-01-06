@@ -63,6 +63,7 @@
 #include <boost/numeric/ublasx/operation/seq.hpp>
 #include <dcs/assert.hpp>
 #include <dcs/debug.hpp>
+#include <stdexcept>
 
 
 namespace dcs { namespace control {
@@ -350,9 +351,8 @@ class dare_solver
 		// if singular, then the extended matrix pencil is also singular.
 		if (ublasx::rcond(ql.L()) <= eps)
 		{
-			//FIXME: what to do?
-			DCS_DEBUG_TRACE("[dcs::control::dare] The extended matrix pencil is singular");
-			return;
+			DCS_DEBUG_TRACE("The extended matrix pencil is singular");
+			throw ::std::runtime_error("[dcs::control::dare_solver::solve] Cannot compute DARE solution: the extended matrix pencil is singular.");
 		}
 
 		// The natural tendency of the QZ algorithm to get the largest
@@ -409,7 +409,8 @@ class dare_solver
 		if (sing)
 		{
 			// Nearly singular matrix
-			//FIXME: what to do?
+			DCS_DEBUG_TRACE("Cannot compute DARE solution: nearly singular matrix.");
+			throw ::std::runtime_error("[dcs::control::dare_solver::solve] Cannot compute DARE solution: nearly singular matrix.");
 		}
 
 		// Make sure the solution X is symmetrix
@@ -422,6 +423,12 @@ class dare_solver
 				ublas::prod(BTX, A) + ublas::trans(S),
 				G_
 		);
+		if (sing)
+		{
+			// Nearly singular matrix
+			DCS_DEBUG_TRACE("Cannot compute DARE gain matrix: nearly singular matrix.");
+			throw ::std::runtime_error("[dcs::control::dare_solver::solve] Cannot compute DARE gain matrix: nearly singular matrix.");
+		}
 	}
 
 
@@ -701,9 +708,8 @@ void dare(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_express
 	// if singular, then the extended matrix pencil is also singular.
 	if (ublasx::rcond(ql.L()) <= eps)
 	{
-		//FIXME: what to do?
-		DCS_DEBUG_TRACE("[dcs::control::dare] The extended matrix pencil is singular");
-		return;
+		DCS_DEBUG_TRACE("The extended matrix pencil is singular");
+		throw ::std::runtime_error("[dcs::control::dare] Cannot compute DARE solution: the extended matrix pencil is singular.");
 	}
 
 	// The natural tendency of the QZ algorithm to get the largest
@@ -754,7 +760,8 @@ void dare(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_express
 	if (sing)
 	{
 		// Nearly singular matrix
-		//FIXME: what to do?
+		DCS_DEBUG_TRACE("Cannot compute DARE solution: nearly singular matrix.");
+		throw ::std::runtime_error("[dcs::control::dare] Cannot compute DARE solution: nearly singular matrix.");
 	}
 
 	// Make sure the solution X is symmetrix
