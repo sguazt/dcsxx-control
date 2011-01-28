@@ -169,17 +169,17 @@ void dlqry2dlqr(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 
 	// Derive parameters of equivalent LQR problem
 	// ND = N'*D
-	work_matrix_type ND = ublas::prod(ublas::trans(N), D);
+	work_matrix_type ND(ublas::prod(ublas::trans(N), D));
 	// QQ = C'*Q*C
-	work_matrix_type QQ = ublas::prod(ublas::trans(C), Q);
+	work_matrix_type QQ(ublas::prod(ublas::trans(C), Q));
 	QQ = ublas::prod(QQ, C);
 	// RR = R + D'*Q*D + ND + ND';
-	work_matrix_type RR = ublas::prod(ublas::trans(D), Q);
-	RR = ublas::prod(RR, D);
-	RR += R + ND + ublas::trans(ND);
+	work_matrix_type RR(ublas::prod(ublas::trans(D), Q)); // R == D'*Q
+	RR = ublas::prod(RR, D); // RR == D'*Q*D
+	RR += R + ND + ublas::trans(ND); // RR == D'*Q*D+R+ND+ND'
 	// NN = C'*(Q*D + N);
-	work_matrix_type NN = ublas::prod(Q, D) + N;
-	NN = ublas::prod(ublas::trans(C), NN);
+	work_matrix_type NN(ublas::prod(Q, D) + N); // NN == Q*D+N
+	NN = ublas::prod(ublas::trans(C), NN); // NN == C'*(Q*D+N)
 
 	Q() = QQ;
 	R() = RR;

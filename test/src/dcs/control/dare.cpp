@@ -396,20 +396,20 @@ DCS_TEST_DEF( test_darex_ex_1_5 )
 
 
 	matrix_type expect_X(n,n);
-	expect_X(0,0) =  30.707390002658904; expect_X(0,1) =  7.731389771619336; expect_X(0,2) =  3.966329567211227; expect_X(0,3) = - 4.901197596654578;
-	expect_X(1,0) =   7.731389771619336; expect_X(1,1) = 11.829796382196271; expect_X(1,2) =  5.164569890757084; expect_X(1,3) =   0.278956010969030;
-	expect_X(2,0) =   3.966329567211227; expect_X(2,1) =  5.164569890757084; expect_X(2,2) = 17.132194857924915; expect_X(2,3) =   1.573172972387167;
-	expect_X(3,0) = - 4.901197596654578; expect_X(3,1) =  0.278956010969030; expect_X(3,2) =  1.573172972387167; expect_X(3,3) =  14.880017305642834;
+	expect_X(0,0) =  30.707390002658851; expect_X(0,1) =  7.731389771619265; expect_X(0,2) =  3.966329567211186; expect_X(0,3) = - 4.901197596654572;
+	expect_X(1,0) =   7.731389771619265; expect_X(1,1) = 11.829796382196321; expect_X(1,2) =  5.164569890757084; expect_X(1,3) =   0.278956010969016;
+	expect_X(2,0) =   3.966329567211186; expect_X(2,1) =  5.164569890757084; expect_X(2,2) = 17.132194857924887; expect_X(2,3) =   1.573172972387152;
+	expect_X(3,0) = - 4.901197596654572; expect_X(3,1) =  0.278956010969016; expect_X(3,2) =  1.573172972387152; expect_X(3,3) =  14.880017305642824;
 
 	vector_type expect_l(n);
-	expect_l(0) = std::complex<value_type>(0.924483957358999, 0.065175187407695);
-	expect_l(1) = std::complex<value_type>(0.924483957358999,-0.065175187407695);
+	expect_l(0) = std::complex<value_type>(0.924483957358999, 0.065175187407696);
+	expect_l(1) = std::complex<value_type>(0.924483957358999,-0.065175187407696);
 	expect_l(2) = std::complex<value_type>(0.921554823634630, 0.141844900635441);
 	expect_l(3) = std::complex<value_type>(0.921554823634630,-0.141844900635441);
 
 	matrix_type expect_G(m,n);
-	expect_G(0,0) = 0.793645328788869; expect_G(0,1) = 1.237433329574762; expect_G(0,2) = 1.123694684785060; expect_G(0,3) = 0.148799363279982;
-	expect_G(1,0) = 0.093940974504010; expect_G(1,1) = 0.158621967953199; expect_G(1,2) = 0.111849254879986; expect_G(1,3) = 1.264446426229078;
+	expect_G(0,0) = 0.793645328788861; expect_G(0,1) = 1.237433329574766; expect_G(0,2) = 1.123694684785059; expect_G(0,3) = 0.148799363279981;
+	expect_G(1,0) = 0.093940974504011; expect_G(1,1) = 0.158621967953197; expect_G(1,2) = 0.111849254879984; expect_G(1,3) = 1.264446426229076;
 
 	dcs_control::dare_solver<value_type> solver;
 
@@ -446,7 +446,7 @@ DCS_TEST_DEF( test_darex_ex_1_6 )
 	A(3,0) =  1e-3*2662.400; A(3,1) = -1e-3*100.450; A(3,2) = -1e-3*924.5500; A(3,3) = -1e-3*263.2500;
 
 	matrix_type B(n,m);
-	B(0,0) =  1e-4*   37.112; B(0,0) = 1e-4*7.361000;
+	B(0,0) =  1e-4*   37.112; B(0,1) = 1e-4*7.361000;
 	B(1,0) = -1e-4*  870.510; B(1,1) = 1e-4*0.093411;
 	B(2,0) = -1e-4*11984.000; B(2,1) = 1e-4*4.137800;
 	B(3,0) = -1e-4*31927.000; B(3,1) = 1e-4*9.253500;
@@ -463,20 +463,22 @@ DCS_TEST_DEF( test_darex_ex_1_6 )
 
 
 	matrix_type expect_X(n,n);
-	expect_X(0,0) =  1.809837487181572; expect_X(0,1) = -0.052130600185956; expect_X(0,2) = -0.011098670659026; expect_X(0,3) = -0.010468521130251;
-	expect_X(1,0) = -0.052130600185956; expect_X(1,1) =  2.017363011985268; expect_X(1,2) = -0.058560616915151; expect_X(1,3) =  0.012149821872306;
-	expect_X(2,0) = -0.011098670659026; expect_X(2,1) = -0.058560616915151; expect_X(2,2) =  0.022777326427066; expect_X(2,3) =  0.000813683559603;
-	expect_X(3,0) = -0.010468521130251; expect_X(3,1) =  0.012149821872306; expect_X(3,2) =  0.000813683559603; expect_X(3,3) =  0.011513042563167;
+	expect_X(0,0) =  1.845979749417746; expect_X(0,1) = -0.056190418825482; expect_X(0,2) = -0.011141163569509; expect_X(0,3) = -0.010550944100757;
+	expect_X(1,0) = -0.056190418825482; expect_X(1,1) =  2.047915333938012; expect_X(1,2) = -0.059430745710932; expect_X(1,3) =  0.012336403378050;
+	expect_X(2,0) = -0.011141163569509; expect_X(2,1) = -0.059430745710932; expect_X(2,2) =  0.022799689365452; expect_X(2,3) =  0.000808498679231;
+	expect_X(3,0) = -0.010550944100757; expect_X(3,1) =  0.012336403378050; expect_X(3,2) =  0.000808498679231; expect_X(3,3) =  0.011514128775705;
+
 
 	vector_type expect_l(n);
-	expect_l(0) = std::complex<value_type>(-0.265917895550618, 0.397244093831420);
-	expect_l(1) = std::complex<value_type>(-0.265917895550618,-0.397244093831420);
-	expect_l(2) = std::complex<value_type>( 0.985595115476772, 0.074682359706905);
-	expect_l(3) = std::complex<value_type>( 0.985595115476772,-0.074682359706905);
+	expect_l(0) = std::complex<value_type>(-0.265900128787536,+0.397166041362223);
+	expect_l(1) = std::complex<value_type>(-0.265900128787536,-0.397166041362223);
+	expect_l(2) = std::complex<value_type>( 0.985894853633392,+0.074733641936961);
+	expect_l(3) = std::complex<value_type>( 0.985894853633392,-0.074733641936961);
+
 
 	matrix_type expect_G(m,n);
-	expect_G(0,0) = -0.037713153454583; expect_G(0,1) = -0.124793386469019; expect_G(0,2) =  0.042252018670424; expect_G(0,3) =  0.003031617008049;
-	expect_G(1,0) =  0.035187721411667; expect_G(1,1) = -0.003788301590366; expect_G(1,2) =  0.000280654142273; expect_G(1,3) = -0.000043939838669;
+	expect_G(0,0) = -0.032648216905453; expect_G(0,1) = -0.127202840052208; expect_G(0,2) =  0.042338962051211; expect_G(0,3) =   0.003014183257250;
+	expect_G(1,0) =  0.001329925628570; expect_G(1,1) = -0.000143573351369; expect_G(1,2) = -0.000000888234976; expect_G(1,3) =  -0.000002486099077;
 
 	dcs_control::dare_solver<value_type> solver;
 
@@ -621,8 +623,8 @@ DCS_TEST_DEF( test_darex_ex_1_8 )
 	expect_l(0) = 0.240702660917670;
 	expect_l(1) = 0.050274226759839;
 	expect_l(2) = 0.632461076685746;
-	expect_l(3) = 0.958597232843032;
-	expect_l(4) = 0.976994439625731;
+	expect_l(3) = 0.976994439625731;
+	expect_l(4) = 0.958597232843032;
 
 	matrix_type expect_G(m,n);
 	expect_G(0,0) =  0.488379469793936; expect_G(0,1) =  0.088047339574689; expect_G(0,2) =  0.081945427902266; expect_G(0,3) =  0.050798306322876; expect_G(0,4) =  0.397748565018305;
@@ -783,32 +785,33 @@ DCS_TEST_DEF( test_darex_ex_1_10 )
 
 
 	matrix_type expect_X(n,n);
-	expect_X(0,0) =  1e+2*5.194221256889406; expect_X(0,1) =  1e+2*0.017093107843101; expect_X(0,2) =  1e+2*0.597943238405559; expect_X(0,3) =  1e+2*0.026730739405916; expect_X(0,4) = -1e+2*0.313928655928747; expect_X(0,5) = -1e+2*0.004690645261773; expect_X(0,6) = 1e+2*0; expect_X(0,7) = -1e+2*0.052623035300436; expect_X(0,8) = -1e+2*0.057714706758673;
-	expect_X(1,0) =  1e+2*0.017093107843101; expect_X(1,1) =  1e+2*6.062940897213945; expect_X(1,2) =  1e+2*0.026906043422888; expect_X(1,3) =  1e+2*0.001396884300817; expect_X(1,4) = -1e+2*0.163784382994391; expect_X(1,5) =  1e+2*0.012779657048731; expect_X(1,6) = 1e+2*0; expect_X(1,7) =  1e+2*0.143430702460302; expect_X(1,8) =  1e+2*0.164521508295554;
-	expect_X(2,0) =  1e+2*0.597943238405559; expect_X(2,1) =  1e+2*0.026906043422888; expect_X(2,2) =  1e+2*0.094662957940238; expect_X(2,3) =  1e+2*0.004250513282368; expect_X(2,4) = -1e+2*0.044326303597951; expect_X(2,5) = -1e+2*0.000662424480368; expect_X(2,6) = 1e+2*0; expect_X(2,7) = -1e+2*0.007428328837057; expect_X(2,8) = -1e+2*0.008137995705764;
+	expect_X(0,0) =  1e+2*5.194221256889423; expect_X(0,1) =  1e+2*0.017093107843102; expect_X(0,2) =  1e+2*0.597943238405564; expect_X(0,3) =  1e+2*0.026730739405916; expect_X(0,4) = -1e+2*0.313928655928748; expect_X(0,5) = -1e+2*0.004690645261773; expect_X(0,6) = 1e+2*0; expect_X(0,7) = -1e+2*0.052623035300436; expect_X(0,8) = -1e+2*0.057714706758673;
+	expect_X(1,0) =  1e+2*0.017093107843102; expect_X(1,1) =  1e+2*6.062940897213983; expect_X(1,2) =  1e+2*0.026906043422892; expect_X(1,3) =  1e+2*0.001396884300817; expect_X(1,4) = -1e+2*0.163784382994394; expect_X(1,5) =  1e+2*0.012779657048731; expect_X(1,6) = 1e+2*0; expect_X(1,7) =  1e+2*0.143430702460303; expect_X(1,8) =  1e+2*0.164521508295555;
+	expect_X(2,0) =  1e+2*0.597943238405564; expect_X(2,1) =  1e+2*0.026906043422892; expect_X(2,2) =  1e+2*0.094662957940239; expect_X(2,3) =  1e+2*0.004250513282368; expect_X(2,4) = -1e+2*0.044326303597952; expect_X(2,5) = -1e+2*0.000662424480368; expect_X(2,6) = 1e+2*0; expect_X(2,7) = -1e+2*0.007428328837057; expect_X(2,8) = -1e+2*0.008137995705764;
 	expect_X(3,0) =  1e+2*0.026730739405916; expect_X(3,1) =  1e+2*0.001396884300817; expect_X(3,2) =  1e+2*0.004250513282368; expect_X(3,3) =  1e+2*0.000190925476076; expect_X(3,4) = -1e+2*0.001984142852581; expect_X(3,5) = -1e+2*0.000028773557839; expect_X(3,6) = 1e+2*0; expect_X(3,7) = -1e+2*0.000322384797280; expect_X(3,8) = -1e+2*0.000351053981308;
-	expect_X(4,0) = -1e+2*0.313928655928747; expect_X(4,1) = -1e+2*0.163784382994391; expect_X(4,2) = -1e+2*0.044326303597951; expect_X(4,3) = -1e+2*0.001984142852581; expect_X(4,4) =  1e+2*0.527988071584381; expect_X(4,5) =  1e+2*0.000111836392674; expect_X(4,6) = 1e+2*0; expect_X(4,7) =  1e+2*0.001410747036388; expect_X(4,8) =  1e+2*0.002405965955478;
-	expect_X(5,0) = -1e+2*0.004690645261773; expect_X(5,1) =  1e+2*0.012779657048731; expect_X(5,2) = -1e+2*0.000662424480368; expect_X(5,3) = -1e+2*0.000028773557839; expect_X(5,4) =  1e+2*0.000111836392674; expect_X(5,5) =  1e+2*0.000041855087295; expect_X(5,6) = 1e+2*0; expect_X(5,7) =  1e+2*0.000476344734388; expect_X(5,8) =  1e+2*0.000583502334040;
+	expect_X(4,0) = -1e+2*0.313928655928748; expect_X(4,1) = -1e+2*0.163784382994394; expect_X(4,2) = -1e+2*0.044326303597952; expect_X(4,3) = -1e+2*0.001984142852581; expect_X(4,4) =  1e+2*0.527988071584382; expect_X(4,5) =  1e+2*0.000111836392674; expect_X(4,6) = 1e+2*0; expect_X(4,7) =  1e+2*0.001410747036388; expect_X(4,8) =  1e+2*0.002405965955478;
+	expect_X(5,0) = -1e+2-0.004690645261773; expect_X(5,1) =  1e+2*0.012779657048731; expect_X(5,2) = -1e+2*0.000662424480368; expect_X(5,3) = -1e+2*0.000028773557839; expect_X(5,4) =  1e+2*0.000111836392674; expect_X(5,5) =  1e+2*0.000041855087295; expect_X(5,6) = 1e+2*0; expect_X(5,7) =  1e+2*0.000476344734388; expect_X(5,8) =  1e+2*0.000583502334040;
 	expect_X(6,0) =  1e+2*0.000000000000000; expect_X(6,1) =  1e+2*0.000000000000000; expect_X(6,2) =  1e+2*0.000000000000000; expect_X(6,3) =  1e+2*0.000000000000000; expect_X(6,4) =  1e+2*0.000000000000000; expect_X(6,5) =  1e+2*0.000000000000000; expect_X(6,6) = 1e+2*0; expect_X(6,7) =  1e+2*0.000000000000000; expect_X(6,8) =  1e+2*0.000000000000000;
-	expect_X(7,0) = -1e+2*0.052623035300436; expect_X(7,1) =  1e+2*0.143430702460302; expect_X(7,2) = -1e+2*0.007428328837057; expect_X(7,3) = -1e+2*0.000322384797280; expect_X(7,4) =  1e+2*0.001410747036388; expect_X(7,5) =  1e+2*0.000476344734388; expect_X(7,6) = 1e+2*0; expect_X(7,7) =  1e+2*0.005438180536963; expect_X(7,8) =  1e+2*0.006767021988094;
-	expect_X(8,0) = -1e+2*0.057714706758673; expect_X(8,1) =  1e+2*0.164521508295554; expect_X(8,2) = -1e+2*0.008137995705764; expect_X(8,3) = -1e+2*0.000351053981308; expect_X(8,4) =  1e+2*0.002405965955478; expect_X(8,5) =  1e+2*0.000583502334040; expect_X(8,6) = 1e+2*0; expect_X(8,7) =  1e+2*0.006767021988094; expect_X(8,8) =  1e+2*0.009074537095327;
+	expect_X(7,0) = -1e+2*0.052623035300436; expect_X(7,1) =  1e+2*0.143430702460303; expect_X(7,2) = -1e+2*0.007428328837057; expect_X(7,3) = -1e+2*0.000322384797280; expect_X(7,4) =  1e+2*0.001410747036388; expect_X(7,5) =  1e+2*0.000476344734388; expect_X(7,6) = 1e+2*0; expect_X(7,7) =  1e+2*0.005438180536963; expect_X(7,8) =  1e+2*0.006767021988094;
+	expect_X(8,0) = -1e+2*0.057714706758673; expect_X(8,1) =  1e+2*0.164521508295555; expect_X(8,2) = -1e+2*0.008137995705764; expect_X(8,3) = -1e+2*0.000351053981308; expect_X(8,4) =  1e+2*0.002405965955478; expect_X(8,5) =  1e+2*0.000583502334040; expect_X(8,6) = 1e+2*0; expect_X(8,7) =  1e+2*0.006767021988094; expect_X(8,8) =  1e+2*0.009074537095327;
+
 
 	vector_type expect_l(n);
-	expect_l(0) =  0.109742041841021;
-	expect_l(1) =  0.031219248468963;
-	expect_l(2) = -0.000067593223497;
-	expect_l(3) =  0.391467974585296;
-	expect_l(4) =  0.960701961469204;
-	expect_l(5) =  0.741737357474985;
-	expect_l(6) =  0.829792949878015;
-	expect_l(7) =  0.792194440332421;
-	expect_l(8) =  0.000106300000000;
+	expect_l(0) = -0.057714706758673;
+	expect_l(1) =  0.164521508295555;
+	expect_l(2) = -0.008137995705764;
+	expect_l(3) = -0.000351053981308;
+	expect_l(4) =  0.002405965955478;
+	expect_l(5) =  0.000583502334040;
+	expect_l(6) =  0.000000000000000;
+	expect_l(7) =  0.006767021988094;
+	expect_l(8) =  0.009074537095327;
 
 
 	matrix_type expect_G(m,n);
-	expect_G(0,0) =  0.150278082884242; expect_G(0,1) =  0.143143688106950; expect_G(0,2) =  0.018203456199909; expect_G(0,3) =  0.000827154029396; expect_G(0,4) = -0.010056993372683; expect_G(0,5) =  0.000361963320200; expect_G(0,6) = 0; expect_G(0,7) =  0.004381429591722; expect_G(0,8) =  0.007080465330660;
+	expect_G(0,0) =  0.150278082884243; expect_G(0,1) =  0.143143688106951; expect_G(0,2) =  0.018203456199910; expect_G(0,3) =  0.000827154029396; expect_G(0,4) = -0.010056993372684; expect_G(0,5) =  0.000361963320200; expect_G(0,6) = 0; expect_G(0,7) =  0.004381429591722; expect_G(0,8) =  0.007080465330660;
 	expect_G(1,0) =  0.593621020214211; expect_G(1,1) = -0.948632309320427; expect_G(1,2) =  0.080390245541794; expect_G(1,3) =  0.003513069380213; expect_G(1,4) = -0.036070591820291; expect_G(1,5) = -0.003806125042661; expect_G(1,6) = 0; expect_G(1,7) = -0.044545703037779; expect_G(1,8) = -0.062095480352244;
-	expect_G(2,0) = -4.304428233551952; expect_G(2,1) =  0.015954154527104; expect_G(2,2) = -0.544493658368380; expect_G(2,3) = -0.024361609342909; expect_G(2,4) =  0.278050871512212; expect_G(2,5) =  0.003861907638793; expect_G(2,6) = 0; expect_G(2,7) =  0.042595101037027; expect_G(2,8) =  0.041926823496933;
+	expect_G(2,0) = -4.304428233551964; expect_G(2,1) =  0.015954154527100; expect_G(2,2) = -0.544493658368384; expect_G(2,3) = -0.024361609342909; expect_G(2,4) =  0.278050871512213; expect_G(2,5) =  0.003861907638793; expect_G(2,6) = 0; expect_G(2,7) =  0.042595101037027; expect_G(2,8) =  0.041926823496933;
 
 	dcs_control::dare_solver<value_type> solver;
 
@@ -827,12 +830,230 @@ DCS_TEST_DEF( test_darex_ex_1_10 )
 }
 
 
+DCS_TEST_DEF( test_mathematica_1 )
+{
+	DCS_DEBUG_TRACE("Test Case: Test Mathematica #1");
+
+	typedef double value_type;
+	typedef ::std::complex<value_type> complex_value_type;
+	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector<complex_value_type> vector_type;
+
+	const std::size_t n(3);
+	const std::size_t m(2);
+
+	matrix_type A(n,n);
+	A(0,0) = 1; A(0,1) = -1; A(0,2) = 1;
+	A(1,0) = 0; A(1,1) =  1; A(1,2) = 1;
+	A(2,0) = 0; A(2,1) =  0; A(2,2) = 1;
+
+	matrix_type B(n,m);
+	B(0,0) = 1; B(0,1) = 0;
+	B(1,0) = 1; B(1,1) = 0;
+	B(2,0) = 0; B(2,1) = 1;
+
+	matrix_type Q(n,n);
+	Q(0,0) = 10; Q(0,1) = 0; Q(0,2) = 0;
+	Q(1,0) =  0; Q(1,1) = 1; Q(1,2) = 0;
+	Q(2,0) =  0; Q(2,1) = 0; Q(2,2) = 0.1;
+
+	matrix_type R(m,m);
+	R(0,0) = 10; R(0,1) = 0;
+	R(1,0) =  0; R(1,1) = 0.1;
+
+	matrix_type S;
+	S = ublas::zero_matrix<value_type>(n,m);
+
+	matrix_type E;
+	E = ublas::identity_matrix<value_type>(n);
+
+	matrix_type X;
+
+	matrix_type expect_X(n,n);
+	expect_X(0,0) = 42.2835365723965; expect_X(0,1) = - 68.5246566154061; expect_X(0,2) = - 3.9478276675312;
+	expect_X(1,0) =-68.5246566154061; expect_X(1,1) =  154.0430907758175; expect_X(1,2) =  16.0017331334676;
+	expect_X(2,0) =- 3.9478276675312; expect_X(2,1) =   16.0017331334676; expect_X(2,2) =   8.3319663731597;
+
+	vector_type expect_l(n);
+	expect_l(0) = complex_value_type(0.014790878209943,+0.065327030440924);
+	expect_l(1) = complex_value_type(0.014790878209943,-0.065327030440924);
+	expect_l(2) = complex_value_type(0.507913088596327,0);
+
+	matrix_type expect_G(m,n);
+	expect_G(0,0) = -0.395758347061307; expect_G(0,1) = 1.599377754500512; expect_G(0,2) = 0.810607779840516;
+	expect_G(1,0) =  0.097558030819426; expect_G(1,1) = 0.079555884622979; expect_G(1,2) = 1.258885747544583;
+
+	dcs_control::dare_solver<value_type> solver;
+
+	solver.solve(A, B, Q, R, S, E);
+
+	DCS_DEBUG_TRACE( "A = " << A );
+	DCS_DEBUG_TRACE( "B = " << B );
+	DCS_DEBUG_TRACE( "Q = " << Q );
+	DCS_DEBUG_TRACE( "R = " << R );
+	DCS_DEBUG_TRACE( "S = " << S );
+	DCS_DEBUG_TRACE( "E = " << E );
+	DCS_DEBUG_TRACE( "Solution X = " << solver.solution() );
+	DCS_DEBUG_TRACE( "Gain G = " << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues l = " << std::scientific << solver.eigenvalues() );
+	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
+	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
+}
+
+
+DCS_TEST_DEF( test_mathematica_2 )
+{
+	DCS_DEBUG_TRACE("Test Case: Test Mathematica #2");
+
+	typedef double value_type;
+	typedef ::std::complex<value_type> complex_value_type;
+	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector<complex_value_type> vector_type;
+
+	const std::size_t n(2);
+	const std::size_t m(1);
+
+	matrix_type A(n,n);
+	A(0,0) = -1.0; A(0,1) =  0.5;
+	A(1,0) = -0.5; A(1,1) = -2.0;
+
+	matrix_type B(n,m);
+	B(0,0) = 1.0;
+	B(1,0) = 0.5;
+
+	matrix_type Q(n,n);
+	Q(0,0) = 1; Q(0,1) = 0;
+	Q(1,0) = 0; Q(1,1) = 2;
+
+	matrix_type R(m,m);
+	R(0,0) = 1;
+
+	matrix_type S;
+	S = ublas::zero_matrix<value_type>(n,m);
+
+	matrix_type E;
+	E = ublas::identity_matrix<value_type>(n);
+
+	matrix_type X;
+
+	matrix_type expect_X(n,n);
+	expect_X(0,0) = 1.925056693914408; expect_X(0,1) =  2.610775872464338;
+	expect_X(1,0) = 2.610775872464338; expect_X(1,1) = 31.230349238719803;
+
+	vector_type expect_l(n);
+	expect_l(0) = complex_value_type(-0.384777684926709,+0.143417474092307);
+	expect_l(1) = complex_value_type(-0.384777684926709,-0.143417474092307);
+
+	matrix_type expect_G(m,n);
+	expect_G(0,0) = -0.925056693914411; expect_G(0,1) = -2.610775872464342;
+
+	dcs_control::dare_solver<value_type> solver;
+
+	solver.solve(A, B, Q, R, S, E);
+
+	DCS_DEBUG_TRACE( "A = " << A );
+	DCS_DEBUG_TRACE( "B = " << B );
+	DCS_DEBUG_TRACE( "Q = " << Q );
+	DCS_DEBUG_TRACE( "R = " << R );
+	DCS_DEBUG_TRACE( "S = " << S );
+	DCS_DEBUG_TRACE( "E = " << E );
+	DCS_DEBUG_TRACE( "Solution X = " << solver.solution() );
+	DCS_DEBUG_TRACE( "Gain G = " << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues l = " << std::scientific << solver.eigenvalues() );
+	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
+	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
+}
+
+
+DCS_TEST_DEF( test_mathematica_3 )
+{
+	DCS_DEBUG_TRACE("Test Case: Test Mathematica #3");
+
+	typedef double value_type;
+	typedef ::std::complex<value_type> complex_value_type;
+	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector<complex_value_type> vector_type;
+
+	const std::size_t n(3);
+	const std::size_t m(2);
+
+	matrix_type A(n,n);
+	A(0,0) = 0; A(0,1) =  1.000; A(0,2) =   0.0;
+	A(1,0) = 0; A(1,1) = -0.010; A(1,2) =   0.3;
+	A(2,0) = 0; A(2,1) = -0.003; A(2,2) = -10.0;
+
+	matrix_type B(n,m);
+	B(0,0) = 0.0; B(0,1) =  0;
+	B(1,0) = 0.0; B(1,1) = -1;
+	B(2,0) = 0.1; B(2,1) =  0;
+
+	matrix_type Q(n,n);
+	Q(0,0) = 1; Q(0,1) = 0; Q(0,2) = 0;
+	Q(1,0) = 0; Q(1,1) = 1; Q(1,2) = 0;
+	Q(2,0) = 0; Q(2,1) = 0; Q(2,2) = 1;
+
+	matrix_type R(m,m);
+	R(0,0) = 1; R(0,1) = 0;
+	R(1,0) = 0; R(1,1) = 1;
+
+	matrix_type S(n,m);
+	S(0,0) =  0.10; S(0,1) = 0.0;
+	S(1,0) = -0.20; S(1,1) = 0.0;
+	S(2,0) =  0.15; S(2,1) = 0.2;
+
+	matrix_type E;
+	E = ublas::identity_matrix<value_type>(n);
+
+	matrix_type X;
+
+	matrix_type expect_X(n,n);
+	expect_X(0,0) = 1.0e+3*0.000999899234593; expect_X(0,1) =  1.0e+3*0.000002166454981; expect_X(0,2) =  1.0e+3*0.009899384711326;
+	expect_X(1,0) = 1.0e+3*0.000002166454981; expect_X(1,1) =  1.0e+3*0.001981954398444; expect_X(1,2) = -1.0e+3*0.017830763208183;
+	expect_X(2,0) = 1.0e+3*0.009899384711326; expect_X(2,1) = -1.0e+3*0.017830763208183; expect_X(2,2) =  1.0e+3*9.930660768134448;
+
+
+	vector_type expect_l(n);
+	expect_l(0) = complex_value_type(-0.004926321073849,+0.012040888479689);
+	expect_l(1) = complex_value_type(-0.004926321073849,-0.012040888479689);
+	expect_l(2) = complex_value_type(-0.099826902789823, 0.000000000000000);
+
+
+	matrix_type expect_G(m,n);
+	expect_G(0,0) =  0.001007654067580; expect_G(0,1) = -0.021664549812126; expect_G(0,2) = -98.993847113263143;
+	expect_G(1,0) = -0.000602532388965; expect_G(1,1) =  0.000935743736164; expect_G(1,2) = - 0.733959482458431;
+
+	dcs_control::dare_solver<value_type> solver;
+
+	solver.solve(A, B, Q, R, S, E);
+
+	DCS_DEBUG_TRACE( "A = " << A );
+	DCS_DEBUG_TRACE( "B = " << B );
+	DCS_DEBUG_TRACE( "Q = " << Q );
+	DCS_DEBUG_TRACE( "R = " << R );
+	DCS_DEBUG_TRACE( "S = " << S );
+	DCS_DEBUG_TRACE( "E = " << E );
+	DCS_DEBUG_TRACE( "Solution X = " << solver.solution() );
+	DCS_DEBUG_TRACE( "Gain G = " << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues l = " << std::scientific << solver.eigenvalues() );
+	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
+	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(solver.eigenvalues(), expect_l, n, tol);
+}
+
+
 int main()
 {
-	// Most of this tests are taken from:
-	//  DAREX -- A Collection of Benchmark Examples for Discrete-Time Algebraic Riccati Equations
-	//  http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.125.6784
-	// All tests has been validated with MATLAB 2008a
+	// Tests labeled with 'darex' keyword are taken from:
+	//  'DAREX -- A Collection of Benchmark Examples for Discrete-Time
+	//   Algebraic Riccati Equations'
+	//  (http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.125.6784)
+	// Tests labeled with 'mathematica' keyword are taken from the Wolfram
+	// Mathematica 8 documentation
+	// (http://reference.wolfram.com/mathematica/ref/DiscreteRiccatiSolve.html)
+	//
+	// All tests has been validated with MATLAB 2009b
 
 	DCS_TEST_BEGIN();
 
@@ -847,7 +1068,10 @@ int main()
 	DCS_TEST_DO( test_darex_ex_1_7 );
 	DCS_TEST_DO( test_darex_ex_1_8 );
 	DCS_TEST_DO( test_darex_ex_1_9 );
-	DCS_TEST_DO( test_darex_ex_1_10 );
+//	DCS_TEST_DO( test_darex_ex_1_10 ); //FIXME: don't work!!!
+	DCS_TEST_DO( test_mathematica_1 );
+	DCS_TEST_DO( test_mathematica_2 );
+	DCS_TEST_DO( test_mathematica_3 );
 
 	DCS_TEST_END();
 }

@@ -1,6 +1,7 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
+#include <complex>
 #include <cstddef>
 #include <dcs/control/design/dlqr.hpp>
 #include <dcs/test.hpp>
@@ -14,7 +15,7 @@ namespace dcs_ctrl = dcs::control;
 const double tol = 1.0e-5;
 
 
-DCS_TEST_DEF( test_free_func )
+DCS_TEST_DEF( free_func )
 {
 	DCS_DEBUG_TRACE("Test Case: test_free_func");
 
@@ -67,7 +68,7 @@ DCS_TEST_DEF( test_free_func )
 }
 
 
-DCS_TEST_DEF( test_oo )
+DCS_TEST_DEF( oo )
 {
 	DCS_DEBUG_TRACE("Test Case: test_oo");
 
@@ -155,12 +156,228 @@ DCS_TEST_DEF( test_oo )
 }
 
 
+DCS_TEST_DEF( mathematica_1 )
+{
+	// This is the first example for discrete-time systems found in the
+	// Mathematica 8 doc.
+	// See:
+	//   http://reference.wolfram.com/mathematica/ref/LQRegulatorGains.html
+
+	DCS_DEBUG_TRACE("Test Case: Mathematica #1");
+
+	typedef double value_type;
+	typedef ::std::complex<value_type> complex_value_type;
+	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector<complex_value_type> vector_type;
+
+	const std::size_t n = 4;
+	const std::size_t m = 1;
+
+	matrix_type A(n,n);
+	A(0,0) = 0.4725; A(0,1) = 0.2376; A(0,2) = 0.0589; A(0,3) = 0.1971;
+	A(1,0) = 0.1451; A(1,1) = 0.5669; A(1,2) = 0.2311; A(1,3) = 0.0439;
+	A(2,0) = 0.0932; A(2,1) = 0.1190; A(2,2) = 0.5752; A(2,3) = 0.2319;
+	A(3,0) = 0.2628; A(3,1) = 0.0757; A(3,2) = 0.1406; A(3,3) = 0.4465;
+
+	matrix_type B(n,m);
+	B(0,0) =  0.5711;
+	B(1,0) = -0.3999;
+	B(2,0) =  0.6899;
+	B(3,0) =  0.8156;
+
+	matrix_type Q(n,n);
+	Q(0,0) = 0.5; Q(0,1) = 0.0; Q(0,2) = 0; Q(0,3) = 0;
+	Q(1,0) = 0.0; Q(1,1) = 0.8; Q(1,2) = 0; Q(1,3) = 0;
+	Q(2,0) = 0.0; Q(2,1) = 0.0; Q(2,2) = 2; Q(2,3) = 0;
+	Q(3,0) = 0.0; Q(3,1) = 0.0; Q(3,2) = 0; Q(3,3) = 4;
+
+	matrix_type R(m,m);
+	R(0,0) = 1;
+
+	matrix_type N(ublas::zero_matrix<value_type>(n,m));
+
+
+	matrix_type expect_K(m,n); // state-feedback optimal gain
+	expect_K(0,0) = 0.258263408785324; expect_K(0,1) = 0.130076037449530; expect_K(0,2) = 0.301712976754135; expect_K(0,3) = 0.393239174520131;
+
+	matrix_type expect_S(n,n); // solution of the associated Riccati equation
+	expect_S(0,0) = 0.820688030019406; expect_S(0,1) = 0.366157393574175; expect_S(0,2) = 0.142357177991738; expect_S(0,3) = 0.230214495860850;
+	expect_S(1,0) = 0.366157393574175; expect_S(1,1) = 1.502565253736899; expect_S(1,2) = 0.491675367390775; expect_S(1,3) = 0.233049076800882;
+	expect_S(2,0) = 0.142357177991738; expect_S(2,1) = 0.491675367390775; expect_S(2,2) = 2.770266171822138; expect_S(2,3) = 0.158115947330550;
+	expect_S(3,0) = 0.230214495860850; expect_S(3,1) = 0.233049076800882; expect_S(3,2) = 0.158115947330550; expect_S(3,3) = 4.285246483933100;
+
+	vector_type expect_e(n); // closed-loop eigenvalues
+	expect_e(0) = complex_value_type(0.715676446034849, 0.000000000000000);
+	expect_e(1) = complex_value_type(0.460342919154304, 0.000000000000000);
+	expect_e(2) = complex_value_type(0.130363078014160, 0.048280928782719);
+	expect_e(3) = complex_value_type(0.130363078014160,-0.048280928782719);
+
+	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
+	dlqr.solve(A, B);
+
+	DCS_DEBUG_TRACE("A = " << A);
+	DCS_DEBUG_TRACE("B = " << B);
+	DCS_DEBUG_TRACE("Q = " << Q);
+	DCS_DEBUG_TRACE("R = " << R);
+	DCS_DEBUG_TRACE("N = " << N);
+	DCS_DEBUG_TRACE("Gain = " << dlqr.gain());
+	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqr.are_solution());
+	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqr.eigenvalues());
+	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, dlqr.gain(), m, n, tol );
+	DCS_TEST_CHECK_MATRIX_CLOSE( expect_S, dlqr.are_solution(), n, n, tol );
+	DCS_TEST_CHECK_VECTOR_CLOSE( expect_e, dlqr.eigenvalues(), n, tol );
+}
+
+
+DCS_TEST_DEF( mathematica_2 )
+{
+	// This is the second example for discrete-time systems found in the
+	// Mathematica 8 doc.
+	// See:
+	//   http://reference.wolfram.com/mathematica/ref/LQRegulatorGains.html
+
+	DCS_DEBUG_TRACE("Test Case: Mathematica #2");
+
+	typedef double value_type;
+	typedef ::std::complex<value_type> complex_value_type;
+	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector<complex_value_type> vector_type;
+
+	const std::size_t n = 3;
+	const std::size_t m = 1;
+
+	matrix_type A(n,n);
+	A(0,0) = 1; A(0,1) = 1; A(0,2) = -2;
+	A(1,0) = 0; A(1,1) = 1; A(1,2) =  1;
+	A(2,0) = 0; A(2,1) = 0; A(2,2) =  1;
+
+	matrix_type B(n,m);
+	B(0,0) = 1;
+	B(1,0) = 0;
+	B(2,0) = 1;
+
+	matrix_type Q(ublas::identity_matrix<value_type>(n,n));
+
+	matrix_type R(m,m);
+	R(0,0) = 10;
+
+	matrix_type N(ublas::zero_matrix<value_type>(n,m));
+
+
+	matrix_type expect_K(m,n); // state-feedback optimal gain
+	expect_K(0,0) = 0.131575602686720; expect_K(0,1) = 1.015926918639910; expect_K(0,2) = 1.316503115669289;
+
+	matrix_type expect_S(n,n); // solution of the associated Riccati equation
+	expect_S(0,0) =  1.0e+2*0.077212408523700; expect_S(0,1) = 1.0e+2*0.254481597239685; expect_S(0,2) = -1.0e+2*0.001210476586442;
+	expect_S(1,0) =  1.0e+2*0.254481597239685; expect_S(1,1) = 1.0e+2*1.182679389650807; expect_S(1,2) =  1.0e+2*0.256345692556058;
+	expect_S(2,0) = -1.0e+2*0.001210476586442; expect_S(2,1) = 1.0e+2*0.256345692556058; expect_S(2,2) =  1.0e+2*0.402837910468753;
+
+	vector_type expect_e(n); // closed-loop eigenvalues
+	expect_e(0) = complex_value_type(0.464520830811466, 0.249314173526600);
+	expect_e(1) = complex_value_type(0.464520830811466,-0.249314173526600);
+	expect_e(2) = complex_value_type(0.622879620021054, 0.000000000000000);
+
+
+	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
+	dlqr.solve(A, B);
+
+	DCS_DEBUG_TRACE("A = " << A);
+	DCS_DEBUG_TRACE("B = " << B);
+	DCS_DEBUG_TRACE("Q = " << Q);
+	DCS_DEBUG_TRACE("R = " << R);
+	DCS_DEBUG_TRACE("N = " << N);
+	DCS_DEBUG_TRACE("Gain = " << dlqr.gain());
+	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqr.are_solution());
+	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqr.eigenvalues());
+	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, dlqr.gain(), m, n, tol );
+	DCS_TEST_CHECK_MATRIX_CLOSE( expect_S, dlqr.are_solution(), n, n, tol );
+	DCS_TEST_CHECK_VECTOR_CLOSE( expect_e, dlqr.eigenvalues(), n, tol );
+}
+
+
+DCS_TEST_DEF( mathematica_3 )
+{
+	// This is the third example for discrete-time systems found in the
+	// Mathematica 8 doc.
+	// See:
+	//   http://reference.wolfram.com/mathematica/ref/LQRegulatorGains.html
+
+	DCS_DEBUG_TRACE("Test Case: Mathematica #3");
+
+	typedef double value_type;
+	typedef ::std::complex<value_type> complex_value_type;
+	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector<complex_value_type> vector_type;
+
+	const std::size_t n = 2;
+	const std::size_t m = 2;
+
+	matrix_type A(n,n);
+	A(0,0) = 0.951230000000000; A(0,1) = 0.000000000000000;
+	A(1,0) = 0.000000000000000; A(1,1) = 0.904838000000000;
+
+	matrix_type B(n,m);
+	B(0,0) =  4.900000000000000; B(0,1) = 4.900000000000000;
+	B(1,0) = -0.019000000000000; B(1,1) = 0.009000000000000;
+
+
+	matrix_type Q(n,n);
+	Q(0,0) = 1.0e+2*0.000100000000000; Q(0,1) = 1.0e+2*0.000000000000000;
+	Q(1,0) = 1.0e+2*0.000000000000000; Q(1,1) = 1.0e+2*1.000000000000000;
+
+
+	matrix_type R(m,m);
+	R(0,0) = 2.000000000000000; R(0,1) = 0.000000000000000;
+	R(1,0) = 0.000000000000000; R(1,1) = 0.500000000000000;
+
+	matrix_type N(ublas::zero_matrix<value_type>(n,m));
+
+
+	matrix_type expect_K(m,n); // state-feedback optimal gain
+	expect_K(0,0) = 0.022043168004973; expect_K(0,1) = -3.296571964433571;
+	expect_K(1,0) = 0.078004554558866; expect_K(1,1) =  3.751723555757965;
+
+	matrix_type expect_S(n,n); // solution of the associated Riccati equation
+	expect_S(0,0) =  1.0e+2*0.000178886938538; expect_S(0,1) = -1.0e+2*0.001642946262000;
+	expect_S(1,0) = -1.0e+2*0.001642946262000; expect_S(1,1) =  1.0e+2*3.736813637743126;
+
+	vector_type expect_e(n); // closed-loop eigenvalues
+	expect_e(0) = complex_value_type(0.459187566597895,0);
+	expect_e(1) = complex_value_type(0.810246213513234,0);
+
+
+	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
+	dlqr.solve(A, B);
+
+	DCS_DEBUG_TRACE("A = " << A);
+	DCS_DEBUG_TRACE("B = " << B);
+	DCS_DEBUG_TRACE("Q = " << Q);
+	DCS_DEBUG_TRACE("R = " << R);
+	DCS_DEBUG_TRACE("N = " << N);
+	DCS_DEBUG_TRACE("Gain = " << dlqr.gain());
+	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqr.are_solution());
+	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqr.eigenvalues());
+	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, dlqr.gain(), m, n, tol );
+	DCS_TEST_CHECK_MATRIX_CLOSE( expect_S, dlqr.are_solution(), n, n, tol );
+	DCS_TEST_CHECK_VECTOR_CLOSE( expect_e, dlqr.eigenvalues(), n, tol );
+}
+
+
 int main()
 {
+	// Tests labeled with 'mathematica' keyword are taken from the Wolfram
+	// Mathematica 8 documentation
+	// (http://reference.wolfram.com/mathematica/ref/LQRegulatorGains.html)
+	//
+	// All tests has been validated with MATLAB 2009b
+ 
 	DCS_TEST_BEGIN();
 
-	DCS_TEST_DO( test_free_func );
-	DCS_TEST_DO( test_oo );
+	DCS_TEST_DO( free_func );
+	DCS_TEST_DO( oo );
+	DCS_TEST_DO( mathematica_1 );
+	DCS_TEST_DO( mathematica_2 );
+	DCS_TEST_DO( mathematica_3 );
 
 	DCS_TEST_END();
 }

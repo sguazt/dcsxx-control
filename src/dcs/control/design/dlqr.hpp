@@ -56,7 +56,7 @@
  *
  * <hr/>
  *
- * Copyright (C) 2009-2010  Distributed Computing System (DCS) Group, Computer
+ * Copyright (C) 2009-2011  Distributed Computing System (DCS) Group, Computer
  * Science Department - University of Piemonte Orientale, Alessandria (Italy).
  *
  * This program is free software: you can redistribute it and/or modify
@@ -259,35 +259,47 @@ void dlqr(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	//}
 
 	// Enforce symmetry
+
 	tmp_Q = (Q+ublas::trans(Q))/static_cast<real_type>(2);
 	tmp_R = (R+ublas::trans(R))/static_cast<real_type>(2);
 
+	// Check positivity
 
 	ublas::vector<complex_type> v;
 
-	ublas::vector<real_type> v_R;
-	ublasx::eigenvalues(tmp_R, v);
-	v_R = ublas::real(v);
+	//FIXME: why using real(...)?
+	ublas::vector<complex_type> v_R;
+	ublasx::eigenvalues(tmp_R, v_R);
+//	ublas::vector<real_type> v_R;
+//	ublasx::eigenvalues(tmp_R, v);
+//	v_R = ublas::real(v);
+//	v.resize(0, false);
 
 	//FIXME: why using real(...)?
-	//ublas::vector< std::complex<value_type> > v_QNR;
-	ublas::vector<real_type> v_QNR;
+	ublas::vector<complex_type> v_QNR;
+//	ublas::vector<real_type> v_QNR;
 	ublasx::eigenvalues(
+		// [tmp_Q N; N' tmp_R]
 		ublasx::cat_columns(
 			ublasx::cat_rows(tmp_Q, N), 
 			ublasx::cat_rows(ublas::trans(N), tmp_R) 
 		),
-		v
+		v_QNR
+//		v
 	);
-	v_QNR = ublas::real(v);
+//	v_QNR = ublas::real(v);
+//	v.resize(0, false);
 
-	if (ublasx::min(v_R) <= real_type/*zero*/())
+	if (::std::real(ublasx::min(v_R)) <= real_type/*zero*/())
+	//if (ublasx::min(v_R) <= real_type/*zero*/())
 	{
 		throw ::std::runtime_error("[dcs::control::detail::dlqr] The control weighting matrix R is not positive definite.");
 	}
-	else if (ublasx::min(v_QNR) < (-1.0e+2*eps*::std::max(real_type/*zero*/(), ublasx::max(v_QNR))))
+	else if (::std::real(ublasx::min(v_QNR)) < (-1.0e+2*eps*::std::max(real_type/*zero*/(), ::std::real(ublasx::max(v_QNR)))))
+	//else if (ublasx::min(v_QNR) < (-1.0e+2*eps*::std::max(real_type/*zero*/(), ublasx::max(v_QNR))))
 	{
 		DCS_DEBUG_TRACE("[dcs::control::detail::dlqr] The matrix [Q N;N' R] is not positive semi-definite.");
+		::std::clog << "[Warning] The matrix [Q N;N' R] is not positive semi-definite." << ::std::endl;
 	}
 
 	ublas::matrix<value_type> E = ublas::identity_matrix<value_type>(A_nr);
@@ -314,6 +326,9 @@ void dlqr(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
  *  state-feedback regulation.
  *
  * \tparam RealT The type for real numbers.
+ *
+ * \note
+ *  Inspired by the \c dlqr MATLAB function.
  *
  * \author Marco Guazzone, marco.guazzone@gmail.com
  */
@@ -500,6 +515,9 @@ class dlqr_controller
  * \param N The cross-coupling weighting matrix.
  * \return An object representing an Infinite-horizon Discrete-time Linear
  *  Quadratic state-feedback Regulator controller.
+ *
+ * \note
+ *  Inspired by the \c dlqr MATLAB function.
  */
 template <
 	typename AMatrixT,
@@ -545,6 +563,9 @@ dlqr_controller<
  * \param R The control weighting matrix.
  * \return An object representing an Infinite-horizon Discrete-time Linear
  *  Quadratic state-feedback Regulator controller.
+ *
+ * \note
+ *  Inspired by the \c dlqr MATLAB function.
  */
 template <
 	typename AMatrixT,
@@ -590,6 +611,9 @@ dlqr_controller<
  * \param R The control weighting matrix.
  * \param N The cross-coupling weighting matrix.
  * \return The optimal state-feedback gain matrix \f$\mathbf{K}\f$.
+ *
+ * \note
+ *  Inspired by the \c dlqr MATLAB function.
  */
 template <
 	typename AMatrixT,
@@ -657,6 +681,9 @@ inline
  * \param Q The error weighting matrix.
  * \param R The control weighting matrix.
  * \return The optimal state-feedback gain matrix \f$\mathbf{K}\f$.
+ *
+ * \note
+ *  Inspired by the \c dlqr MATLAB function.
  */
 template <
 	typename AMatrixT,
