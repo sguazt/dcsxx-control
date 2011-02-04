@@ -75,6 +75,10 @@
  *   controllability matrix is of rank \f$p\f$.
  * .
  *
+ * \note
+ * Estimating the rank of the controllability matrix is ill-conditioned; that
+ * is, it is very sensitive to roundoff errors and errors in the data.
+ *
  * References:
  * -# K. Ogata, <em>Modern Control Engineering</em>, 3rd edition, Prentice Hall, 2002.
  * .
@@ -188,7 +192,8 @@ template <
 typename controllability_matrix_traits<
 	AMatrixT,
 	BMatrixT
->::type make_controllability_matrix(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B)
+>::type make_controllability_matrix(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
+									::boost::numeric::ublas::matrix_expression<BMatrixT> const& B)
 {
 	namespace ublas = ::boost::numeric::ublas;
 	namespace ublasx = ::boost::numeric::ublasx;
@@ -216,7 +221,7 @@ typename controllability_matrix_traits<
 
 
 /**
- * \brief Compute the (state) controllability matrix.
+ * \brief Compute the output controllability matrix.
  *
  * \tparam AMatrixT The type of the state matrix for the state-space system
  *  model.
@@ -237,8 +242,10 @@ typename output_controllability_matrix_traits<
 	BMatrixT,
 	CMatrixT,
 	DMatrixT
->::type make_output_controllability_matrix(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
-										   ::boost::numeric::ublas::matrix_expression<CMatrixT> const& C, ::boost::numeric::ublas::matrix_expression<DMatrixT> const& D)
+>::type make_output_controllability_matrix(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
+										   ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
+										   ::boost::numeric::ublas::matrix_expression<CMatrixT> const& C,
+										   ::boost::numeric::ublas::matrix_expression<DMatrixT> const& D)
 {
 	namespace ublas = ::boost::numeric::ublas;
 	namespace ublasx = ::boost::numeric::ublasx;
@@ -291,7 +298,8 @@ template <
 	typename AMatrixT,
 	typename BMatrixT
 >
-bool is_controllable(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B)
+bool is_controllable(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
+					 ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B)
 {
 	return	::boost::numeric::ublasx::rank(
 				make_controllability_matrix(A, B)
@@ -326,8 +334,10 @@ template <
 	typename CMatrixT,
 	typename DMatrixT
 >
-bool is_output_controllable(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
-							::boost::numeric::ublas::matrix_expression<CMatrixT> const& C, ::boost::numeric::ublas::matrix_expression<DMatrixT> const& D)
+bool is_output_controllable(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
+							::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
+							::boost::numeric::ublas::matrix_expression<CMatrixT> const& C,
+							::boost::numeric::ublas::matrix_expression<DMatrixT> const& D)
 {
 	return	::boost::numeric::ublasx::rank(
 				make_output_controllability_matrix(A, B, C, D)

@@ -24,12 +24,14 @@
 
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublasx/operation/rank.hpp>
 #include <dcs/debug.hpp>
 #include <dcs/test.hpp>
 #include <dcs/control/analysis/controllability.hpp>
 
 
 namespace ublas = boost::numeric::ublas;
+namespace ublasx = boost::numeric::ublasx;
 
 
 const double tol = 1.0e-5;
@@ -54,15 +56,16 @@ DCS_TEST_DEF( state_controllability_matrix )
 	B(1,0) = 2;
 
 
-	matrix_type expect_P(n, n*m);
-	expect_P(0,0) = 1; expect_P(0,1) = 3;
-	expect_P(1,0) = 2; expect_P(1,1) = 3;
+	matrix_type expect_C(n, n*m);
+	expect_C(0,0) = 1; expect_C(0,1) = 3;
+	expect_C(1,0) = 2; expect_C(1,1) = 3;
 
-	matrix_type P = dcs::control::make_controllability_matrix(A, B);
+	matrix_type C = dcs::control::make_controllability_matrix(A, B);
 	DCS_DEBUG_TRACE("A = " << A);
 	DCS_DEBUG_TRACE("B = " << B);
-	DCS_DEBUG_TRACE("P = [B AB ... A^{" << (n-1) << "}B] = " << P);
-	DCS_TEST_CHECK_MATRIX_CLOSE(P, expect_P, n, n*m, tol);
+	DCS_DEBUG_TRACE("P = [B AB ... A^{" << (n-1) << "}B] = " << C);
+	DCS_DEBUG_TRACE("Number of uncontrollable states " << (n-ublasx::rank(C)));
+	DCS_TEST_CHECK_MATRIX_CLOSE(C, expect_C, n, n*m, tol);
 }
 
 
@@ -98,19 +101,19 @@ DCS_TEST_DEF( state_controllability_check )
 	// Non state controllable system
 	{
 		const std::size_t n = 2;
-		const std::size_t m = 1;
+		const std::size_t m = 2;
 
 		matrix_type A(n,n);
-		A(0,0) =  1; A(0,1) = 1;
-		A(1,0) = -1; A(1,1) = 2;
+		A(0,0) = 1; A(0,1) =  1;
+		A(1,0) = 4; A(1,1) = -2;
 
 		matrix_type B(n,m);
-		B(0,0) = 1;
-		B(1,0) = 2;
+		B(0,0) = 1; B(0,1) = -1;
+		B(1,0) = 1; B(1,1) = -1;
 
 
 		bool ctrb = dcs::control::is_controllable(A, B);
-		bool expect_ctrb = true;
+		bool expect_ctrb = false;
 		DCS_DEBUG_TRACE("A = " << A);
 		DCS_DEBUG_TRACE("B = " << B);
 		DCS_DEBUG_TRACE("Is State Controllable = " << std::boolalpha << ctrb);

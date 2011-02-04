@@ -489,6 +489,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 
 		work_matrix_type X12;
 		X12 = ublas::prod(ublas::trans(X1), X2);
+		// Solution asymmetry
 		real_type asym(ublas::norm_1(X12-ublas::trans(X12)));
 
 		work_vector_type al(ublasx::abs(l));
