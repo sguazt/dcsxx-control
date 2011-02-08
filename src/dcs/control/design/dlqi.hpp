@@ -211,13 +211,13 @@ void dlqi(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	size_type B_nr = ublasx::num_rows(B);
 	size_type B_nc = ublasx::num_columns(B);
 	size_type C_nr = ublasx::num_rows(C);
-	size_type C_nc = ublasx::num_columns(C);
-	size_type D_nr = ublasx::num_rows(D);
-	size_type D_nc = ublasx::num_columns(D);
+//	size_type C_nc = ublasx::num_columns(C);
+//	size_type D_nr = ublasx::num_rows(D);
+//	size_type D_nc = ublasx::num_columns(D);
 	size_type Q_nr = ublasx::num_rows(Q);
 	size_type Q_nc = ublasx::num_columns(Q);
-	size_type R_nr = ublasx::num_rows(Q);
-	size_type R_nc = ublasx::num_columns(Q);
+	size_type R_nr = ublasx::num_rows(R);
+	size_type R_nc = ublasx::num_columns(R);
 	size_type N_nr = ublasx::num_rows(N);
 	size_type N_nc = ublasx::num_columns(N);
 
@@ -312,10 +312,10 @@ void dlqi(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	ublas::matrix<value_type> BB;
 	BB = ublasx::cat_columns(B, -D*ts);
 
-	ublas::matrix<value_type> E = ublas::identity_matrix<value_type>(A_nr);
+	ublas::matrix<value_type> E = ublas::identity_matrix<value_type>(A_nr+C_nr);
 
 	dare_solver<value_type> solver;
-	solver.solve(A, B, Q, R, N, E);
+	solver.solve(AA, BB, Q, R, N, E);
 
 	K() = solver.gain();
 	if (want_S)
@@ -462,8 +462,8 @@ class dlqi_controller
 					  typename DMatrixT>
 		void solve(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 				   ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
-				   ::boost::numeric::ublas::matrix_expression<BMatrixT> const& C,
-				   ::boost::numeric::ublas::matrix_expression<BMatrixT> const& D,
+				   ::boost::numeric::ublas::matrix_expression<CMatrixT> const& C,
+				   ::boost::numeric::ublas::matrix_expression<DMatrixT> const& D,
 					real_type ts)
 	{
 		detail::dlqi(A, B, C, D, ts, Q_, R_, N_, true, true, K_, S_, e_);
@@ -712,17 +712,17 @@ inline
 //typename boost::numeric::ublas::matrix_temporary_traits<AMatrixT>::type dlqi_solve(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 ::boost::numeric::ublas::matrix<
 	typename ::boost::numeric::ublas::promote_traits<
-		typename boost::numeric::ublas::matrix_traits<AMatrixT>::value_type,
+		typename ::boost::numeric::ublas::matrix_traits<AMatrixT>::value_type,
 		typename ::boost::numeric::ublas::promote_traits<
-			typename boost::numeric::ublas::matrix_traits<BMatrixT>::value_type,
+			typename ::boost::numeric::ublas::matrix_traits<BMatrixT>::value_type,
 			typename ::boost::numeric::ublas::promote_traits<
-				typename boost::numeric::ublas::matrix_traits<CMatrixT>::value_type,
+				typename ::boost::numeric::ublas::matrix_traits<CMatrixT>::value_type,
 				typename ::boost::numeric::ublas::promote_traits<
-					typename boost::numeric::ublas::matrix_traits<DMatrixT>::value_type,
+					typename ::boost::numeric::ublas::matrix_traits<DMatrixT>::value_type,
 					RealT
 				>::promote_type
 			>::promote_type
-		>::promote_type,
+		>::promote_type
 	>::promote_type,
 	typename ::boost::numeric::ublasx::layout_type<AMatrixT>::type
 > dlqi_solve(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
@@ -809,17 +809,17 @@ inline
 //typename boost::numeric::ublas::matrix_temporary_traits<AMatrixT>::type dlqi_solve(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 ::boost::numeric::ublas::matrix<
 	typename ::boost::numeric::ublas::promote_traits<
-		typename boost::numeric::ublas::matrix_traits<AMatrixT>::value_type,
+		typename ::boost::numeric::ublas::matrix_traits<AMatrixT>::value_type,
 		typename ::boost::numeric::ublas::promote_traits<
-			typename boost::numeric::ublas::matrix_traits<BMatrixT>::value_type,
+			typename ::boost::numeric::ublas::matrix_traits<BMatrixT>::value_type,
 			typename ::boost::numeric::ublas::promote_traits<
-				typename boost::numeric::ublas::matrix_traits<CMatrixT>::value_type,
+				typename ::boost::numeric::ublas::matrix_traits<CMatrixT>::value_type,
 				typename ::boost::numeric::ublas::promote_traits<
-					typename boost::numeric::ublas::matrix_traits<DMatrixT>::value_type,
+					typename ::boost::numeric::ublas::matrix_traits<DMatrixT>::value_type,
 					RealT
 				>::promote_type
 			>::promote_type
-		>::promote_type,
+		>::promote_type
 	>::promote_type,
 	typename ::boost::numeric::ublasx::layout_type<AMatrixT>::type
 > dlqi_solve(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
