@@ -526,9 +526,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 			   = work_matrix_type();
 			sx = work_vector_type();
 
-			::std::clog << "[Warning] Unable to solve the specified Riccati equation because the Symplectic spectrum is too near the imaginary axis." << ::std::endl;
-
-			return;
+			throw ::std::runtime_error("[dcs::control::dare] [Error] Unable to solve the specified Riccati equation because the Symplectic spectrum is too near the imaginary axis.");
 		}
 		else
 		{
@@ -571,8 +569,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 
 			X = work_matrix_type();
 
-			::std::clog << "[Warning] The E matrix must be nonsingular." << ::std::endl;
-			return;
+			throw ::std::runtime_error("[dcs::control::dare] [Error] The E matrix must be nonsingular.");
 		}
 		else
 		{
