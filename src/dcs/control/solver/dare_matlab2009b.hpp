@@ -66,6 +66,7 @@
 #include <boost/numeric/ublasx/operation/diag.hpp>
 #include <boost/numeric/ublasx/operation/empty.hpp>
 #include <boost/numeric/ublasx/operation/find.hpp>
+#include <boost/numeric/ublasx/operation/isinf.hpp>
 #include <boost/numeric/ublasx/operation/log2.hpp>
 #include <boost/numeric/ublasx/operation/lu.hpp>
 #include <boost/numeric/ublasx/operation/num_columns.hpp>
@@ -466,6 +467,12 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 	// eigenvalues of the QZ decomposition
 	l = qz.eigenvalues();
 
+	if (ublasx::any(ublasx::isinf(l)))
+	{
+		throw ::std::runtime_error("[dcs::control::dare] [Error] Unable to solve the specified Riccati equation: infinite or undetermined gain.");
+	}
+
+
 	// Account for non-identity E matrix and orthonormalize basis
 	if (E != ublas::identity_matrix<value_type>(n,n))
 	{
@@ -500,7 +507,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 
 		bool has_abs_le_1;
 		bool has_abs_gt_1;
-		// any(!abs(l) > 1)
+		// any(!abs(l(1:n)) > 1)
 		has_abs_le_1 = ublasx::any(
 								ublas::subrange(al, 0, n),
 								::std::bind2nd(
@@ -508,6 +515,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 										real_type(1)
 									)
 							);
+		// any(abs(l((n+1):(2*n))) > 1)
 		has_abs_gt_1 = ublasx::any(
 								ublas::subrange(al, n, n2),
 								::std::bind2nd(
@@ -526,9 +534,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 			   = work_matrix_type();
 			sx = work_vector_type();
 
-			::std::clog << "[Warning] Unable to solve the specified Riccati equation because the Symplectic spectrum is too near the imaginary axis." << ::std::endl;
-
-			return;
+			throw ::std::runtime_error("[dcs::control::dare] [Error] Unable to solve the specified Riccati equation: the Symplectic spectrum is too near the imaginary axis.");
 		}
 		else
 		{
@@ -571,8 +577,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 
 			X = work_matrix_type();
 
-			::std::clog << "[Warning] The E matrix must be nonsingular." << ::std::endl;
-			return;
+			throw ::std::runtime_error("[dcs::control::dare] [Error] The E matrix must be nonsingular.");
 		}
 		else
 		{
