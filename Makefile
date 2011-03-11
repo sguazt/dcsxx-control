@@ -78,7 +78,7 @@ export xmp_libdirs :=
 export incdirs := $(srcdir)
 export test_incdirs := $(test_srcdir)
 export xmp_incdirs := $(xmp_srcdir)
-export libs := m
+export libs := m lapack
 export test_libs :=
 export xmp_libs :=
 
