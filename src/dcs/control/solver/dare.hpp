@@ -246,6 +246,8 @@ ublas::matrix<
 					)
 			);
 	}
+
+	return X;
 }
 
 
