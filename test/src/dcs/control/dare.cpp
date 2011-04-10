@@ -13,6 +13,19 @@ namespace dcs_control = dcs::control;
 
 const double tol = 1e-5;
 
+namespace detail { namespace /*<unnamed>*/ {
+
+template <typename T>
+struct complex_cmp
+{
+	bool operator()(::std::complex<T> const& a, ::std::complex<T> const& b) const
+	{
+		return a.real() < b.real() || (a.real() == b.real() && a.imag() < b.imag());
+	}
+};
+
+}} // Namespace detail::<unnamed>*/
+
 
 DCS_TEST_DEF( test_1 )
 {
@@ -122,6 +135,65 @@ DCS_TEST_DEF( test_2 )
 	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
 	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+}
+
+
+DCS_TEST_DEF( test_3 )
+{
+	DCS_DEBUG_TRACE("Test Case: Test #3");
+
+	typedef double value_type;
+	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector< ::std::complex<value_type> > vector_type;
+
+	const std::size_t n(2);
+	const std::size_t m(1);
+
+	matrix_type A(n,n);
+	A(0,0) = 0.4; A(0,1) = 1.7;
+	A(1,0) = 0.9; A(1,1) = 3.8;
+
+	matrix_type B(n,m);
+	B(0,0) = 0.8;
+	B(1,0) = 2.1;
+
+	matrix_type Q(n,n);
+	Q(0,0) =  1; Q(0,1) = -1;
+	Q(1,0) = -1; Q(1,1) =  1;
+
+	matrix_type R;
+	R = ublas::scalar_matrix<value_type>(m, m, 3);
+
+	matrix_type expect_X(n,n);
+	expect_X(0,0) = 1.53536988885652; expect_X(0,1) = 1.26226249343861;
+	expect_X(1,0) = 1.26226249343861; expect_X(1,1) = 10.5595806602029;
+
+	vector_type expect_l(n);
+	expect_l(0) = ::std::complex<value_type>(-0.0022307284532799,0);
+	expect_l(1) = ::std::complex<value_type>( 0.245448650750199,0);
+
+	matrix_type expect_G(m,n);
+	expect_G(0,0) =  0.409151396044144; expect_G(0,1) = 1.72831474327036;
+
+
+	dcs_control::dare_solver<value_type> solver;
+
+	solver.solve(A, B, Q, R);
+
+	DCS_DEBUG_TRACE( "A = " << A );
+	DCS_DEBUG_TRACE( "B = " << B );
+	DCS_DEBUG_TRACE( "Q = " << Q );
+	DCS_DEBUG_TRACE( "R = " << R );
+	DCS_DEBUG_TRACE( "Solution X = " << std::scientific << solver.solution() );
+	DCS_DEBUG_TRACE( "Gain G = " << std::scientific << solver.gain() );
+	DCS_DEBUG_TRACE( "Closed-loop eigenvalues = " << std::scientific << solver.eigenvalues() );
+
+	vector_type l(solver.eigenvalues());
+	::std::sort(l.begin(), l.end(), detail::complex_cmp<value_type>());
+	::std::sort(expect_l.begin(), expect_l.end(), detail::complex_cmp<value_type>());
+	DCS_TEST_CHECK_MATRIX_CLOSE(solver.solution(), expect_X, n, n, tol);
+	DCS_TEST_CHECK_MATRIX_CLOSE(solver.gain(), expect_G, m, n, tol);
+	DCS_TEST_CHECK_VECTOR_CLOSE(l, expect_l, n, tol);
 }
 
 
@@ -1059,6 +1131,7 @@ int main()
 
 	DCS_TEST_DO( test_1 );
 	DCS_TEST_DO( test_2 );
+	DCS_TEST_DO( test_3 );
 	DCS_TEST_DO( test_darex_ex_1_1 );
 	DCS_TEST_DO( test_darex_ex_1_2 );
 	DCS_TEST_DO( test_darex_ex_1_3 );

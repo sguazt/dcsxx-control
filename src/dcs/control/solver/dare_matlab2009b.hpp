@@ -23,7 +23,7 @@
  *
  * <hr/>
  *
- * Copyright (C) 2009-2010  Distributed Computing System (DCS) Group, Computer
+ * Copyright (C) 2009-2011  Distributed Computing System (DCS) Group, Computer
  * Science Department - University of Piemonte Orientale, Alessandria (Italy).
  *
  * This program is free software: you can redistribute it and/or modify
@@ -246,6 +246,8 @@ ublas::matrix<
 					)
 			);
 	}
+
+	return X;
 }
 
 
@@ -467,10 +469,10 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 	// eigenvalues of the QZ decomposition
 	l = qz.eigenvalues();
 
-	if (ublasx::any(ublasx::isinf(l)))
-	{
-		throw ::std::runtime_error("[dcs::control::dare] [Error] Unable to solve the specified Riccati equation: infinite or undetermined gain.");
-	}
+//	if (ublasx::any(ublasx::isinf(l)))
+//	{
+//		throw ::std::runtime_error("[dcs::control::dare] [Error] Unable to solve the specified Riccati equation: infinite or undetermined gain.");
+//	}
 
 
 	// Account for non-identity E matrix and orthonormalize basis
@@ -559,6 +561,11 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 		{
 			l = ublas::subrange(l, n, n2);
 		}
+	}
+
+	if (ublasx::any(ublasx::isinf(l)))
+	{
+		throw ::std::runtime_error("[dcs::control::dare] [Error] Unable to solve the specified Riccati equation: infinite or undetermined gain.");
 	}
 
 	if (factorize)
