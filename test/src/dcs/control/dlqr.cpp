@@ -59,12 +59,12 @@ DCS_TEST_DEF( free_func )
 	expect_e(0) = 0.996904570704525;
 	expect_e(1) = 0.990284265674475;
 
-	matrix_type K = dcs_ctrl::dlqr_solve(A, B, Q, R, N);
 	DCS_DEBUG_TRACE("A = " << A);
 	DCS_DEBUG_TRACE("B = " << B);
 	DCS_DEBUG_TRACE("Q = " << Q);
 	DCS_DEBUG_TRACE("R = " << R);
 	DCS_DEBUG_TRACE("N = " << N);
+	matrix_type K = dcs_ctrl::dlqr_solve(A, B, Q, R, N);
 	DCS_DEBUG_TRACE("Gain = " << K);
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, K, m, n, tol );
 }
@@ -75,8 +75,9 @@ DCS_TEST_DEF( oo )
 	DCS_DEBUG_TRACE("Test Case: test_oo");
 
 	typedef double value_type;
+	typedef ::std::complex<value_type> complex_value_type;
 	typedef ublas::matrix<value_type> matrix_type;
-	typedef ublas::vector<value_type> vector_type;
+	typedef ublas::vector<complex_value_type> vector_type;
 
 	const std::size_t n = 2;
 	const std::size_t m = 1;
@@ -108,23 +109,26 @@ DCS_TEST_DEF( oo )
 	expect_S(0,0) = 1.0e-5*0.634804227345193; expect_S(0,1) =-1.0e-5*0.642756176807922;
 	expect_S(1,0) =-1.0e-5*0.642756176807922; expect_S(1,1) = 1.0e-5*0.650824595759136;
 
-	vector_type expect_e(n); // closed-loop eigenvalues
-	expect_e(0) = 0.996904570704525;
-	expect_e(1) = 0.990284265674475;
+	vector_type expect_l(n); // closed-loop eigenvalues
+	expect_l(0) = complex_value_type(0.996904570704525,0);
+	expect_l(1) = complex_value_type(0.990284265674475,0);
 
-	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
-	dlqr.solve(A, B);
 	DCS_DEBUG_TRACE("A = " << A);
 	DCS_DEBUG_TRACE("B = " << B);
 	DCS_DEBUG_TRACE("Q = " << Q);
 	DCS_DEBUG_TRACE("R = " << R);
 	DCS_DEBUG_TRACE("N = " << N);
+	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
+	dlqr.solve(A, B);
 	DCS_DEBUG_TRACE("Gain = " << dlqr.gain());
 	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqr.are_solution());
 	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqr.eigenvalues());
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, dlqr.gain(), m, n, tol );
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_S, dlqr.are_solution(), n, n, tol );
-	DCS_TEST_CHECK_VECTOR_CLOSE( expect_e, dlqr.eigenvalues(), n, tol );
+	vector_type l(dlqr.eigenvalues());
+    ::std::sort(l.begin(), l.end(), detail::complex_cmp<value_type>());
+    ::std::sort(expect_l.begin(), expect_l.end(), detail::complex_cmp<value_type>());
+	DCS_TEST_CHECK_VECTOR_CLOSE( expect_l, l, n, tol );
 
 	matrix_type X(16,n);
 
@@ -208,26 +212,28 @@ DCS_TEST_DEF( mathematica_1 )
 	expect_S(2,0) = 0.142357177991738; expect_S(2,1) = 0.491675367390775; expect_S(2,2) = 2.770266171822138; expect_S(2,3) = 0.158115947330550;
 	expect_S(3,0) = 0.230214495860850; expect_S(3,1) = 0.233049076800882; expect_S(3,2) = 0.158115947330550; expect_S(3,3) = 4.285246483933100;
 
-	vector_type expect_e(n); // closed-loop eigenvalues
-	expect_e(0) = complex_value_type(0.715676446034849, 0.000000000000000);
-	expect_e(1) = complex_value_type(0.460342919154304, 0.000000000000000);
-	expect_e(2) = complex_value_type(0.130363078014160, 0.048280928782719);
-	expect_e(3) = complex_value_type(0.130363078014160,-0.048280928782719);
-
-	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
-	dlqr.solve(A, B);
+	vector_type expect_l(n); // closed-loop eigenvalues
+	expect_l(0) = complex_value_type(0.715676446034849, 0.000000000000000);
+	expect_l(1) = complex_value_type(0.460342919154304, 0.000000000000000);
+	expect_l(2) = complex_value_type(0.130363078014160, 0.048280928782719);
+	expect_l(3) = complex_value_type(0.130363078014160,-0.048280928782719);
 
 	DCS_DEBUG_TRACE("A = " << A);
 	DCS_DEBUG_TRACE("B = " << B);
 	DCS_DEBUG_TRACE("Q = " << Q);
 	DCS_DEBUG_TRACE("R = " << R);
 	DCS_DEBUG_TRACE("N = " << N);
+	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
+	dlqr.solve(A, B);
 	DCS_DEBUG_TRACE("Gain = " << dlqr.gain());
 	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqr.are_solution());
 	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqr.eigenvalues());
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, dlqr.gain(), m, n, tol );
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_S, dlqr.are_solution(), n, n, tol );
-	DCS_TEST_CHECK_VECTOR_CLOSE( expect_e, dlqr.eigenvalues(), n, tol );
+	vector_type l(dlqr.eigenvalues());
+    ::std::sort(l.begin(), l.end(), detail::complex_cmp<value_type>());
+    ::std::sort(expect_l.begin(), expect_l.end(), detail::complex_cmp<value_type>());
+	DCS_TEST_CHECK_VECTOR_CLOSE( expect_l, l, n, tol );
 }
 
 
@@ -274,26 +280,28 @@ DCS_TEST_DEF( mathematica_2 )
 	expect_S(1,0) =  1.0e+2*0.254481597239685; expect_S(1,1) = 1.0e+2*1.182679389650807; expect_S(1,2) =  1.0e+2*0.256345692556058;
 	expect_S(2,0) = -1.0e+2*0.001210476586442; expect_S(2,1) = 1.0e+2*0.256345692556058; expect_S(2,2) =  1.0e+2*0.402837910468753;
 
-	vector_type expect_e(n); // closed-loop eigenvalues
-	expect_e(0) = complex_value_type(0.464520830811466, 0.249314173526600);
-	expect_e(1) = complex_value_type(0.464520830811466,-0.249314173526600);
-	expect_e(2) = complex_value_type(0.622879620021054, 0.000000000000000);
+	vector_type expect_l(n); // closed-loop eigenvalues
+	expect_l(0) = complex_value_type(0.464520830811466, 0.249314173526600);
+	expect_l(1) = complex_value_type(0.464520830811466,-0.249314173526600);
+	expect_l(2) = complex_value_type(0.622879620021054, 0.000000000000000);
 
-
-	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
-	dlqr.solve(A, B);
 
 	DCS_DEBUG_TRACE("A = " << A);
 	DCS_DEBUG_TRACE("B = " << B);
 	DCS_DEBUG_TRACE("Q = " << Q);
 	DCS_DEBUG_TRACE("R = " << R);
 	DCS_DEBUG_TRACE("N = " << N);
+	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
+	dlqr.solve(A, B);
 	DCS_DEBUG_TRACE("Gain = " << dlqr.gain());
 	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqr.are_solution());
 	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqr.eigenvalues());
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, dlqr.gain(), m, n, tol );
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_S, dlqr.are_solution(), n, n, tol );
-	DCS_TEST_CHECK_VECTOR_CLOSE( expect_e, dlqr.eigenvalues(), n, tol );
+	vector_type l(dlqr.eigenvalues());
+    ::std::sort(l.begin(), l.end(), detail::complex_cmp<value_type>());
+    ::std::sort(expect_l.begin(), expect_l.end(), detail::complex_cmp<value_type>());
+	DCS_TEST_CHECK_VECTOR_CLOSE( expect_l, l, n, tol );
 }
 
 
@@ -343,25 +351,27 @@ DCS_TEST_DEF( mathematica_3 )
 	expect_S(0,0) =  1.0e+2*0.000178886938538; expect_S(0,1) = -1.0e+2*0.001642946262000;
 	expect_S(1,0) = -1.0e+2*0.001642946262000; expect_S(1,1) =  1.0e+2*3.736813637743126;
 
-	vector_type expect_e(n); // closed-loop eigenvalues
-	expect_e(0) = complex_value_type(0.459187566597895,0);
-	expect_e(1) = complex_value_type(0.810246213513234,0);
+	vector_type expect_l(n); // closed-loop eigenvalues
+	expect_l(0) = complex_value_type(0.459187566597895,0);
+	expect_l(1) = complex_value_type(0.810246213513234,0);
 
-
-	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
-	dlqr.solve(A, B);
 
 	DCS_DEBUG_TRACE("A = " << A);
 	DCS_DEBUG_TRACE("B = " << B);
 	DCS_DEBUG_TRACE("Q = " << Q);
 	DCS_DEBUG_TRACE("R = " << R);
 	DCS_DEBUG_TRACE("N = " << N);
+	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
+	dlqr.solve(A, B);
 	DCS_DEBUG_TRACE("Gain = " << dlqr.gain());
 	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqr.are_solution());
 	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqr.eigenvalues());
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, dlqr.gain(), m, n, tol );
 	DCS_TEST_CHECK_MATRIX_CLOSE( expect_S, dlqr.are_solution(), n, n, tol );
-	DCS_TEST_CHECK_VECTOR_CLOSE( expect_e, dlqr.eigenvalues(), n, tol );
+	vector_type l(dlqr.eigenvalues());
+    ::std::sort(l.begin(), l.end(), detail::complex_cmp<value_type>());
+    ::std::sort(expect_l.begin(), expect_l.end(), detail::complex_cmp<value_type>());
+	DCS_TEST_CHECK_VECTOR_CLOSE( expect_l, l, n, tol );
 }
 
 
@@ -389,8 +399,8 @@ DCS_TEST_DEF( mathematica_4 )
 
 	matrix_type B(n,m);
 	B(0,0) =  0.1850; B(0,1) = 0.1974;
-	B(1,0) = -0.1000; B(1,1) = 0.1390;
-	B(2,0) = -0.1813; B(2,1) = 0.0000;
+	B(1,0) =  0.1000; B(1,1) = 0.1390;
+	B(2,0) =  0.1813; B(2,1) = 0.0000;
 
 
 	matrix_type Q(n,n);
@@ -423,14 +433,13 @@ DCS_TEST_DEF( mathematica_4 )
 	expect_l(2) = complex_value_type( 0.15942743551445882,0);
 
 
-	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
-	dlqr.solve(A, B);
-
 	DCS_DEBUG_TRACE("A = " << A);
 	DCS_DEBUG_TRACE("B = " << B);
 	DCS_DEBUG_TRACE("Q = " << Q);
 	DCS_DEBUG_TRACE("R = " << R);
 	DCS_DEBUG_TRACE("N = " << N);
+	dcs_ctrl::dlqr_controller<value_type> dlqr(Q, R, N);
+	dlqr.solve(A, B);
 	DCS_DEBUG_TRACE("Gain = " << dlqr.gain());
 	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqr.are_solution());
 	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqr.eigenvalues());
