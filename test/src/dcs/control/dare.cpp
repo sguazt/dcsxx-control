@@ -5,6 +5,7 @@
 #include <dcs/debug.hpp>
 #include <dcs/test.hpp>
 #include <iostream>
+#include "./utility.hpp"
 
 namespace ublas = boost::numeric::ublas;
 namespace ublasx = boost::numeric::ublasx;
@@ -13,18 +14,18 @@ namespace dcs_control = dcs::control;
 
 const double tol = 1e-5;
 
-namespace detail { namespace /*<unnamed>*/ {
-
-template <typename T>
-struct complex_cmp
-{
-	bool operator()(::std::complex<T> const& a, ::std::complex<T> const& b) const
-	{
-		return a.real() < b.real() || (a.real() == b.real() && a.imag() < b.imag());
-	}
-};
-
-}} // Namespace detail::<unnamed>*/
+//namespace detail { namespace /*<unnamed>*/ {
+//
+//template <typename T>
+//struct complex_cmp
+//{
+//	bool operator()(::std::complex<T> const& a, ::std::complex<T> const& b) const
+//	{
+//		return a.real() < b.real() || (a.real() == b.real() && a.imag() < b.imag());
+//	}
+//};
+//
+//}} // Namespace detail::<unnamed>*/
 
 
 DCS_TEST_DEF( test_1 )
