@@ -117,16 +117,16 @@ template <
 	typename SMatrixT,
 	typename EVectorT
 >
-void dlqr(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
-		  boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
-		  boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
-		  boost::numeric::ublas::matrix_expression<RMatrixT> const& R,
-		  boost::numeric::ublas::matrix_expression<NMatrixT> const& N,
+void dlqr(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
+		  ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
+		  ::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
+		  ::boost::numeric::ublas::matrix_expression<RMatrixT> const& R,
+		  ::boost::numeric::ublas::matrix_expression<NMatrixT> const& N,
 		  bool want_S,
 		  bool want_e,
-		  boost::numeric::ublas::matrix_container<KMatrixT>& K,
-		  boost::numeric::ublas::matrix_container<SMatrixT>& S,
-		  boost::numeric::ublas::vector_container<EVectorT>& e)
+		  ::boost::numeric::ublas::matrix_container<KMatrixT>& K,
+		  ::boost::numeric::ublas::matrix_container<SMatrixT>& S,
+		  ::boost::numeric::ublas::vector_container<EVectorT>& e)
 {
 	namespace ublasx = ::boost::numeric::ublasx;
 	namespace ublas = ::boost::numeric::ublas;
