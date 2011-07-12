@@ -107,8 +107,8 @@
  * \author Marco Guazzone, &lt;marco.guazzone@mfn.unipmn.it&gt;
  */
 
-#ifndef DCS_CONTROL_ANALYSIS_HPP
-#define DCS_CONTROL_ANALYSIS_HPP
+#ifndef DCS_CONTROL_ANALYSIS_OBSERVABILITY_HPP
+#define DCS_CONTROL_ANALYSIS_OBSERVABILITY_HPP
 
 
 #include <algorithm>
@@ -217,4 +217,4 @@ bool is_observable(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A
 }} // Namespace dcs::control
 
 
-#endif // DCS_CONTROL_ANALYSIS_HPP
+#endif // DCS_CONTROL_ANALYSIS_OBSERVABILITY_HPP
