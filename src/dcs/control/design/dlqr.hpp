@@ -416,6 +416,18 @@ class dlqr_controller
 	}
 
 
+	public: matrix_type Q() const
+	{
+		return Q_;
+	}
+
+
+	public: matrix_type R() const
+	{
+		return R_;
+	}
+
+
 	/**
 	 * \brief Solve the Infinite-horizon Discrete-time Linear Quadratic Regulator
 	 *  problem.
