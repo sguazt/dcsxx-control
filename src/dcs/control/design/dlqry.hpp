@@ -111,9 +111,11 @@
 #include <boost/numeric/ublasx/operation/num_rows.hpp>
 #include <boost/numeric/ublasx/traits/layout_type.hpp>
 #include <complex>
+#include <dcs/assert.hpp>
 #include <dcs/control/design/dlqr.hpp>
 #include <dcs/debug.hpp>
 #include <dcs/macro.hpp>
+#include <stdexcept>
 
 
 namespace dcs { namespace control {
@@ -322,6 +324,52 @@ class dlqry_controller
 		void solve(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
 		           ::boost::numeric::ublas::matrix_expression<CMatrixT> const& C, ::boost::numeric::ublas::matrix_expression<DMatrixT> const& D)
 	{
+		// pre: A must be square
+		DCS_ASSERT(
+				::boost::numeric::ublasx::num_rows(A) == ::boost::numeric::ublasx::num_columns(A),
+				throw ::std::invalid_argument("[dcs::control::dlqry_controller] Matrix A must be square.")
+			);
+		// pre: num_rows(A) == num_rows(B)
+		DCS_ASSERT(
+				::boost::numeric::ublasx::num_rows(A) == ::boost::numeric::ublasx::num_rows(B),
+				throw ::std::invalid_argument("[dcs::control::dlqry_controller] Size of matrices A and B are not conformant.")
+			);
+		// pre: num_rows(A) == num_columns(C)
+		DCS_ASSERT(
+				::boost::numeric::ublasx::num_rows(A) == ::boost::numeric::ublasx::num_columns(C),
+				throw ::std::invalid_argument("[dcs::control::dlqry_controller] Size of matrices A and C are not conformant.")
+			);
+		// pre: num_columns(B) == num_columns(D)
+		DCS_ASSERT(
+				::boost::numeric::ublasx::num_columns(B) == ::boost::numeric::ublasx::num_columns(D),
+				throw ::std::invalid_argument("[dcs::control::dlqry_controller] Size of matrices B and D are not conformant.")
+			);
+		// pre: num_rows(C) == num_rows(D)
+		DCS_ASSERT(
+				::boost::numeric::ublasx::num_rows(C) == ::boost::numeric::ublasx::num_rows(D),
+				throw ::std::invalid_argument("[dcs::control::dlqry_controller] Size of matrices C and D are not conformant.")
+			);
+		// pre: Q must be square
+		DCS_ASSERT(
+				::boost::numeric::ublasx::num_rows(Q) == ::boost::numeric::ublasx::num_columns(Q),
+				throw ::std::invalid_argument("[dcs::control::dlqry_controller] Matrix Q must be square.")
+			);
+		// pre: num_rows(C) == num_rows(Q)
+		DCS_ASSERT(
+				::boost::numeric::ublasx::num_rows(C) == ::boost::numeric::ublasx::num_rows(Q),
+				throw ::std::invalid_argument("[dcs::control::dlqry_controller] Size of matrices C and Q are not conformant.")
+			);
+		// pre: R must be square
+		DCS_ASSERT(
+				::boost::numeric::ublasx::num_rows(R) == ::boost::numeric::ublasx::num_columns(R),
+				throw ::std::invalid_argument("[dcs::control::dlqry_controller] Matrix R must be square.")
+			);
+		// pre: num_columns(D) == num_rows(R)
+		DCS_ASSERT(
+				::boost::numeric::ublasx::num_columns(D) == ::boost::numeric::ublasx::num_rows(R),
+				throw ::std::invalid_argument("[dcs::control::dlqry_controller] Size of matrices D and R are not conformant.")
+			);
+
 		matrix_type QQ(Q_);
 		matrix_type RR(R_);
 		matrix_type NN(N_);
