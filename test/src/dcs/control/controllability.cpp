@@ -236,6 +236,60 @@ DCS_TEST_DEF( output_controllability_check )
 }
 
 
+DCS_TEST_DEF( controllable_decomposition )
+{
+	DCS_DEBUG_TRACE("Test Case: Controllable Decomposition");
+
+	typedef double value_type;
+	typedef ublas::matrix<value_type> matrix_type;
+
+	// Output controllable system
+	{
+//		const std::size_t n = 2;
+//		const std::size_t m = 2;
+//		const std::size_t p = 2;
+		const std::size_t n = 3;
+		const std::size_t m = 2;
+		const std::size_t p = 2;
+
+		matrix_type A(n,n);
+//		A(0,0) = 1; A(0,1) =  1;
+//		A(1,0) = 4; A(1,1) = -2;
+A(0,0) = 1; A(0,1) = 0; A(0,2) = 0;
+A(1,0) = 0; A(1,1) = 2; A(1,2) = 0;
+A(2,0) = 0; A(2,1) = 0; A(2,2) = 3;
+
+		matrix_type B(n,m);
+//		B(0,0) = 1; B(0,1) = -1;
+//		B(1,0) = 1; B(1,1) = -1;
+B(0,0) = 0; B(0,1) = 0;
+B(1,0) = 4; B(1,1) = 5;
+B(2,0) = 0; B(2,1) = 0;
+
+		matrix_type C(p,n);
+//		C(0,0) = 1; C(0,1) = 0;
+//		C(1,0) = 0; C(1,1) = 1;
+C(0,0) = 6; C(0,1) = 0; C(0,2) = 0;
+C(1,0) = 0; C(1,1) = 0; C(1,2) = 7;
+
+
+		dcs::control::controllable_decomposition<value_type> ctrbf;
+
+		ctrbf.decompose(A, B, 1.7764e-15);
+		DCS_DEBUG_TRACE("A = " << A);
+		DCS_DEBUG_TRACE("B = " << B);
+		DCS_DEBUG_TRACE("C = " << C);
+		DCS_DEBUG_TRACE("Ab = " << ctrbf.A_bar());
+		DCS_DEBUG_TRACE("Bb = " << ctrbf.B_bar());
+		DCS_DEBUG_TRACE("Cb = " << ctrbf.C_bar(C));
+		DCS_DEBUG_TRACE("T = " << ctrbf.T());
+		DCS_DEBUG_TRACE("k = " << ctrbf.k());
+//		DCS_DEBUG_TRACE("Is Output Controllable = " << std::boolalpha << ctrb);
+//		DCS_TEST_CHECK(ctrb == expect_ctrb);
+	}
+}
+
+
 int main()
 {
 	DCS_TEST_BEGIN();
@@ -244,6 +298,7 @@ int main()
 	DCS_TEST_DO( state_controllability_check );
 	DCS_TEST_DO( output_controllability_matrix );
 	DCS_TEST_DO( output_controllability_check );
+	DCS_TEST_DO( controllable_decomposition );
 
 	DCS_TEST_END();
 }

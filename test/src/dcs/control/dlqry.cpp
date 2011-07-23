@@ -309,6 +309,64 @@ DCS_TEST_DEF( mathematica_2 )
 }
 
 
+DCS_TEST_DEF( eesim )
+{
+	DCS_DEBUG_TRACE("Test Case: Mathematica #2");
+
+	typedef double value_type;
+	typedef ::std::complex<value_type> complex_type;
+	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector<complex_type> vector_type;
+
+	const std::size_t nx = 6; // number of states
+	const std::size_t nu = 6; // number of inputs
+	const std::size_t ny = 1; // number of outputs
+
+	matrix_type A(nx,nx);
+	A(0,0) =  0;                  A(0,1) =  0;                  A(0,2) =  0;                 A(0,3) =  1;                 A(0,4) =  0;                 A(0,5) =  0;
+	A(1,0) =  0;                  A(1,1) =  0;                  A(1,2) =  0;                 A(1,3) =  0;                 A(1,4) =  1;                 A(1,5) =  0;
+	A(2,0) =  0;                  A(2,1) =  0;                  A(2,2) =  0;                 A(2,3) =  0;                 A(2,4) =  0;                 A(2,5) =  1;
+	A(3,0) = -0.0639186388233641; A(3,1) = -0;                  A(3,2) = -0;                 A(3,3) =  0.794311427335589; A(3,4) = -0;                 A(3,5) = -0;
+	A(4,0) = -0;                  A(4,1) = -0.0635751341222181; A(4,2) = -0;                 A(4,3) = -0;                 A(4,4) =  0.794589468149401; A(4,5) = -0;
+	A(5,0) = -0;                  A(5,1) = -0;                  A(5,2) = -0.063972851249695; A(5,3) = -0;                 A(5,4) = -0;                 A(5,5) =  0.794267523469565;
+
+	matrix_type B(nx,nu);
+	B(0,0) =  0;                  B(0,1) =  0;                  B(0,2) =  0;                  B(0,3) = 0;                 B(0,4) = 0;                 B(0,5) = 0;
+	B(1,0) =  0;                  B(1,1) =  0;                  B(1,2) =  0;                  B(1,3) = 0;                 B(1,4) = 0;                 B(1,5) = 0;
+	B(2,0) =  0;                  B(2,1) =  0;                  B(2,2) =  0;                  B(2,3) = 0;                 B(2,4) = 0;                 B(2,5) = 0;
+	B(3,0) = -0.0187739831892682; B(3,1) = -0.0187739831892682; B(3,2) = -0.0187739831892682; B(3,3) = 0.233302674436667; B(3,4) = 0.233302674436667; B(3,5) = 0.233302674436667;
+	B(4,0) = -0.018657202160102;  B(4,1) = -0.018657202160102;  B(4,2) = -0.018657202160102;  B(4,3) = 0.233185765885323; B(4,4) = 0.233185765885323; B(4,5) = 0.233185765885323;
+	B(5,0) = -0.0187924305365045; B(5,1) = -0.0187924305365045; B(5,2) = -0.0187924305365045; B(5,3) = 0.233321119359592; B(5,4) = 0.233321119359592; B(5,5) = 0.233321119359592;
+
+	matrix_type C(ny,nx);
+	C(0,0) = 0; C(0,1) = 0; C(0,2) = 0; C(0,3) = 1; C(0,4) = 1; C(0,5) = 1;
+
+	matrix_type D(ny,nu);
+	D(0,0) = 0; D(0,1) = 0; D(0,2) = 0; D(0,3); D(0,4) = 0; D(0,5) = 0;
+
+	matrix_type Q(ublas::identity_matrix<value_type>(ny,ny));
+
+	matrix_type R(ublas::identity_matrix<value_type>(nu,nu));
+
+	//matrix_type N(ublas::identity_matrix<value_type>(ny,nu));
+	matrix_type N(ublas::zero_matrix<value_type>(ny,nu));
+
+
+	DCS_DEBUG_TRACE("A = " << A);
+	DCS_DEBUG_TRACE("B = " << B);
+	DCS_DEBUG_TRACE("C = " << C);
+	DCS_DEBUG_TRACE("D = " << D);
+	DCS_DEBUG_TRACE("Q = " << Q);
+	DCS_DEBUG_TRACE("R = " << R);
+	DCS_DEBUG_TRACE("N = " << N);
+	dcs_ctrl::dlqry_controller<value_type> dlqry(Q, R, N);
+	dlqry.solve(A, B, C, D);
+	DCS_DEBUG_TRACE("Gain = " << dlqry.gain());
+	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqry.are_solution());
+	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqry.eigenvalues());
+}
+
+
 int main()
 {
 	// Tests labeled with 'mathematica' keyword are taken from the Wolfram
@@ -323,6 +381,7 @@ int main()
 	DCS_TEST_DO( oo );
 	DCS_TEST_DO( mathematica_1 );
 	DCS_TEST_DO( mathematica_2 );
+	DCS_TEST_DO( eesim );
 
 	DCS_TEST_END();
 }
