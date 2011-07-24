@@ -6,6 +6,10 @@
  * A system with internal state vector \f$\mathbf{x}\f$ is called
  * \e controllable if and only if the system states can be changed by changing
  * the system input.
+ * Equivalently, a system is said to be controllable if for any initial state
+ * \f$x(k_0)\f$ there exists a control sequence \f$u(k)\f$, with
+ * \f$k=k_0,k_0+1,\ldots,k_f-1\f$, such that an arbitrary final state
+ * \f$x(k_f)\f$ can be reached in finite time \f$k_f\f$.
  *
  * More specifically, given a continuous-time state-space system model:
  * \f[
@@ -76,8 +80,8 @@
  * .
  *
  * \note
- * Estimating the rank of the controllability matrix is ill-conditioned; that
- * is, it is very sensitive to roundoff errors and errors in the data.
+ *  Estimating the rank of the controllability matrix is ill-conditioned; that
+ *  is, it is very sensitive to roundoff errors and errors in the data.
  *
  * References:
  * -# K. Ogata, <em>Modern Control Engineering</em>, 3rd edition, Prentice Hall, 2002.

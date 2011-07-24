@@ -3,6 +3,11 @@
  *
  * \brief Observability for a state-space system.
  *
+ * A system is said to be observable if any initial state \f$x(k_0)\f$ can be
+ * estimated from the control sequence \f$u(k)\f$, with
+ * \f$k=k_0,k_0+1,\ldots,k_f-1\f$, and the measurements \f$y(k)\f$, with
+ * \f$k=k_0,k_0+1,\ldots,k_f\f$.
+ *
  * More specifically, given a continuous-time state-space system model:
  * \f[
  *   \dot{\mathbf{x}}(t) = \mathbf{A}\mathbf{x}(t)+\mathbf{B}\mathbf{u}(t)
@@ -63,12 +68,12 @@
  * system is said to be detectable.
  *
  * \note
- * Computing the rank of the observability matrix is not recommended for
- * observability testing.
- * Indeed, the resulting observability matrix will be numerically singular for
- * most systems with more than a handful of states.
- * This fact is well documented in the control literature.
- * For example, see section III in [2].
+ *  Computing the rank of the observability matrix is not recommended for
+ *  observability testing.
+ *  Indeed, the resulting observability matrix will be numerically singular for
+ *  most systems with more than a handful of states.
+ *  This fact is well documented in the control literature.
+ *  For example, see section III in [2].
  *
  * References:
  * -# K. Ogata, <em>Modern Control Engineering</em>, 4th edition, Prentice Hall, 2010.
