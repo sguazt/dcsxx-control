@@ -6,6 +6,7 @@
 #include <dcs/control/design/dlqi.hpp>
 #include <dcs/test.hpp>
 #include <iostream>
+#include "./utility.hpp"
 
 
 namespace ublas = boost::numeric::ublas;
@@ -15,6 +16,78 @@ namespace dcs_ctrl = dcs::control;
 const double tol = 1.0e-5;
 
 
+DCS_TEST_DEF( matlab_1 )
+{
+	DCS_DEBUG_TRACE("Test Case: MATLAB #1");
+
+	typedef double real_type;
+	typedef real_type value_type;
+    typedef ::std::complex<value_type> complex_value_type;
+	typedef ublas::matrix<value_type> matrix_type;
+    typedef ublas::vector<complex_value_type> vector_type;
+
+	const std::size_t nx(2);
+	const std::size_t nu(1);
+	const std::size_t ny(1);
+	const std::size_t nz(nx+1);
+	const real_type ts(1);
+
+	matrix_type A(nx,nx);
+	A(0,0) =   0; A(0,1) =   1;
+	A(1,0) = -20; A(1,1) = -10;
+
+	matrix_type B(nx,nu);
+	B(0,0) = 0;
+	B(1,0) = 1;
+
+	matrix_type C(ny,nx);
+	C(0,0) = 1; C(0,1) = 0;
+
+	matrix_type D(ny,nu);
+	D(0,0) = 0;
+
+	matrix_type Q(ublas::identity_matrix<value_type>(nz,nz));
+	Q(nx,nx) = 2e+6;
+
+	matrix_type R(ublas::identity_matrix<value_type>(nu,nu));
+
+	matrix_type N(ublas::zero_matrix<value_type>(nz,nu));
+
+
+	matrix_type expect_K(nu,nz); // state-feedback optimal gain
+	expect_K(0,0) = -19.000136465758239; expect_K(0,1) = -9.000051490140352; expect_K(0,2) = -0.999853537170799;
+
+	matrix_type expect_S(nz,nz); // solution of the associated Riccati equation
+	expect_S(0,0) = 1e+6* 4.000863944497572; expect_S(0,1) = 1e+6* 2.000472969596359; expect_S(0,2) = 1e+6*-4.000482941768265;
+	expect_S(1,0) = 1e+6* 2.000472969596359; expect_S(1,1) = 1e+6* 2.000584980049262; expect_S(1,2) = 1e+6*-2.000292968566564;
+	expect_S(2,0) = 1e+6*-4.000482941768265; expect_S(2,1) = 1e+6*-2.000292968566564; expect_S(2,2) = 1e+6* 6.000502938839015;
+
+	vector_type expect_l(nz); // closed-loop eigenvalues
+	expect_l(0) = complex_value_type( 0.022873738558717,0);
+	expect_l(1) = complex_value_type(-0.011411124209185, 0.017516871011497);
+	expect_l(2) = complex_value_type(-0.011411124209185,-0.017516871011497);
+
+
+	DCS_DEBUG_TRACE("A = " << A);
+	DCS_DEBUG_TRACE("B = " << B);
+	DCS_DEBUG_TRACE("Q = " << Q);
+	DCS_DEBUG_TRACE("R = " << R);
+	DCS_DEBUG_TRACE("N = " << N);
+	dcs_ctrl::dlqi_controller<value_type> dlqi(Q, R, N);
+	dlqi.solve(A, B, C, D, ts);
+	DCS_DEBUG_TRACE("Gain = " << dlqi.gain());
+	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqi.are_solution());
+	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqi.eigenvalues());
+	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, dlqi.gain(), nu, nz, tol );
+	DCS_TEST_CHECK_MATRIX_CLOSE( expect_S, dlqi.are_solution(), nz, nz, tol );
+	vector_type l(dlqi.eigenvalues());
+	::std::sort(l.begin(), l.end(), detail::complex_cmp<value_type>());
+	::std::sort(expect_l.begin(), expect_l.end(), detail::complex_cmp<value_type>());
+	DCS_TEST_CHECK_VECTOR_CLOSE( expect_l, l, nz, tol );
+}
+
+
+/*
 DCS_TEST_DEF( free_func_ill_cond )
 {
 	DCS_DEBUG_TRACE("Test Case: free function - ill-conditioned problem");
@@ -58,7 +131,7 @@ DCS_TEST_DEF( free_func_ill_cond )
 	matrix_type N = ublas::zero_matrix<value_type>(nx+1,nu);
 
 
-	matrix_type expect_K(nx,nx+1); // state-feedback optimal gain
+	matrix_type expect_K(nu,nx+1); // state-feedback optimal gain
 	expect_K(0,0) = - 1.0247564929914510514e-17;
 	expect_K(0,1) = - 1.1891333835485771088e-17;
 	expect_K(0,2) = - 2.2895406420567840299e-15;
@@ -111,8 +184,9 @@ DCS_TEST_DEF( free_func_ill_cond )
 	DCS_DEBUG_TRACE("R = " << R);
 	DCS_DEBUG_TRACE("N = " << N);
 	DCS_DEBUG_TRACE("Gain = " << K);
-	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, K, nx, nx+1, tol );
+	DCS_TEST_CHECK_MATRIX_CLOSE( expect_K, K, nu, nx+1, tol );
 }
+*/
 
 
 int main()
@@ -125,7 +199,8 @@ int main()
  
 	DCS_TEST_BEGIN();
 
-	DCS_TEST_DO( free_func_ill_cond );
+	DCS_TEST_DO( matlab_1 );
+//	DCS_TEST_DO( free_func_ill_cond );
 
 	DCS_TEST_END();
 }

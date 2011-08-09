@@ -221,37 +221,38 @@ void dlqi(boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	size_type N_nr = ublasx::num_rows(N);
 	size_type N_nc = ublasx::num_columns(N);
 
-	// precondition: A is square
+	// pre: A is square
 	DCS_ASSERT(
 		A_nr == A_nc,
 		throw ::std::invalid_argument("[dcs::control::dlqi] State matrix A must be a square matrix.")
 	);
-	// precondition: num_rows(B) == num_rows(A)
+	// pre: num_rows(B) == num_rows(A)
 	DCS_ASSERT(
 		B_nr == A_nr,
 		throw ::std::invalid_argument("[dcs::control::dlqi] The number of rows of the input matrix B must be the same of the state matrix A.")
 	);
-	// precondition: Q is square
+	// pre: Q is square
 	DCS_ASSERT(
 		Q_nr == Q_nc,
 		throw ::std::invalid_argument("[dcs::control::dlqi] Error weighting matrix Q must be a square matrix.")
 	);
-	// precondition: num_rows(Q) == num_rows(A)+num_rows(C)
+	// pre: num_rows(Q) == num_rows(A)+num_rows(C)
+	//      The term "num_rows(C)" means that there is one integrator for each output variable
 	DCS_ASSERT(
 		Q_nr == (A_nr+C_nr),
 		throw ::std::invalid_argument("[dcs::control::dlqi] The number of rows of the error weighting matrix Q must be the equal to the sum between the number of rows of the state matrix A and the number of outputs.")
 	);
-	// precondition: R is square
+	// pre: R is square
 	DCS_ASSERT(
 		R_nr == R_nc,
 		throw ::std::invalid_argument("[dcs::control::dlqi] Control weighting matrix Q must be a square matrix.")
 	);
-	// precondition: num_rows(R) == num_rows(B)
+	// pre: num_rows(R) == num_columns(B)
 	DCS_ASSERT(
-		R_nr == A_nr,
-		throw ::std::invalid_argument("[dcs::control::dlqi] The number of rows of the control weighting matrix Q must be the same of the input matrix B.")
+		R_nr == B_nc,
+		throw ::std::invalid_argument("[dcs::control::dlqi] The number of columns of the control weighting matrix R must be the same of the input matrix B.")
 	);
-	// precondition: num_rows(N) == (num_rows(A)+num_rows(C)) && num_columns(N) == num_columns(B)
+	// pre: num_rows(N) == (num_rows(A)+num_rows(C)) && num_columns(N) == num_columns(B)
 	DCS_ASSERT(
 		N_nr == (A_nr+C_nr) && N_nc == B_nc,
 		throw ::std::invalid_argument("[dcs::control::dlqi] The cross-term weighting matrix N must have a number of rows equal to the sum between the number of rows of the state matrix A and the number of outputs, and a number of columns equal to the number of columns of the input matrix B.")
