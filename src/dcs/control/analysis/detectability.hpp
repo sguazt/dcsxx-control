@@ -1,8 +1,7 @@
 /**
- * \file file.hpp
+ * \file src/dcs/control/analysis/detectability.hpp
  *
- * \brief Add a summary of functionalities provided by this file.
- * \brief Stabilizability analysis for linear systems.
+ * \brief Detectability analysis for linear systems.
  *
  * A system:
  * - continuous-time case: \f$\dot{x}=Ax,\quad y=Cxf$
