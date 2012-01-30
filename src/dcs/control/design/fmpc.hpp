@@ -73,60 +73,138 @@ const double fzero = 0;
 const double fmone = -1;
 const int quiet = 0;
 
-void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
-		   double *eyem, double *Q, double *R, double *Qf, double *hp, double *rd, 
-		   double *rp, int T, int n, int m, int nz, double kappa, double *dnu, double *dz);
-void rdrp(double *A, double *B, double *z, double *nu, 
-		  double *gf, double *gp, double *b, int T, int n, int m, int nz, 
-		  double kappa, double *rd, double *rp, double *Ctnu);
-void gfgphp(double *Q, double *R, double *Qf, double *zmax, double *zmin, double *z, int T, int n, int m, int nz, double *gf, double *gp, double *hp);
-void resdresp(double *rd, double *rp, int T, int n, int nz, double *resd, double *resp, double *res);
+///@{ Prototypes
+
+template <typename RealT, typename SizeT>
+void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, RealT* Q, RealT* R, RealT* Qf, RealT* hp, RealT* rd, RealT* rp, SizeT T, SizeT n, SizeT m, SizeT nz, RealT kappa, RealT* dnu, RealT* dz);
+
+template <typename RealT, typename SizeT>
+void rdrp(RealT* A, RealT* B, RealT* z, RealT* nu, RealT* gf, RealT* gp, RealT* b, SizeT T, SizeT n, SizeT m, SizeT nz, RealT kappa, RealT* rd, RealT* rp, RealT* Ctnu);
+
+template <typename RealT, typename SizeT>
+void gfgphp(RealT* Q, RealT* R, RealT* Qf, RealT* zmax, RealT* zmin, RealT* z, SizeT T, SizeT n, SizeT m, SizeT nz, RealT* gf, RealT* gp, RealT* hp);
+
+template <typename RealT, typename SizeT>
+void resdresp(RealT* rd, RealT* rp, SizeT T, SizeT n, SizeT nz, RealT* resd, RealT* resp, RealT* res);
+
+template <
+	typename AMatrixT,
+	typename BMatrixT,
+	typename QMatrixT,
+	typename RMatrixT,
+	typename QfMatrixT,
+	typename ZMinVectorT,
+	typename ZMaxVectorT,
+	typename XVectorT,
+	typename Z0VectorT,
+	typename RealT
+>
+void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
+					 ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
+					 ::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
+					 ::boost::numeric::ublas::matrix_expression<RMatrixT> const& R,
+					 ::boost::numeric::ublas::matrix_expression<QfMatrixT> const& Qf,
+					 ::boost::numeric::ublas::vector_expression<ZMinVectorT> const& zmin, 
+					 ::boost::numeric::ublas::vector_expression<ZMaxVectorT> const& zmax,
+					 ::boost::numeric::ublas::vector_expression<XVectorT> const& x,
+					 ::boost::numeric::ublas::vector_container<Z0VectorT>& z0,
+					 ::std::size_t T,
+					 ::std::size_t niters,
+					 RealT kappa);
+
+template <
+	typename AMatrixT,
+	typename BMatrixT,
+	typename QMatrixT,
+	typename RMatrixT,
+	typename XMinVectorT,
+	typename XMaxVectorT,
+	typename UMinVectorT,
+	typename UMaxVectorT,
+	typename QfMatrixT,
+	typename SizeT,
+	typename RealT,
+	typename X0MatrixT,
+	typename U0MatrixT,
+	typename X0VectorT,
+	typename XMatrixT,
+	typename UMatrixT,
+	typename XVectorT,
+	typename KMatrixT
+>
+void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
+			   ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
+			   ::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
+			   ::boost::numeric::ublas::matrix_expression<RMatrixT> const& R,
+			   ::boost::numeric::ublas::vector_expression<XMinVectorT> const& xmin, 
+			   ::boost::numeric::ublas::vector_expression<XMaxVectorT> const& xmax,
+			   ::boost::numeric::ublas::vector_expression<UMinVectorT> const& umin, 
+			   ::boost::numeric::ublas::vector_expression<UMaxVectorT> const& umax,
+			   ::boost::numeric::ublas::matrix_expression<QfMatrixT> const& Qf,
+			   SizeT T,
+			   SizeT niters,
+			   RealT kappa,
+			   ::boost::numeric::ublas::matrix_expression<X0MatrixT> const& X0,
+			   ::boost::numeric::ublas::matrix_expression<U0MatrixT> const& U0,
+			   ::boost::numeric::ublas::vector_expression<X0VectorT> const& x0,
+			   bool want_X,
+			   ::boost::numeric::ublas::matrix_container<XMatrixT>& X,
+			   bool want_U,
+			   ::boost::numeric::ublas::matrix_container<UMatrixT>& U,
+			   bool want_x,
+			   ::boost::numeric::ublas::vector_container<XVectorT>& x,
+			   bool want_K,
+			   ::boost::numeric::ublas::matrix_container<KMatrixT>& K);
+
+///@} Prototypes
+
 
 /* computes the search directions dz and dnu */
-void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
-		   double *eyem, double *Q, double *R, double *Qf, double *hp, double *rd, 
-		   double *rp, int T, int n, int m, int nz, double kappa, double *dnu, double *dz)
+template <typename RealT, typename SizeT>
+void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, RealT* Q, RealT* R, RealT* Qf, RealT* hp, RealT* rd, RealT* rp, SizeT T, SizeT n, SizeT m, SizeT nz, RealT kappa, RealT* dnu, RealT* dz)
 {
 	namespace ublas = ::boost::numeric::ublas;
 	namespace bindings = ::boost::numeric::bindings;
 
-	typedef double real_type;
+	typedef RealT real_type;
+	typedef SizeT size_type;
 	typedef ublas::array_adaptor<real_type> array_type;
 	typedef ublas::matrix<real_type,ublas::column_major,array_type> matrix_type;
 	typedef ublas::vector<real_type,array_type> vector_type;
 
-//	int info;
-    double *dptr, *dptr1, *dptr2, *dptr3, *temp, *tempmatn, *tempmatm;
-    double *PhiQ, *PhiR, *Yd, *Yud, *Ld, *Lld, *Ctdnu, *gam, *v, *be, *rdmCtdnu;
-    double *PhiinvQAt, *PhiinvRBt, *PhiinvQeye, *PhiinvReye, *CPhiinvrd;
-    int nT = n*T;
-	int nn = n*n;
-	int mm = m*m;
-	int nnT = nn*T;
-	int nnTm1 = nn*(T-1);
-	int mmT = mm*T;
-	int nm = n*m;
+//	size_type info;
+    real_type* dptr(0);
+	real_type* dptr1(0);
+	real_type* dptr2(0);
+	real_type* dptr3(0);
+    size_type nT = n*T;
+	size_type nn = n*n;
+	size_type mm = m*m;
+	size_type nnT = nn*T;
+	size_type nnTm1 = nn*(T-1);
+	size_type mmT = mm*T;
+	size_type nm = n*m;
 
     /* allocate memory */
-    PhiQ = new double[nnT];
-    PhiR = new double[mmT];
-    PhiinvQAt = new double[nnT];
-    PhiinvRBt = new double[m*nT];
-    PhiinvQeye = new double[nnT];
-    PhiinvReye = new double[mmT];
-    CPhiinvrd = new double[nT];
-    Yd = new double[nnT];
-    Yud = new double[nnTm1];
-    Ld = new double[nnT];
-    Lld = new double[nnTm1];
-    gam = new double[nT];
-    v = new double[nT];
-    be = new double[nT];
-    temp = new double[n];
-    tempmatn = new double[nn];
-    tempmatm = new double[mm];
-    Ctdnu = new double[nz];
-    rdmCtdnu = new double[nz];
+    real_type* PhiQ = new real_type[nnT];
+    real_type* PhiR = new real_type[mmT];
+    real_type* PhiinvQAt = new real_type[nnT];
+    real_type* PhiinvRBt = new real_type[m*nT];
+    real_type* PhiinvQeye = new real_type[nnT];
+    real_type* PhiinvReye = new real_type[mmT];
+    real_type* CPhiinvrd = new real_type[nT];
+    real_type* Yd = new real_type[nnT];
+    real_type* Yud = new real_type[nnTm1];
+    real_type* Ld = new real_type[nnT];
+    real_type* Lld = new real_type[nnTm1];
+    real_type* gam = new real_type[nT];
+    real_type* v = new real_type[nT];
+    real_type* be = new real_type[nT];
+    real_type* temp = new real_type[n];
+    real_type* tempmatn = new real_type[nn];
+    real_type* tempmatm = new real_type[mm];
+    real_type* Ctdnu = new real_type[nz];
+    real_type* rdmCtdnu = new real_type[nz];
 
 	// auxiliary matrices and vectors
 	matrix_type A1;
@@ -136,28 +214,28 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 	vector_type v2;
 
     /* form PhiQ and PhiR */
-    for (int i = 0; i < T-1; ++i)
+    for (size_type i = 0; i < T-1; ++i)
     {
         dptr = PhiQ+nn*i; dptr1 = Q;
-        for (int j = 0; j < nn; ++j)
+        for (size_type j = 0; j < nn; ++j)
         {
             *dptr = 2*(*dptr1);
             ++dptr; ++dptr1;
         }
         dptr = PhiQ+nn*i; dptr1 = hp+m*(i+1)+n*i;
-        for (int j = 0; j < n; ++j)
+        for (size_type j = 0; j < n; ++j)
         {
             *dptr = *dptr+kappa*(*dptr1);
             dptr = dptr+n+1; ++dptr1;
         }
         dptr = PhiR+mm*i; dptr1 = R;
-        for (int j = 0; j < mm; ++j)
+        for (size_type j = 0; j < mm; ++j)
         {
             *dptr = 2*(*dptr1);
             ++dptr; ++dptr1;
         }
         dptr = PhiR+m*m*i; dptr1 = hp+i*(n+m);
-        for (int j = 0; j < m; ++j)
+        for (size_type j = 0; j < m; ++j)
         {
             *dptr = *dptr+kappa*(*dptr1);
             dptr = dptr+m+1; ++dptr1;
@@ -165,35 +243,35 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
     }
     
     dptr = PhiR+mm*(T-1); dptr1 = R;
-    for (int j = 0; j < mm; ++j)
+    for (size_type j = 0; j < mm; ++j)
     {
         *dptr = 2*(*dptr1);
         ++dptr; ++dptr1;
     }
     dptr = PhiR+mm*(T-1); dptr1 = hp+(T-1)*(n+m);
-    for (int j = 0; j < m; ++j)
+    for (size_type j = 0; j < m; ++j)
     {
         *dptr = *dptr+kappa*(*dptr1);
         dptr = dptr+m+1; ++dptr1;
     }
     dptr = PhiQ+nn*(T-1); dptr1 = Qf;
-    for (int j = 0; j < nn; ++j)
+    for (size_type j = 0; j < nn; ++j)
     {
         *dptr = 2*(*dptr1);
         ++dptr; ++dptr1;
     }
     dptr = PhiQ+nn*(T-1); dptr1 = hp+m*T+n*(T-1);
-    for (int j = 0; j < n; ++j)
+    for (size_type j = 0; j < n; ++j)
     {
         *dptr = *dptr+kappa*(*dptr1);
         dptr = dptr+n+1; ++dptr1;
     }
 
     /* compute PhiinvQAt, PhiinvRBt, PhiinvQeye, PhiinvReye */
-    for (int i = 0; i < T; ++i)
+    for (size_type i = 0; i < T; ++i)
     {
         dptr = PhiinvQAt+nn*i; dptr1 = At;
-        for (int j = 0; j < nn; ++j)
+        for (size_type j = 0; j < nn; ++j)
         {
             *dptr = *dptr1;
             ++dptr; ++dptr1;
@@ -204,7 +282,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		A2 = matrix_type(n, n, array_type(nn, dptr));
 		bindings::lapack::posv(bindings::lower(A1), A2);
         dptr = PhiinvQeye+nn*i; dptr1 = eyen;
-        for (int j = 0; j < nn; ++j)
+        for (size_type j = 0; j < nn; ++j)
         {
             *dptr = *dptr1;
             ++dptr; ++dptr1;
@@ -217,10 +295,10 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		bindings::lapack::trtrs(bindings::lower(A1), A2);
 		bindings::lapack::trtrs(bindings::trans(bindings::lower(A1)), A2);
     }
-    for (int i = 0; i < T; ++i)
+    for (size_type i = 0; i < T; ++i)
     {
         dptr = PhiinvRBt+nm*i; dptr1 = Bt;
-        for (int j = 0; j < nm; ++j)
+        for (size_type j = 0; j < nm; ++j)
         {
             *dptr = *dptr1;
             ++dptr; ++dptr1;
@@ -231,7 +309,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		A2 = matrix_type(m, n, array_type(nm, dptr));
 		bindings::lapack::posv(bindings::lower(A1), A2);
         dptr = PhiinvReye+mm*i; dptr1 = eyem;
-        for (int j = 0; j < mm; ++j)
+        for (size_type j = 0; j < mm; ++j)
         {
             *dptr = *dptr1;
             ++dptr; ++dptr1;
@@ -247,13 +325,13 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
     
     /* form Yd and Yud */
     dptr = Yud; dptr1 = PhiinvQAt; 
-    for (int i = 0; i < nnTm1; ++i)
+    for (size_type i = 0; i < nnTm1; ++i)
     {
         *dptr = -(*dptr1);
         ++dptr; ++dptr1;
     }
     dptr2 = Yd; dptr3 = PhiinvQeye;
-    for (int i = 0; i < nn; ++i)
+    for (size_type i = 0; i < nn; ++i)
     {
         *dptr2 = *dptr3;
         ++dptr2; ++dptr3;
@@ -264,10 +342,10 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 	A2 = matrix_type(m, n, array_type(nm, PhiinvRBt));
 	A3 = matrix_type(n, n, array_type(nn, dptr2));
 	bindings::blas::gemm(fone, A1, A2, fone, A3);
-    for (int i = 1; i < T; ++i)
+    for (size_type i = 1; i < T; ++i)
     {
         dptr = Yd+nn*i; dptr1 = PhiinvQeye+nn*i;
-        for (int j = 0; j < nn; ++j)
+        for (size_type j = 0; j < nn; ++j)
         {
             *dptr = *dptr1;
             ++dptr; ++dptr1;
@@ -288,7 +366,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 
     /* compute Lii */
     dptr = Ld; dptr1 = Yd; 
-    for (int i = 0; i < nn; ++i)
+    for (size_type i = 0; i < nn; ++i)
     {
         *dptr = *dptr1;
         ++dptr; ++dptr1; 
@@ -298,10 +376,10 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 	A1 = matrix_type(n, n, array_type(nn, dptr));
 	A2 = matrix_type(n, ione, array_type(n, temp));
 	bindings::lapack::posv(bindings::lower(A1), A2);
-    for (int i = 1; i < T; ++i)
+    for (size_type i = 1; i < T; ++i)
     {
         dptr = Ld+nn*(i-1); dptr1 = Yud+nn*(i-1); dptr2 = Lld+nn*(i-1);
-        for (int j = 0; j < nn; ++j)
+        for (size_type j = 0; j < nn; ++j)
         {
             *dptr2 = *dptr1;
             ++dptr2; ++dptr1;
@@ -312,7 +390,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		A2 = matrix_type(n, n, array_type(nn, dptr2));
 		bindings::lapack::trtrs(bindings::lower(A1), A2);
         dptr1 = tempmatn;
-        for (int j = 0; j < nn; ++j)
+        for (size_type j = 0; j < nn; ++j)
         {
             *dptr1 = *dptr2;
             ++dptr1; ++dptr2;
@@ -324,7 +402,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		A3 = matrix_type(n, n, array_type(nn, dptr2));
 		bindings::blas::gemm(fone, bindings::trans(A1), A2, fzero, A3);
         dptr = Ld+nn*i; dptr1 = Yd+nn*i;
-        for (int j = 0; j < nn; ++j)
+        for (size_type j = 0; j < nn; ++j)
         {
             *dptr = *dptr1;
             ++dptr; ++dptr1;
@@ -343,7 +421,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 
     /* compute CPhiinvrd */
     dptr = CPhiinvrd; dptr1 = rd+m;
-    for (int i = 0; i < n; ++i)
+    for (size_type i = 0; i < n; ++i)
     {
         *dptr = *dptr1;
         ++dptr; ++dptr1;
@@ -358,7 +436,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 	v1 = vector_type(n, array_type(n, dptr));
 	bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
     dptr2 = temp; dptr1 = rd;
-    for (int i = 0; i < m; ++i)
+    for (size_type i = 0; i < m; ++i)
     {
         *dptr2 = *dptr1;
         ++dptr2; ++dptr1;
@@ -378,10 +456,10 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 	v2 = vector_type(n, array_type(n, dptr));
 	bindings::blas::gemv(fmone, A1, v1, fone, v2);
     
-    for (int i = 1; i < T; ++i)
+    for (size_type i = 1; i < T; ++i)
     {
         dptr = CPhiinvrd+n*i; dptr1 = rd+m+i*(n+m);
-        for (int j = 0; j < n; ++j)
+        for (size_type j = 0; j < n; ++j)
         {
             *dptr = *dptr1;
             ++dptr; ++dptr1;
@@ -396,7 +474,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		v1 = vector_type(n, array_type(n, dptr));
 		bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
         dptr2 = temp; dptr1 = rd+i*(m+n);
-        for (int j = 0; j < m; ++j)
+        for (size_type j = 0; j < m; ++j)
         {
             *dptr2 = *dptr1;
             ++dptr2; ++dptr1;
@@ -416,7 +494,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fone, v2);
         dptr2 = temp; dptr1 = rd+(i-1)*(n+m)+m;
-        for (int j = 0; j < n; ++j)
+        for (size_type j = 0; j < n; ++j)
         {
             *dptr2 = *dptr1;
             ++dptr2; ++dptr1;
@@ -439,7 +517,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 
     /* form be */
     dptr = be; dptr1 = rp; dptr2 = CPhiinvrd;
-    for (int i = 0; i < nT; ++i)
+    for (size_type i = 0; i < nT; ++i)
     {
         *dptr = (*dptr2)-(*dptr1);
         ++dptr; ++dptr1; ++dptr2;
@@ -447,7 +525,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 
     /* solve for dnu */
     dptr = v; dptr1 = be;
-    for (int i = 0; i < n; ++i)
+    for (size_type i = 0; i < n; ++i)
     {
         *dptr = -(*dptr1);
         ++dptr; ++dptr1;
@@ -457,10 +535,10 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 	A1 = matrix_type(n, n, array_type(nn, Ld));
 	v1 = vector_type(n, array_type(n, dptr));
 	bindings::blas::trsv(bindings::lower(A1), v1);
-    for (int i = 1; i < T; ++i)
+    for (size_type i = 1; i < T; ++i)
     {
         dptr = v+i*n; dptr1 = v+(i-1)*n; dptr2 = be+i*n; 
-        for (int j = 0; j < n; ++j)
+        for (size_type j = 0; j < n; ++j)
         {
             *dptr = *dptr2;
             ++dptr; ++dptr2;
@@ -478,7 +556,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		bindings::blas::trsv(bindings::lower(A1), v1);
     }
     dptr = dnu+n*(T-1); dptr1 = v+n*(T-1);
-    for (int i = 0; i < n; ++i)
+    for (size_type i = 0; i < n; ++i)
     {
         *dptr = *dptr1;
         ++dptr; ++dptr1;
@@ -488,10 +566,10 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 	A1 = matrix_type(n, n, array_type(nn, dptr3));
 	v1 = vector_type(n, array_type(n, dptr));
 	bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
-    for (int i = T-1; i > 0; --i)
+    for (size_type i = T-1; i > 0; --i)
     {
         dptr = dnu+n*(i-1); dptr1 = dnu+n*i; dptr2 = v+n*(i-1); 
-        for (int j = 0; j < n; ++j)
+        for (size_type j = 0; j < n; ++j)
         {
             *dptr = *dptr2;
             ++dptr; ++dptr2;
@@ -510,7 +588,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
     }
 
     /* form Ctdnu */
-    for (int i = 0; i < T-1; ++i)
+    for (size_type i = 0; i < T-1; ++i)
     {
         dptr = Ctdnu+i*(n+m); dptr1 = dnu+i*n;
 //		F77_CALL(dgemv)("n",&m,&n,&fmone,Bt,&m,dptr1,&ione,&fzero,dptr,&ione);
@@ -519,7 +597,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		v2 = vector_type(m, array_type(m, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fzero, v2);
         dptr = Ctdnu+i*(n+m)+m; dptr2 = dnu+(i+1)*n;
-        for (int j = 0; j < n; ++j)
+        for (size_type j = 0; j < n; ++j)
         {
             *dptr = *dptr1;
             ++dptr; ++dptr1;
@@ -539,20 +617,20 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 	v2 = vector_type(m, array_type(m, dptr));
 	bindings::blas::gemv(fmone, A1, v1, fzero, v2);
     dptr = dptr+m; 
-    for (int i = 0; i < n; ++i)
+    for (size_type i = 0; i < n; ++i)
     {
         *dptr = *dptr1;
         ++dptr; ++dptr1;
     }
     dptr = rdmCtdnu; dptr1 = Ctdnu; dptr2 = rd;
-    for (int i = 0; i < nz; ++i)
+    for (size_type i = 0; i < nz; ++i)
     {
         *dptr = -(*dptr1)-(*dptr2);
         ++dptr; ++dptr1; ++dptr2;
     }
 
     /* solve for dz */
-    for (int i = 0; i < T; ++i)
+    for (size_type i = 0; i < T; ++i)
     {
         dptr = dz+(i+1)*m+i*n; dptr1 = rdmCtdnu+(i+1)*m+i*n;
         dptr2 = PhiinvQeye+nn*i;
@@ -562,7 +640,7 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fone, A1, v1, fzero, v2);
     }
-    for (int i = 0; i < T; ++i)
+    for (size_type i = 0; i < T; ++i)
     {
         dptr = dz+i*(m+n); dptr1 = rdmCtdnu+i*(m+n);
         dptr2 = PhiinvReye+mm*i;
@@ -595,34 +673,35 @@ void dnudz(double *A, double *B, double *At, double *Bt, double *eyen,
 }
 
 /* computes rd and rp */
-void rdrp(double *A, double *B, double *z, double *nu, 
-		  double *gf, double *gp, double *b, int T, int n, int m, int nz, 
-		  double kappa, double *rd, double *rp, double *Ctnu)
+template <typename RealT, typename SizeT>
+void rdrp(RealT* A, RealT* B, RealT* z, RealT* nu, RealT* gf, RealT* gp, RealT* b, SizeT T, SizeT n, SizeT m, SizeT nz, RealT kappa, RealT* rd, RealT* rp, RealT* Ctnu)
 {
 	namespace ublas = ::boost::numeric::ublas;
 	namespace bindings = ::boost::numeric::bindings;
 
-	typedef double real_type;
+	typedef RealT real_type;
+	typedef SizeT size_type;
 	typedef ublas::array_adaptor<real_type> array_type;
 	typedef ublas::matrix<real_type,ublas::column_major,array_type> matrix_type;
 	typedef ublas::vector<real_type,array_type> vector_type;
 
-    double *Cz;
-    double *dptr, *dptr1, *dptr2;
-	int nT = n*T;
-	int nn = n*n;
-	int nm = n*m;
+    real_type* dptr(0);
+	real_type* dptr1(0);
+	real_type* dptr2(0);
+	size_type nT = n*T;
+	size_type nn = n*n;
+	size_type nm = n*m;
 
 	// auxiliary matrices and vectors
 	matrix_type A1;
 	vector_type v1;
 	vector_type v2;
 
-    Cz = new double[nT];
+    real_type* Cz = new real_type[nT];
     
     /* compute Cz */
     dptr = Cz; dptr1 = z+m;
-    for (int i = 0; i < n; ++i)
+    for (size_type i = 0; i < n; ++i)
     {
         *dptr = *dptr1;
         ++dptr; ++dptr1;
@@ -632,11 +711,11 @@ void rdrp(double *A, double *B, double *z, double *nu,
 	v1 = vector_type(m, array_type(m, z));
 	v2 = vector_type(n, array_type(n, Cz));
 	bindings::blas::gemv(fmone, A1, v1, fone, v2);
-    for (int i = 2; i <= T; ++i)
+    for (size_type i = 2; i <= T; ++i)
     {
         dptr = Cz+(i-1)*n; dptr1 = z+m+(i-2)*(n+m); 
         dptr2 = z+m+(i-1)*(m+n);
-        for (int j = 0; j < n; ++j)
+        for (size_type j = 0; j < n; ++j)
         {
             *dptr = *dptr2;
             ++dptr; ++dptr2;
@@ -669,7 +748,7 @@ void rdrp(double *A, double *B, double *z, double *nu,
 
     /* compute Ctnu */
     dptr = Ctnu; dptr1 = Ctnu+m; dptr2 = nu;
-    for (int i = 1; i <= T-1; ++i)
+    for (size_type i = 1; i <= T-1; ++i)
     {
 //		F77_CALL(dgemv)("t",&n,&m,&fmone,B,&n,dptr2,&ione,&fzero,dptr,&ione);
 		A1 = matrix_type(n, m, array_type(nm, B));
@@ -677,7 +756,7 @@ void rdrp(double *A, double *B, double *z, double *nu,
 		v2 = vector_type(m, array_type(m, dptr));
 		bindings::blas::gemv(fmone, bindings::trans(A1), v1, fzero, v2);
         dptr = dptr+n+m;
-        for (int j = 0; j < n; ++j)
+        for (size_type j = 0; j < n; ++j)
         {
             *dptr1 = *dptr2;
             ++dptr1; ++dptr2;
@@ -696,20 +775,20 @@ void rdrp(double *A, double *B, double *z, double *nu,
 	v2 = vector_type(m, array_type(m, dptr));
 	bindings::blas::gemv(fmone, bindings::trans(A1), v1, fzero, v2);
     dptr = Ctnu+nz-n; dptr1 = nu+(T-1)*n;
-    for (int i = 0; i < n; ++i)
+    for (size_type i = 0; i < n; ++i)
     {
         *dptr = *dptr1;
         ++dptr; ++dptr1;
     }
 
     dptr = rp; dptr1 = Cz; dptr2 = b;
-    for (int i = 0; i < nT; ++i)
+    for (size_type i = 0; i < nT; ++i)
     {
         *dptr = *dptr1-*dptr2;
         ++dptr; ++dptr1; ++dptr2;
     }
     dptr = rd; dptr1 = Ctnu; dptr2 = gf;
-    for (int i = 0; i < nz; ++i)
+    for (size_type i = 0; i < nz; ++i)
     {
         *dptr = *dptr1+*dptr2;
         ++dptr; ++dptr1; ++dptr2;
@@ -723,59 +802,61 @@ void rdrp(double *A, double *B, double *z, double *nu,
 }
 
 /* computes gf, gp and hp */
-void gfgphp(double *Q, double *R, double *Qf, double *zmax, double *zmin, double *z, int T, int n, int m, int nz, double *gf, double *gp, double *hp)
+template <typename RealT, typename SizeT>
+void gfgphp(RealT* Q, RealT* R, RealT* Qf, RealT* zmax, RealT* zmin, RealT* z, SizeT T, SizeT n, SizeT m, SizeT nz, RealT* gf, RealT* gp, RealT* hp)
 {
 	namespace ublas = ::boost::numeric::ublas;
 	namespace bindings = ::boost::numeric::bindings;
 
-	typedef double real_type;
+	typedef RealT real_type;
+	typedef SizeT size_type;
 	typedef ublas::array_adaptor<real_type> array_type;
 	typedef ublas::matrix<real_type,ublas::column_major,array_type> matrix_type;
 	typedef ublas::vector<real_type,array_type> vector_type;
 
-	int nn = n*n;
-	int mm = m*m;
+	size_type nn = n*n;
+	size_type mm = m*m;
 
 	// auxiliary matrices and vectors
 	matrix_type A1;
 	vector_type v1;
 	vector_type v2;
 
-    double* gp1 = new double[nz];
-    double* gp2 = new double[nz];
+    real_type* gp1 = new real_type[nz];
+    real_type* gp2 = new real_type[nz];
 
-    double* dptr(0);
-	double* dptr1(0);
-	double* dptr2(0);
+    real_type* dptr(0);
+	real_type* dptr1(0);
+	real_type* dptr2(0);
 
     dptr = gp1; dptr1 = zmax; dptr2 = z;
-    for (int i = 0; i < nz; ++i)
+    for (size_type i = 0; i < nz; ++i)
     {
         *dptr = 1.0/(*dptr1-*dptr2);
         ++dptr; ++dptr1; ++dptr2;
     }
     dptr = gp2; dptr1 = zmin; dptr2 = z;
-    for (int i = 0; i < nz; ++i)
+    for (size_type i = 0; i < nz; ++i)
     {
         *dptr = 1.0/(*dptr2-*dptr1);
         ++dptr; ++dptr1; ++dptr2;
     }
     dptr = hp; dptr1 = gp1; dptr2 = gp2;
-    for (int i = 0; i < nz; ++i)
+    for (size_type i = 0; i < nz; ++i)
     {
         *dptr = (*dptr1)*(*dptr1) + (*dptr2)*(*dptr2);
         ++dptr; ++dptr1; ++dptr2;
     }
     dptr = gp; dptr1 = gp1; dptr2 = gp2;
-    for (int i = 0; i < nz; ++i)
+    for (size_type i = 0; i < nz; ++i)
     {
         *dptr = *dptr1-*dptr2;
         ++dptr; ++dptr1; ++dptr2;
     }
     
     dptr = gf; dptr1 = z; 
-	int Tm1 = T-1;
-    for (int i = 0; i < Tm1; ++i)
+	size_type Tm1 = T-1;
+    for (size_type i = 0; i < Tm1; ++i)
     {
 //		F77_CALL(dgemv)("n",&m,&m,&ftwo,R,&m,dptr1,&ione,&fzero,dptr,&ione);
 		A1 = matrix_type(m, m, array_type(mm, R));
@@ -807,16 +888,18 @@ void gfgphp(double *Q, double *R, double *Qf, double *zmax, double *zmin, double
 }
 
 /* computes resd, resp, and res */
-void resdresp(double *rd, double *rp, int T, int n, int nz, double *resd, double *resp, double *res)
+template <typename RealT, typename SizeT>
+void resdresp(RealT* rd, RealT* rp, SizeT T, SizeT n, SizeT nz, RealT* resd, RealT* resp, RealT* res)
 {
 	namespace ublas = ::boost::numeric::ublas;
 	namespace bindings = ::boost::numeric::bindings;
 
-	typedef double real_type;
+	typedef RealT real_type;
+	typedef SizeT size_type;
 	typedef ublas::array_adaptor<real_type> array_type;
 	typedef ublas::vector<real_type,array_type> vector_type;
 
-    int nnu = T*n;
+    size_type nnu = T*n;
 
 	// auxiliary vector
 	vector_type v;
@@ -853,7 +936,7 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 					 ::boost::numeric::ublas::vector_container<Z0VectorT>& z0,
 					 ::std::size_t T,
 					 ::std::size_t niters,
-					 RealT kappa) 
+					 RealT kappa)
 {
 	namespace ublas = ::boost::numeric::ublas;
 	namespace ublasx = ::boost::numeric::ublasx;
@@ -1108,9 +1191,9 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 			   SizeT T,
 			   SizeT niters,
 			   RealT kappa,
-			   ::boost::numeric::ublas::matrix_expression<X0MatrixT>& X0,
-			   ::boost::numeric::ublas::matrix_expression<U0MatrixT>& U0,
-			   ::boost::numeric::ublas::vector_expression<X0VectorT>& x0,
+			   ::boost::numeric::ublas::matrix_expression<X0MatrixT> const& X0,
+			   ::boost::numeric::ublas::matrix_expression<U0MatrixT> const& U0,
+			   ::boost::numeric::ublas::vector_expression<X0VectorT> const& x0,
 			   bool want_X,
 			   ::boost::numeric::ublas::matrix_container<XMatrixT>& X,
 			   bool want_U,
@@ -1119,21 +1202,6 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 			   ::boost::numeric::ublas::vector_container<XVectorT>& x,
 			   bool want_K,
 			   ::boost::numeric::ublas::matrix_container<KMatrixT>& K)
-//void fmpc_step(AMatrixT const& A,
-//			   BMatrixT const& B,
-//			   QMatrixT const& Q,
-//			   RMatrixT const& R,
-//			   XMinVectorT const& xmin, 
-//			   XMaxVectorT const& xmax,
-//			   UMinVectorT const& umin, 
-//			   UMaxVectorT const& umax,
-//			   QfMatrixT const& Qf,
-//			   SizeT T,
-//			   SizeT niters,
-//			   RealT kappa,
-//			   XMatrixT& X0,
-//			   XMatrixT& U0,
-//			   XVectorT& x0)
 {
 	DCS_MACRO_SUPPRESS_UNUSED_VARIABLE_WARNING(want_x);
 
@@ -1206,7 +1274,7 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	// Compute the terminal control gain K = (R+B'Q_fB)^{-1}B'Q_fA
 	if (want_K)
 	{
-		int info;
+//		int info;
 
 		work_matrix_type BtQf(ublas::prod(ublas::trans(B), Qf)); // B'Q_f
 		K() = ublas::prod(BtQf, A); // B'Q_fA
@@ -1219,12 +1287,12 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 }} // Namespace detail::<unnamed>
 
 
-template <typename RealT, typename SizeT = int>
+template <typename RealT, typename SizeT>
 class fmpc_controller
 {
 	public: typedef RealT real_type;
 	public: typedef SizeT size_type;
-	public: typedef ::boost::numeric::ublas::matrix<real_type> matrix_type;
+	public: typedef ::boost::numeric::ublas::matrix<real_type, ::boost::numeric::ublas::column_major> matrix_type;
 	public: typedef ::boost::numeric::ublas::vector<real_type> vector_type;
 
 
@@ -1236,21 +1304,21 @@ class fmpc_controller
 	public: template <
 				typename QMatrixT,
 				typename RMatrixT,
+				typename QfMatrixT,
 				typename XMinVectorT,
 				typename XMaxVectorT,
 				typename UMinVectorT,
-				typename UMaxVectorT,
-				typename QfMatrixT
-		> fmpc_controller(::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
-						  ::boost::numeric::ublas::matrix_expression<RMatrixT> const& R,
-						  ::boost::numeric::ublas::vector_expression<QfMatrixT> const& Qf,
-						  ::boost::numeric::ublas::vector_expression<XMinVectorT> const& xmin,
-						  ::boost::numeric::ublas::vector_expression<XMaxVectorT> const& xmax,
-						  ::boost::numeric::ublas::vector_expression<UMinVectorT> const& umin,
-						  ::boost::numeric::ublas::vector_expression<UMaxVectorT> const& umax,
-						  size_type horiz,
-						  real_type barrier,
-						  size_type niters)
+				typename UMaxVectorT>
+		fmpc_controller(::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
+						::boost::numeric::ublas::matrix_expression<RMatrixT> const& R,
+						::boost::numeric::ublas::matrix_expression<QfMatrixT> const& Qf,
+						::boost::numeric::ublas::vector_expression<XMinVectorT> const& xmin,
+						::boost::numeric::ublas::vector_expression<XMaxVectorT> const& xmax,
+						::boost::numeric::ublas::vector_expression<UMinVectorT> const& umin,
+						::boost::numeric::ublas::vector_expression<UMaxVectorT> const& umax,
+						size_type horiz,
+						real_type barrier,
+						size_type niters)
 	: Q_(Q),
 	  R_(R),
 	  Qf_(Qf),
@@ -1285,7 +1353,7 @@ class fmpc_controller
 						::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
 						::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
 						::boost::numeric::ublas::matrix_expression<RMatrixT> const& R,
-						::boost::numeric::ublas::vector_expression<QfMatrixT> const& Qf,
+						::boost::numeric::ublas::matrix_expression<QfMatrixT> const& Qf,
 						::boost::numeric::ublas::vector_expression<XMinVectorT> const& xmin,
 						::boost::numeric::ublas::vector_expression<XMaxVectorT> const& xmax,
 						::boost::numeric::ublas::vector_expression<UMinVectorT> const& umin,
@@ -1495,14 +1563,14 @@ inline
 			   ::boost::numeric::ublas::matrix_expression<BMatrixT> const& B,
 			   ::boost::numeric::ublas::matrix_expression<QMatrixT> const& Q,
 			   ::boost::numeric::ublas::matrix_expression<RMatrixT> const& R,
+			   ::boost::numeric::ublas::matrix_expression<QfMatrixT> const& Qf,
 			   ::boost::numeric::ublas::vector_expression<XMinVectorT> const& xmin, 
 			   ::boost::numeric::ublas::vector_expression<XMaxVectorT> const& xmax,
 			   ::boost::numeric::ublas::vector_expression<UMinVectorT> const& umin, 
 			   ::boost::numeric::ublas::vector_expression<UMaxVectorT> const& umax,
-			   ::boost::numeric::ublas::matrix_expression<QfMatrixT> const& Qf,
 			   SizeT T,
-			   SizeT niters,
 			   RealT kappa,
+			   SizeT niters,
 			   ::boost::numeric::ublas::matrix_container<X0MatrixT>& X0,
 			   ::boost::numeric::ublas::matrix_container<U0MatrixT>& U0,
 			   ::boost::numeric::ublas::vector_container<X0VectorT>& x0)
@@ -1510,6 +1578,7 @@ inline
 	namespace ublas = ::boost::numeric::ublas;
 
 	typedef RealT real_type;
+	typedef SizeT size_type;
 	typedef ublas::matrix<real_type, ublas::column_major> work_matrix_type;
 	typedef ublas::vector<real_type, ublas::column_major> work_vector_type;
 
