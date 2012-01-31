@@ -1542,21 +1542,27 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	namespace ublas = ::boost::numeric::ublas;
 	namespace bindings = ::boost::numeric::bindings;
 
-	//typedef SizeT size_type;
-	typedef typename ublas::promote_traits<SizeT,fortran_int_t>::promote_type size_type; //TODO: type promotion
-	//typedef fortran_int_t size_type;
+#if 0
+	typedef SizeT size_type;
+	//typedef typename ublas::promote_traits<SizeT,fortran_int_t>::promote_type size_type; //TODO: type promotion
+#else
+	typedef fortran_int_t size_type;
+#endif
 	typedef RealT real_type; //TODO: type promotion
 	typedef ublas::matrix<real_type, ublas::column_major> work_matrix_type;
 	typedef ublas::vector<real_type> work_vector_type;
 
+#if 0
+#else
 	size_type TT(T);
 	size_type nn(niters);
+#endif // 0
 	size_type nx(ublas::num_columns(A));
 	size_type nu(ublas::num_columns(B));
     size_type nz(T*(nx+nu));
 
 	work_vector_type z(nz, 0);
-    for (size_type i = 0; i < T; ++i)
+    for (size_type i = 0; i < TT; ++i)
     {
 		size_type i1(i*(nu+nx));
 		size_type i2(i1+nu);
@@ -1567,7 +1573,7 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 
 	work_vector_type zmin(nz, 0);
 	work_vector_type zmax(nz, 0);
-    for (size_type i = 0; i < T; ++i)
+    for (size_type i = 0; i < TT; ++i)
     {
 		size_type i1(i*(nu+nx));
 		size_type i2(i1+nu);
@@ -1589,11 +1595,15 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 
 	x() = x0;
 
+#if 0
+    fmpc_solve_impl(A, B, Q, R, Qf, zmin, zmax, x, z, T, niters, kappa);
+#else
     fmpc_solve_impl(A, B, Q, R, Qf, zmin, zmax, x, z, TT, nn, kappa);
+#endif // 0
 
 	if (want_X || want_U)
 	{
-		for (size_type i = 0; i < T; ++i)
+		for (size_type i = 0; i < TT; ++i)
 		{
 			size_type i1(i*(nu+nx));
 			size_type i2(i1+nu);
