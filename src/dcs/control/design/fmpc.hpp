@@ -700,12 +700,6 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
 #else
 	BLAS_DTRSV("l","n","n",&n,Ld,&n,dptr,&ione);
 #endif // 0
-//::std::cerr << "[DNUDZ>> AFTER dptr" << ::std::endl;//XXX
-//printmat(dptr, n,1);
-//::std::cerr << "-------" << ::std::endl;//XXX
-//::std::cerr << "[DNUDZ>> AFTER v" << ::std::endl;//XXX
-//printmat(v, nT,1);
-//::std::cerr << "-------" << ::std::endl;//XXX
     for (size_type i = 1; i < T; ++i)
     {
         dptr = v+i*n; dptr1 = v+(i-1)*n; dptr2 = be+i*n; 
@@ -715,15 +709,6 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
             ++dptr; ++dptr2;
         }
         dptr = dptr-n; dptr3 = Lld+nn*(i-1);
-//::std::cerr << "[DNUDZ>> BEFORE dptr3" << ::std::endl;//XXX
-//printmat(dptr3, n,n);
-//::std::cerr << "-------" << ::std::endl;//XXX
-//::std::cerr << "[DNUDZ>> BEFORE dptr1" << ::std::endl;//XXX
-//printmat(dptr1, n,1);
-//::std::cerr << "-------" << ::std::endl;//XXX
-//::std::cerr << "[DNUDZ>> BEFORE dptr" << ::std::endl;//XXX
-//printmat(dptr, n,1);
-//::std::cerr << "-------" << ::std::endl;//XXX
 //		F77_CALL(dgemv)("n",&n,&n,&fmone,dptr3,&n,dptr1,&ione,&fmone,dptr,&ione);
 #if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr3));
@@ -734,15 +719,6 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
 #else
 		BLAS_DGEMV("n",&n,&n,&fmone,dptr3,&n,dptr1,&ione,&fmone,dptr,&ione);
 #endif // 0
-//::std::cerr << "[DNUDZ>> AFTER dptr3" << ::std::endl;//XXX
-//printmat(dptr3, n,n);
-//::std::cerr << "-------" << ::std::endl;//XXX
-//::std::cerr << "[DNUDZ>> AFTER dptr1" << ::std::endl;//XXX
-//printmat(dptr1, n,1);
-//::std::cerr << "-------" << ::std::endl;//XXX
-//::std::cerr << "[DNUDZ>> AFTER dptr" << ::std::endl;//XXX
-//printmat(dptr, n,1);
-//::std::cerr << "-------" << ::std::endl;//XXX
         dptr3 = Ld+nn*i;
 //		F77_CALL(dtrsv)("l","n","n",&n,dptr3,&n,dptr,&ione);
 #if 0
@@ -1295,7 +1271,6 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 	work_matrix_type eyem(ublas::identity_matrix<real_type>(m, m));
 
 	DCS_DEBUG_TRACE(std::endl << "iteration \t step \t\t rd \t\t\t rp");
-std::cerr << std::endl << "iteration \t step \t\t rd \t\t\t rp" << std::endl;//XXX
 
     for (size_type k = 0; k < niters; ++k)
     {
@@ -1309,11 +1284,6 @@ std::cerr << std::endl << "iteration \t step \t\t rd \t\t\t rp" << std::endl;//X
 		real_type resp;
 		real_type res;
 
-//::std::cerr << "Q= " << Q << std::endl;//XXX
-//::std::cerr << "R= " << R << std::endl;//XXX
-//::std::cerr << "Qf= " << Qf << std::endl;//XXX
-//::std::cerr << "zmax= " << zmax << std::endl;//XXX
-//::std::cerr << "zmin= " << zmin << std::endl;//XXX
 		gfgphp(const_cast<matrix_array_type&>(Q().data()).begin(),
 			   const_cast<matrix_array_type&>(R().data()).begin(),
 			   const_cast<matrix_array_type&>(Qf().data()).begin(),
@@ -1327,9 +1297,6 @@ std::cerr << std::endl << "iteration \t step \t\t rd \t\t\t rp" << std::endl;//X
 			   gf.data().begin(),
 			   gp.data().begin(),
 			   hp.data().begin());
-//::std::cerr << "gf= " << gf << std::endl;//XXX
-//::std::cerr << "gp= " << gp << std::endl;//XXX
-//::std::cerr << "hp= " << hp << std::endl;//XXX
 		rdrp(const_cast<matrix_array_type&>(A().data()).begin(),
 			 const_cast<matrix_array_type&>(B().data()).begin(),
 //			 const_cast<matrix_array_type&>(Q().data()).begin(),
@@ -1348,9 +1315,6 @@ std::cerr << std::endl << "iteration \t step \t\t rd \t\t\t rp" << std::endl;//X
 			 rd.data().begin(),
 			 rp.data().begin(),
 			 Ctnu.data().begin());
-//::std::cerr << "rd= " << rd << std::endl;//XXX
-//::std::cerr << "rp= " << rp << std::endl;//XXX
-//::std::cerr << "Ctnu= " << Ctnu << std::endl;//XXX
 		resdresp(rd.data().begin(),
 				 rp.data().begin(),
 				 T,
@@ -1359,9 +1323,6 @@ std::cerr << std::endl << "iteration \t step \t\t rd \t\t\t rp" << std::endl;//X
 				 &resd,
 				 &resp,
 				 &res);
-//::std::cerr << "resd= " << resd << std::endl;//XXX
-//::std::cerr << "resp= " << resp << std::endl;//XXX
-//::std::cerr << "res= " << res << std::endl;//XXX
 
         if (res < tol) break;
 
@@ -1387,8 +1348,6 @@ std::cerr << std::endl << "iteration \t step \t\t rd \t\t\t rp" << std::endl;//X
 			  kappa,
 			  dnu.data().begin(),
 			  dz.data().begin()); 
-//::std::cerr << "dnu= " << dnu << std::endl;//XXX
-//::std::cerr << "dz= " << dz << std::endl;//XXX
 
     	real_type s(1); 
 
@@ -1464,7 +1423,6 @@ std::cerr << std::endl << "iteration \t step \t\t rd \t\t\t rp" << std::endl;//X
 				 newrd.data().begin(),
 				 newrp.data().begin(),
 				 newCtnu.data().begin());
-//::std::cerr << "HERE.3" << std::endl;//XXX
 			resdresp(newrd.data().begin(),
 					 newrp.data().begin(),
 					 T,
@@ -1473,7 +1431,6 @@ std::cerr << std::endl << "iteration \t step \t\t rd \t\t\t rp" << std::endl;//X
 					 &newresd,
 					 &newresp,
 					 &newres);
-//::std::cerr << "HERE.4" << std::endl;//XXX
 
             if (newres <= (1-alpha*s)*res) break;
 
