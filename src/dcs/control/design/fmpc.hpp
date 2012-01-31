@@ -97,6 +97,7 @@ template <
 	typename ZMaxVectorT,
 	typename XVectorT,
 	typename Z0VectorT,
+	typename SizeT,
 	typename RealT
 >
 void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
@@ -108,8 +109,8 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 					 ::boost::numeric::ublas::vector_expression<ZMaxVectorT> const& zmax,
 					 ::boost::numeric::ublas::vector_expression<XVectorT> const& x,
 					 ::boost::numeric::ublas::vector_container<Z0VectorT>& z0,
-					 ::std::size_t T,
-					 ::std::size_t niters,
+					 SizeT T,
+					 SizeT niters,
 					 RealT kappa);
 
 template <
@@ -159,6 +160,27 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 ///@} Prototypes
 
 
+#if 0
+void printmat(double *A, int m, int n)
+{
+    double *dptr;
+    int j, i;
+    dptr = A;
+	::std::cerr.precision(4);
+    for (j = 0; j < m; j++)
+    {
+        for (i = 0; i < n; i++)
+        {
+            /*printf("%5.4f\t", *(dptr+m*i+j));*/
+            ::std::cerr << ::std::fixed << *(dptr+m*i+j) << "\t";
+        }
+        /*printf("\n");*/
+		::std::cerr << ::std::endl;
+    }
+    return;
+}
+#endif // 0
+
 /* computes the search directions dz and dnu */
 template <typename RealT, typename SizeT>
 void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, RealT* Q, RealT* R, RealT* Qf, RealT* hp, RealT* rd, RealT* rp, SizeT T, SizeT n, SizeT m, SizeT nz, RealT kappa, RealT* dnu, RealT* dz)
@@ -168,11 +190,13 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
 
 	typedef RealT real_type;
 	typedef SizeT size_type;
+#if 0
 	typedef ublas::array_adaptor<real_type> array_type;
 	typedef ublas::matrix<real_type,ublas::column_major,array_type> matrix_type;
 	typedef ublas::vector<real_type,array_type> vector_type;
+#endif // 0
 
-//	size_type info;
+	size_type info;
     real_type* dptr(0);
 	real_type* dptr1(0);
 	real_type* dptr2(0);
@@ -184,12 +208,13 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
 	size_type nnTm1 = nn*(T-1);
 	size_type mmT = mm*T;
 	size_type nm = n*m;
+	size_type nmT = nm*T;
 
     /* allocate memory */
     real_type* PhiQ = new real_type[nnT];
     real_type* PhiR = new real_type[mmT];
     real_type* PhiinvQAt = new real_type[nnT];
-    real_type* PhiinvRBt = new real_type[m*nT];
+    real_type* PhiinvRBt = new real_type[nmT];
     real_type* PhiinvQeye = new real_type[nnT];
     real_type* PhiinvReye = new real_type[mmT];
     real_type* CPhiinvrd = new real_type[nT];
@@ -207,11 +232,13 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
     real_type* rdmCtdnu = new real_type[nz];
 
 	// auxiliary matrices and vectors
+#if 0
 	matrix_type A1;
 	matrix_type A2;
 	matrix_type A3;
 	vector_type v1;
 	vector_type v2;
+#endif // 0
 
     /* form PhiQ and PhiR */
     for (size_type i = 0; i < T-1; ++i)
@@ -278,9 +305,15 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr = dptr-nn; dptr1 = PhiQ+nn*i;
 //		F77_CALL(dposv)("l",&n,&n,dptr1,&n,dptr,&n,&info);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr1));
 		A2 = matrix_type(n, n, array_type(nn, dptr));
 		bindings::lapack::posv(bindings::lower(A1), A2);
+		::std::copy(A1.data().begin(), A1.data().end(), dptr1);
+		::std::copy(A2.data().begin(), A2.data().end(), dptr);
+#else
+		LAPACK_DPOSV("l",&n,&n,dptr1,&n,dptr,&n, &info);
+#endif // 0
         dptr = PhiinvQeye+nn*i; dptr1 = eyen;
         for (size_type j = 0; j < nn; ++j)
         {
@@ -289,11 +322,21 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr = dptr-nn; dptr1 = PhiQ+nn*i;
 //		F77_CALL(dtrtrs)("l","n","n",&n,&n,dptr1,&n,dptr,&n,&info);
-//		F77_CALL(dtrtrs)("l","t","n",&n,&n,dptr1,&n,dptr,&n,&info);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr1));
 		A2 = matrix_type(n, n, array_type(nn, dptr));
 		bindings::lapack::trtrs(bindings::lower(A1), A2);
+		::std::copy(A2.data().begin(), A2.data().end(), dptr);
+#else
+		LAPACK_DTRTRS("l","n","n",&n,&n,dptr1,&n,dptr,&n,&info);
+#endif // 0
+//		F77_CALL(dtrtrs)("l","t","n",&n,&n,dptr1,&n,dptr,&n,&info);
+#if 0
 		bindings::lapack::trtrs(bindings::trans(bindings::lower(A1)), A2);
+		::std::copy(A2.data().begin(), A2.data().end(), dptr);
+#else
+		LAPACK_DTRTRS("l","t","n",&n,&n,dptr1,&n,dptr,&n,&info);
+#endif // 0
     }
     for (size_type i = 0; i < T; ++i)
     {
@@ -305,9 +348,15 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr = dptr-nm; dptr1 = PhiR+mm*i;
 //		F77_CALL(dposv)("l",&m,&n,dptr1,&m,dptr,&m,&info);
+#if 0
 		A1 = matrix_type(m, m, array_type(mm, dptr1));
 		A2 = matrix_type(m, n, array_type(nm, dptr));
 		bindings::lapack::posv(bindings::lower(A1), A2);
+		::std::copy(A1.data().begin(), A1.data().end(), dptr1);
+		::std::copy(A2.data().begin(), A2.data().end(), dptr);
+#else
+		LAPACK_DPOSV("l",&m,&n,dptr1,&m,dptr,&m,&info);
+#endif // 0
         dptr = PhiinvReye+mm*i; dptr1 = eyem;
         for (size_type j = 0; j < mm; ++j)
         {
@@ -316,11 +365,20 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr = dptr-mm; dptr1 = PhiR+mm*i;
 //		F77_CALL(dtrtrs)("l","n","n",&m,&m,dptr1,&m,dptr,&m,&info);
-//		F77_CALL(dtrtrs)("l","t","n",&m,&m,dptr1,&m,dptr,&m,&info);
+#if 0
 		A1 = matrix_type(m, m, array_type(mm, dptr1));
 		A2 = matrix_type(m, m, array_type(mm, dptr));
 		bindings::lapack::trtrs(bindings::lower(A1), A2);
+#else
+		LAPACK_DTRTRS("l","n","n",&m,&m,dptr1,&m,dptr,&m,&info);
+#endif // 0
+//		F77_CALL(dtrtrs)("l","t","n",&m,&m,dptr1,&m,dptr,&m,&info);
+#if 0
 		bindings::lapack::trtrs(bindings::trans(bindings::lower(A1)), A2);
+		::std::copy(A2.data().begin(), A2.data().end(), dptr);
+#else
+		LAPACK_DTRTRS("l","t","n",&m,&m,dptr1,&m,dptr,&m,&info);
+#endif // 0
     }
     
     /* form Yd and Yud */
@@ -338,10 +396,15 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
     }
     dptr2 = dptr2-nn;
 //	F77_CALL(dgemm)("n","n",&n,&n,&m,&fone,B,&n,PhiinvRBt,&m,&fone,dptr2,&n);
+#if 0
 	A1 = matrix_type(n, m, array_type(nm, B));
 	A2 = matrix_type(m, n, array_type(nm, PhiinvRBt));
 	A3 = matrix_type(n, n, array_type(nn, dptr2));
 	bindings::blas::gemm(fone, A1, A2, fone, A3);
+	::std::copy(A3.data().begin(), A3.data().end(), dptr2);
+#else
+	BLAS_DGEMM("n","n",&n,&n,&m,&fone,B,&n,PhiinvRBt,&m,&fone,dptr2,&n);
+#endif // 0
     for (size_type i = 1; i < T; ++i)
     {
         dptr = Yd+nn*i; dptr1 = PhiinvQeye+nn*i;
@@ -352,16 +415,26 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr1 = PhiinvRBt+nm*i; dptr = dptr-nn;
 //		F77_CALL(dgemm)("n","n",&n,&n,&m,&fone,B,&n,dptr1,&m,&fone,dptr,&n); 
+#if 0
 		A1 = matrix_type(n, m, array_type(nm, B));
 		A2 = matrix_type(m, n, array_type(nm, dptr1));
 		A3 = matrix_type(n, n, array_type(nn, dptr));
 		bindings::blas::gemm(fone, A1, A2, fone, A3);
+		::std::copy(A3.data().begin(), A3.data().end(), dptr);
+#else
+		BLAS_DGEMM("n","n",&n,&n,&m,&fone,B,&n,dptr1,&m,&fone,dptr,&n); 
+#endif // 0
         dptr1 = PhiinvQAt+nn*(i-1);
 //		F77_CALL(dgemm)("n","n",&n,&n,&n,&fone,A,&n,dptr1,&n,&fone,dptr,&n);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, A));
 		A2 = matrix_type(n, n, array_type(nn, dptr1));
 		A3 = matrix_type(n, n, array_type(nn, dptr));
 		bindings::blas::gemm(fone, A1, A2, fone, A3);
+		::std::copy(A3.data().begin(), A3.data().end(), dptr);
+#else
+		BLAS_DGEMM("n","n",&n,&n,&n,&fone,A,&n,dptr1,&n,&fone,dptr,&n);
+#endif // 0
     }
 
     /* compute Lii */
@@ -373,9 +446,15 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
     }
     dptr = dptr-nn; 
 //	F77_CALL(dposv)("l",&n,&ione,dptr,&n,temp,&n,&info);
+#if 0
 	A1 = matrix_type(n, n, array_type(nn, dptr));
 	A2 = matrix_type(n, ione, array_type(n, temp));
 	bindings::lapack::posv(bindings::lower(A1), A2);
+	::std::copy(A1.data().begin(), A1.data().end(), dptr);
+	::std::copy(A2.data().begin(), A2.data().end(), temp);
+#else
+	LAPACK_DPOSV("l",&n,&ione,dptr,&n,temp,&n,&info);
+#endif // 0
     for (size_type i = 1; i < T; ++i)
     {
         dptr = Ld+nn*(i-1); dptr1 = Yud+nn*(i-1); dptr2 = Lld+nn*(i-1);
@@ -386,9 +465,14 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr2 = dptr2-nn;
 //		F77_CALL(dtrtrs)("l","n","n",&n,&n,dptr,&n,dptr2,&n,&info);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr));
 		A2 = matrix_type(n, n, array_type(nn, dptr2));
 		bindings::lapack::trtrs(bindings::lower(A1), A2);
+		::std::copy(A2.data().begin(), A2.data().end(), dptr2);
+#else
+		LAPACK_DTRTRS("l","n","n",&n,&n,dptr,&n,dptr2,&n,&info);
+#endif // 0
         dptr1 = tempmatn;
         for (size_type j = 0; j < nn; ++j)
         {
@@ -397,10 +481,15 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr1 = dptr1-nn; dptr2 = dptr2-nn;
 //		F77_CALL(dgemm)("t","n",&n,&n,&n,&fone,dptr1,&n,eyen,&n,&fzero,dptr2,&n);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr1));
 		A2 = matrix_type(n, n, array_type(nn, eyen));
 		A3 = matrix_type(n, n, array_type(nn, dptr2));
 		bindings::blas::gemm(fone, bindings::trans(A1), A2, fzero, A3);
+		::std::copy(A3.data().begin(), A3.data().end(), dptr2);
+#else
+		BLAS_DGEMM("t","n",&n,&n,&n,&fone,dptr1,&n,eyen,&n,&fzero,dptr2,&n);
+#endif // 0
         dptr = Ld+nn*i; dptr1 = Yd+nn*i;
         for (size_type j = 0; j < nn; ++j)
         {
@@ -409,14 +498,25 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr = dptr-nn;
 //		F77_CALL(dgemm)("n","t",&n,&n,&n,&fmone,dptr2,&n,dptr2,&n,&fone,dptr,&n);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr2));
 		A2 = matrix_type(n, n, array_type(nn, dptr2));
 		A3 = matrix_type(n, n, array_type(nn, dptr));
 		bindings::blas::gemm(fmone, A1, bindings::trans(A2), fone, A3);
+		::std::copy(A3.data().begin(), A3.data().end(), dptr);
+#else
+		BLAS_DGEMM("n","t",&n,&n,&n,&fmone,dptr2,&n,dptr2,&n,&fone,dptr,&n);
+#endif // 0
 //		F77_CALL(dposv)("l",&n,&ione,dptr,&n,temp,&n,&info);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr));
 		A2 = matrix_type(n, ione, array_type(n, temp));
 		bindings::lapack::posv(bindings::lower(A1), A2);
+		::std::copy(A1.data().begin(), A1.data().end(), dptr);
+		::std::copy(A2.data().begin(), A2.data().end(), temp);
+#else
+		LAPACK_DPOSV("l",&n,&ione,dptr,&n,temp,&n,&info);
+#endif // 0
     }
 
     /* compute CPhiinvrd */
@@ -428,13 +528,22 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
     }
     dptr = dptr-n;
 //	F77_CALL(dtrsv)("l","n","n",&n,PhiQ,&n,dptr,&ione);
+#if 0
 	A1 = matrix_type(n, n, array_type(nn, PhiQ));
 	v1 = vector_type(n, array_type(n, dptr));
 	bindings::blas::trsv(bindings::lower(A1), v1);
+#else
+	BLAS_DTRSV("l","n","n",&n,PhiQ,&n,dptr,&ione);
+#endif // 0
 //	F77_CALL(dtrsv)("l","t","n",&n,PhiQ,&n,dptr,&ione);
-	A1 = matrix_type(n, n, array_type(nn, PhiQ));
-	v1 = vector_type(n, array_type(n, dptr));
+#if 0
+//	A1 = matrix_type(n, n, array_type(nn, PhiQ));
+//	v1 = vector_type(n, array_type(n, dptr));
 	bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
+	::std::copy(v1.data().begin(), v1.data().end(), dptr);
+#else
+	BLAS_DTRSV("l","t","n",&n,PhiQ,&n,dptr,&ione);
+#endif // 0
     dptr2 = temp; dptr1 = rd;
     for (size_type i = 0; i < m; ++i)
     {
@@ -443,18 +552,32 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
     }
     dptr2 = dptr2-m;
 //	F77_CALL(dtrsv)("l","n","n",&m,PhiR,&m,dptr2,&ione);
+#if 0
 	A1 = matrix_type(m, m, array_type(mm, PhiR));
 	v1 = vector_type(m, array_type(m, dptr2));
 	bindings::blas::trsv(bindings::lower(A1), v1);
+#else
+	BLAS_DTRSV("l","n","n",&m,PhiR,&m,dptr2,&ione);
+#endif // 0
 //	F77_CALL(dtrsv)("l","t","n",&m,PhiR,&m,dptr2,&ione);
-	A1 = matrix_type(m, m, array_type(mm, PhiR));
-	v1 = vector_type(m, array_type(m, dptr2));
+#if 0
+//	A1 = matrix_type(m, m, array_type(mm, PhiR));
+//	v1 = vector_type(m, array_type(m, dptr2));
 	bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
+	::std::copy(v1.data().begin(), v1.data().end(), dptr2);
+#else
+	BLAS_DTRSV("l","t","n",&m,PhiR,&m,dptr2,&ione);
+#endif // 0
 //	F77_CALL(dgemv)("n",&n,&m,&fmone,B,&n,temp,&ione,&fone,dptr,&ione);
+#if 0
 	A1 = matrix_type(n, m, array_type(nm, B));
 	v1 = vector_type(m, array_type(m, temp));
 	v2 = vector_type(n, array_type(n, dptr));
 	bindings::blas::gemv(fmone, A1, v1, fone, v2);
+	::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+	BLAS_DGEMV("n",&n,&m,&fmone,B,&n,temp,&ione,&fone,dptr,&ione);
+#endif // 0
     
     for (size_type i = 1; i < T; ++i)
     {
@@ -466,13 +589,22 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr = dptr-n; dptr3 = PhiQ+nn*i;
 //		F77_CALL(dtrsv)("l","n","n",&n,dptr3,&n,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr3));
 		v1 = vector_type(n, array_type(n, dptr));
 		bindings::blas::trsv(bindings::lower(A1), v1);
+#else
+		BLAS_DTRSV("l","n","n",&n,dptr3,&n,dptr,&ione);
+#endif // 0
 //		F77_CALL(dtrsv)("l","t","n",&n,dptr3,&n,dptr,&ione);
-		A1 = matrix_type(n, n, array_type(nn, dptr3));
-		v1 = vector_type(n, array_type(n, dptr));
+#if 0
+//		A1 = matrix_type(n, n, array_type(nn, dptr3));
+//		v1 = vector_type(n, array_type(n, dptr));
 		bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
+		::std::copy(v1.data().begin(), v1.data().end(), dptr);
+#else
+		BLAS_DTRSV("l","t","n",&n,dptr3,&n,dptr,&ione);
+#endif // 0
         dptr2 = temp; dptr1 = rd+i*(m+n);
         for (size_type j = 0; j < m; ++j)
         {
@@ -481,18 +613,32 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr3 = PhiR+mm*i; dptr2 = dptr2-m;
 //		F77_CALL(dtrsv)("l","n","n",&m,dptr3,&m,dptr2,&ione);
+#if 0
 		A1 = matrix_type(m, m, array_type(mm, dptr3));
 		v1 = vector_type(m, array_type(m, dptr2));
 		bindings::blas::trsv(bindings::lower(A1), v1);
+#else
+		BLAS_DTRSV("l","n","n",&m,dptr3,&m,dptr2,&ione);
+#endif // 0
 //		F77_CALL(dtrsv)("l","t","n",&m,dptr3,&m,dptr2,&ione);
-		A1 = matrix_type(m, m, array_type(mm, dptr3));
-		v1 = vector_type(m, array_type(m, dptr2));
+#if 0
+//		A1 = matrix_type(m, m, array_type(mm, dptr3));
+//		v1 = vector_type(m, array_type(m, dptr2));
 		bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
+		::std::copy(v1.data().begin(), v1.data().end(), dptr2);
+#else
+		BLAS_DTRSV("l","t","n",&m,dptr3,&m,dptr2,&ione);
+#endif // 0
 //		F77_CALL(dgemv)("n",&n,&m,&fmone,B,&n,temp,&ione,&fone,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, m, array_type(nm, B));
 		v1 = vector_type(m, array_type(m, temp));
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fone, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&n,&m,&fmone,B,&n,temp,&ione,&fone,dptr,&ione);
+#endif // 0
         dptr2 = temp; dptr1 = rd+(i-1)*(n+m)+m;
         for (size_type j = 0; j < n; ++j)
         {
@@ -501,18 +647,32 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr3 = PhiQ+nn*(i-1); dptr2 = dptr2-n;
 //		F77_CALL(dtrsv)("l","n","n",&n,dptr3,&n,dptr2,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr3));
 		v1 = vector_type(n, array_type(n, dptr2));
 		bindings::blas::trsv(bindings::lower(A1), v1);
+#else
+		BLAS_DTRSV("l","n","n",&n,dptr3,&n,dptr2,&ione);
+#endif // 0
 //		F77_CALL(dtrsv)("l","t","n",&n,dptr3,&n,dptr2,&ione);
-		A1 = matrix_type(n, n, array_type(nn, dptr3));
-		v1 = vector_type(n, array_type(n, dptr2));
+#if 0
+//		A1 = matrix_type(n, n, array_type(nn, dptr3));
+//		v1 = vector_type(n, array_type(n, dptr2));
 		bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
+		::std::copy(v1.data().begin(), v1.data().end(), dptr2);
+#else
+		BLAS_DTRSV("l","t","n",&n,dptr3,&n,dptr2,&ione);
+#endif // 0
 //		F77_CALL(dgemv)("n",&n,&n,&fmone,A,&n,temp,&ione,&fone,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, A));
 		v1 = vector_type(n, array_type(n, temp));
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fone, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&n,&n,&fmone,A,&n,temp,&ione,&fone,dptr,&ione);
+#endif // 0
     }
 
     /* form be */
@@ -532,9 +692,20 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
     }
     dptr = dptr-n;
 //	F77_CALL(dtrsv)("l","n","n",&n,Ld,&n,dptr,&ione);
+#if 0
 	A1 = matrix_type(n, n, array_type(nn, Ld));
 	v1 = vector_type(n, array_type(n, dptr));
 	bindings::blas::trsv(bindings::lower(A1), v1);
+	::std::copy(v1.data().begin(), v1.data().end(), dptr);
+#else
+	BLAS_DTRSV("l","n","n",&n,Ld,&n,dptr,&ione);
+#endif // 0
+//::std::cerr << "[DNUDZ>> AFTER dptr" << ::std::endl;//XXX
+//printmat(dptr, n,1);
+//::std::cerr << "-------" << ::std::endl;//XXX
+//::std::cerr << "[DNUDZ>> AFTER v" << ::std::endl;//XXX
+//printmat(v, nT,1);
+//::std::cerr << "-------" << ::std::endl;//XXX
     for (size_type i = 1; i < T; ++i)
     {
         dptr = v+i*n; dptr1 = v+(i-1)*n; dptr2 = be+i*n; 
@@ -544,16 +715,44 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
             ++dptr; ++dptr2;
         }
         dptr = dptr-n; dptr3 = Lld+nn*(i-1);
+//::std::cerr << "[DNUDZ>> BEFORE dptr3" << ::std::endl;//XXX
+//printmat(dptr3, n,n);
+//::std::cerr << "-------" << ::std::endl;//XXX
+//::std::cerr << "[DNUDZ>> BEFORE dptr1" << ::std::endl;//XXX
+//printmat(dptr1, n,1);
+//::std::cerr << "-------" << ::std::endl;//XXX
+//::std::cerr << "[DNUDZ>> BEFORE dptr" << ::std::endl;//XXX
+//printmat(dptr, n,1);
+//::std::cerr << "-------" << ::std::endl;//XXX
 //		F77_CALL(dgemv)("n",&n,&n,&fmone,dptr3,&n,dptr1,&ione,&fmone,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr3));
 		v1 = vector_type(n, array_type(n, dptr1));
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fmone, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&n,&n,&fmone,dptr3,&n,dptr1,&ione,&fmone,dptr,&ione);
+#endif // 0
+//::std::cerr << "[DNUDZ>> AFTER dptr3" << ::std::endl;//XXX
+//printmat(dptr3, n,n);
+//::std::cerr << "-------" << ::std::endl;//XXX
+//::std::cerr << "[DNUDZ>> AFTER dptr1" << ::std::endl;//XXX
+//printmat(dptr1, n,1);
+//::std::cerr << "-------" << ::std::endl;//XXX
+//::std::cerr << "[DNUDZ>> AFTER dptr" << ::std::endl;//XXX
+//printmat(dptr, n,1);
+//::std::cerr << "-------" << ::std::endl;//XXX
         dptr3 = Ld+nn*i;
 //		F77_CALL(dtrsv)("l","n","n",&n,dptr3,&n,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr3));
 		v1 = vector_type(n, array_type(n, dptr));
 		bindings::blas::trsv(bindings::lower(A1), v1);
+		::std::copy(v1.data().begin(), v1.data().end(), dptr);
+#else
+		BLAS_DTRSV("l","n","n",&n,dptr3,&n,dptr,&ione);
+#endif // 0
     }
     dptr = dnu+n*(T-1); dptr1 = v+n*(T-1);
     for (size_type i = 0; i < n; ++i)
@@ -563,9 +762,14 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
     }
     dptr = dptr-n; dptr3 = Ld+nn*(T-1);
 //	F77_CALL(dtrsv)("l","t","n",&n,dptr3,&n,dptr,&ione);
+#if 0
 	A1 = matrix_type(n, n, array_type(nn, dptr3));
 	v1 = vector_type(n, array_type(n, dptr));
 	bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
+	::std::copy(v1.data().begin(), v1.data().end(), dptr);
+#else
+	BLAS_DTRSV("l","t","n",&n,dptr3,&n,dptr,&ione);
+#endif // 0
     for (size_type i = T-1; i > 0; --i)
     {
         dptr = dnu+n*(i-1); dptr1 = dnu+n*i; dptr2 = v+n*(i-1); 
@@ -576,15 +780,25 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr = dptr-n; dptr3 = Lld+nn*(i-1);
 //		F77_CALL(dgemv)("t",&n,&n,&fmone,dptr3,&n,dptr1,&ione,&fone,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr3));
 		v1 = vector_type(n, array_type(n, dptr1));
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fone, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("t",&n,&n,&fmone,dptr3,&n,dptr1,&ione,&fone,dptr,&ione);
+#endif // 0
         dptr3 = Ld+nn*(i-1);
 //		F77_CALL(dtrsv)("l","t","n",&n,dptr3,&n,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr3));
 		v1 = vector_type(n, array_type(n, dptr));
 		bindings::blas::trsv(bindings::trans(bindings::lower(A1)), v1);
+		::std::copy(v1.data().begin(), v1.data().end(), dptr);
+#else
+		BLAS_DTRSV("l","t","n",&n,dptr3,&n,dptr,&ione);
+#endif // 0
     }
 
     /* form Ctdnu */
@@ -592,10 +806,15 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
     {
         dptr = Ctdnu+i*(n+m); dptr1 = dnu+i*n;
 //		F77_CALL(dgemv)("n",&m,&n,&fmone,Bt,&m,dptr1,&ione,&fzero,dptr,&ione);
+#if 0
 		A1 = matrix_type(m, n, array_type(nm, Bt));
 		v1 = vector_type(n, array_type(n, dptr1));
 		v2 = vector_type(m, array_type(m, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fzero, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&m,&n,&fmone,Bt,&m,dptr1,&ione,&fzero,dptr,&ione);
+#endif // 0
         dptr = Ctdnu+i*(n+m)+m; dptr2 = dnu+(i+1)*n;
         for (size_type j = 0; j < n; ++j)
         {
@@ -604,18 +823,28 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         }
         dptr = dptr-n;
 //		F77_CALL(dgemv)("n",&n,&n,&fmone,At,&n,dptr2,&ione,&fone,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, At));
 		v1 = vector_type(n, array_type(n, dptr2));
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fone, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&n,&n,&fmone,At,&n,dptr2,&ione,&fone,dptr,&ione);
+#endif // 0
     }
     
     dptr = Ctdnu+(T-1)*(n+m); dptr1 = dnu+(T-1)*n;
 //	F77_CALL(dgemv)("n",&m,&n,&fmone,Bt,&m,dptr1,&ione,&fzero,dptr,&ione);
+#if 0
 	A1 = matrix_type(m, n, array_type(nm, Bt));
 	v1 = vector_type(n, array_type(n, dptr1));
 	v2 = vector_type(m, array_type(m, dptr));
 	bindings::blas::gemv(fmone, A1, v1, fzero, v2);
+	::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+	BLAS_DGEMV("n",&m,&n,&fmone,Bt,&m,dptr1,&ione,&fzero,dptr,&ione);
+#endif // 0
     dptr = dptr+m; 
     for (size_type i = 0; i < n; ++i)
     {
@@ -635,20 +864,30 @@ void dnudz(RealT* A, RealT* B, RealT* At, RealT* Bt, RealT* eyen, RealT* eyem, R
         dptr = dz+(i+1)*m+i*n; dptr1 = rdmCtdnu+(i+1)*m+i*n;
         dptr2 = PhiinvQeye+nn*i;
 //		F77_CALL(dgemv)("n",&n,&n,&fone,dptr2,&n,dptr1,&ione,&fzero,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, dptr2));
 		v1 = vector_type(n, array_type(n, dptr1));
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fone, A1, v1, fzero, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&n,&n,&fone,dptr2,&n,dptr1,&ione,&fzero,dptr,&ione);
+#endif // 0
     }
     for (size_type i = 0; i < T; ++i)
     {
         dptr = dz+i*(m+n); dptr1 = rdmCtdnu+i*(m+n);
         dptr2 = PhiinvReye+mm*i;
 //		F77_CALL(dgemv)("n",&m,&m,&fone,dptr2,&m,dptr1,&ione,&fzero,dptr,&ione);
+#if 0
 		A1 = matrix_type(m, m, array_type(mm, dptr2));
 		v1 = vector_type(m, array_type(m, dptr1));
 		v2 = vector_type(m, array_type(m, dptr));
 		bindings::blas::gemv(fone, A1, v1, fzero, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&m,&m,&fone,dptr2,&m,dptr1,&ione,&fzero,dptr,&ione);
+#endif // 0
     }
 
     delete[] PhiQ;
@@ -681,14 +920,17 @@ void rdrp(RealT* A, RealT* B, RealT* z, RealT* nu, RealT* gf, RealT* gp, RealT* 
 
 	typedef RealT real_type;
 	typedef SizeT size_type;
+#if 0
 	typedef ublas::array_adaptor<real_type> array_type;
 	typedef ublas::matrix<real_type,ublas::column_major,array_type> matrix_type;
 	typedef ublas::vector<real_type,array_type> vector_type;
+#endif // 0
 
     real_type* dptr(0);
 	real_type* dptr1(0);
 	real_type* dptr2(0);
 	size_type nT = n*T;
+#if 0
 	size_type nn = n*n;
 	size_type nm = n*m;
 
@@ -696,6 +938,7 @@ void rdrp(RealT* A, RealT* B, RealT* z, RealT* nu, RealT* gf, RealT* gp, RealT* 
 	matrix_type A1;
 	vector_type v1;
 	vector_type v2;
+#endif // 0
 
     real_type* Cz = new real_type[nT];
     
@@ -707,10 +950,15 @@ void rdrp(RealT* A, RealT* B, RealT* z, RealT* nu, RealT* gf, RealT* gp, RealT* 
         ++dptr; ++dptr1;
     }
 //	F77_CALL(dgemv)("n",&n,&m,&fmone,B,&n,z,&ione,&fone,Cz,&ione);
+#if 0
 	A1 = matrix_type(n, m, array_type(nm, B));
 	v1 = vector_type(m, array_type(m, z));
 	v2 = vector_type(n, array_type(n, Cz));
 	bindings::blas::gemv(fmone, A1, v1, fone, v2);
+	::std::copy(v2.data().begin(), v2.data().end(), Cz);
+#else
+	BLAS_DGEMV("n",&n,&m,&fmone,B,&n,z,&ione,&fone,Cz,&ione);
+#endif // 0
     for (size_type i = 2; i <= T; ++i)
     {
         dptr = Cz+(i-1)*n; dptr1 = z+m+(i-2)*(n+m); 
@@ -722,16 +970,26 @@ void rdrp(RealT* A, RealT* B, RealT* z, RealT* nu, RealT* gf, RealT* gp, RealT* 
         }
         dptr = dptr-n; 
 //		F77_CALL(dgemv)("n",&n,&n,&fmone,A,&n,dptr1,&ione,&fone,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, A));
 		v1 = vector_type(n, array_type(n, dptr1));
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fone, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&n,&n,&fmone,A,&n,dptr1,&ione,&fone,dptr,&ione);
+#endif // 0
         dptr1 = dptr1+n;
 //		F77_CALL(dgemv)("n",&n,&m,&fmone,B,&n,dptr1,&ione,&fone,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, m, array_type(nm, B));
 		v1 = vector_type(m, array_type(m, dptr1));
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(fmone, A1, v1, fone, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&n,&m,&fmone,B,&n,dptr1,&ione,&fone,dptr,&ione);
+#endif // 0
     }
     /*
     dptr = Cz+(T-1)*n; dptr1 = z+m+(T-2)*(n+m);
@@ -751,10 +1009,15 @@ void rdrp(RealT* A, RealT* B, RealT* z, RealT* nu, RealT* gf, RealT* gp, RealT* 
     for (size_type i = 1; i <= T-1; ++i)
     {
 //		F77_CALL(dgemv)("t",&n,&m,&fmone,B,&n,dptr2,&ione,&fzero,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, m, array_type(nm, B));
 		v1 = vector_type(n, array_type(n, dptr2));
 		v2 = vector_type(m, array_type(m, dptr));
 		bindings::blas::gemv(fmone, bindings::trans(A1), v1, fzero, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("t",&n,&m,&fmone,B,&n,dptr2,&ione,&fzero,dptr,&ione);
+#endif // 0
         dptr = dptr+n+m;
         for (size_type j = 0; j < n; ++j)
         {
@@ -763,17 +1026,27 @@ void rdrp(RealT* A, RealT* B, RealT* z, RealT* nu, RealT* gf, RealT* gp, RealT* 
         }
         dptr1 = Ctnu+m+(i-1)*(n+m);
 //		F77_CALL(dgemv)("t",&n,&n,&fmone,A,&n,dptr2,&ione,&fone,dptr1,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, A));
 		v1 = vector_type(n, array_type(n, dptr2));
 		v2 = vector_type(n, array_type(n, dptr1));
 		bindings::blas::gemv(fmone, bindings::trans(A1), v1, fone, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr1);
+#else
+		BLAS_DGEMV("t",&n,&n,&fmone,A,&n,dptr2,&ione,&fone,dptr1,&ione);
+#endif // 0
         dptr1 = dptr1+n+m;
     }
 //	F77_CALL(dgemv)("t",&n,&m,&fmone,B,&n,dptr2,&ione,&fzero,dptr,&ione);
+#if 0
 	A1 = matrix_type(n, m, array_type(nm, B));
 	v1 = vector_type(n, array_type(n, dptr2));
 	v2 = vector_type(m, array_type(m, dptr));
 	bindings::blas::gemv(fmone, bindings::trans(A1), v1, fzero, v2);
+	::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+	BLAS_DGEMV("t",&n,&m,&fmone,B,&n,dptr2,&ione,&fzero,dptr,&ione);
+#endif // 0
     dptr = Ctnu+nz-n; dptr1 = nu+(T-1)*n;
     for (size_type i = 0; i < n; ++i)
     {
@@ -794,9 +1067,14 @@ void rdrp(RealT* A, RealT* B, RealT* z, RealT* nu, RealT* gf, RealT* gp, RealT* 
         ++dptr; ++dptr1; ++dptr2;
     }
 //	F77_CALL(daxpy)(&nz,&kappa,gp,&ione,rd,&ione);
+#if 0
 	v1 = vector_type(nz, array_type(nz, gp));
 	v2 = vector_type(nz, array_type(nz, rd));
 	bindings::blas::axpy(kappa, v1, v2);
+	::std::copy(v2.data().begin(), v2.data().end(), rd);
+#else
+	BLAS_DAXPY(&nz,&kappa,gp,&ione,rd,&ione);
+#endif // 0
 
     delete[] Cz;
 }
@@ -810,10 +1088,13 @@ void gfgphp(RealT* Q, RealT* R, RealT* Qf, RealT* zmax, RealT* zmin, RealT* z, S
 
 	typedef RealT real_type;
 	typedef SizeT size_type;
+#if 0
 	typedef ublas::array_adaptor<real_type> array_type;
 	typedef ublas::matrix<real_type,ublas::column_major,array_type> matrix_type;
 	typedef ublas::vector<real_type,array_type> vector_type;
+#endif // 0
 
+#if 0
 	size_type nn = n*n;
 	size_type mm = m*m;
 
@@ -821,6 +1102,7 @@ void gfgphp(RealT* Q, RealT* R, RealT* Qf, RealT* zmax, RealT* zmin, RealT* z, S
 	matrix_type A1;
 	vector_type v1;
 	vector_type v2;
+#endif // 0
 
     real_type* gp1 = new real_type[nz];
     real_type* gp2 = new real_type[nz];
@@ -859,29 +1141,49 @@ void gfgphp(RealT* Q, RealT* R, RealT* Qf, RealT* zmax, RealT* zmin, RealT* z, S
     for (size_type i = 0; i < Tm1; ++i)
     {
 //		F77_CALL(dgemv)("n",&m,&m,&ftwo,R,&m,dptr1,&ione,&fzero,dptr,&ione);
+#if 0
 		A1 = matrix_type(m, m, array_type(mm, R));
 		v1 = vector_type(m, array_type(n, dptr1));
 		v2 = vector_type(m, array_type(m, dptr));
 		bindings::blas::gemv(ftwo, A1, v1, fzero, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&m,&m,&ftwo,R,&m,dptr1,&ione,&fzero,dptr,&ione);
+#endif // 0
         dptr = dptr+m; dptr1 = dptr1+m;
 //		F77_CALL(dgemv)("n",&n,&n,&ftwo,Q,&n,dptr1,&ione,&fzero,dptr,&ione);
+#if 0
 		A1 = matrix_type(n, n, array_type(nn, Q));
 		v1 = vector_type(n, array_type(n, dptr1));
 		v2 = vector_type(n, array_type(n, dptr));
 		bindings::blas::gemv(ftwo, A1, v1, fzero, v2);
+		::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+		BLAS_DGEMV("n",&n,&n,&ftwo,Q,&n,dptr1,&ione,&fzero,dptr,&ione);
+#endif // 0
         dptr = dptr+n; dptr1 = dptr1+n;
     }
 //	F77_CALL(dgemv)("n",&m,&m,&ftwo,R,&m,dptr1,&ione,&fzero,dptr,&ione);
+#if 0
 	A1 = matrix_type(m, m, array_type(mm, R));
 	v1 = vector_type(m, array_type(m, dptr1));
 	v2 = vector_type(m, array_type(m, dptr));
 	bindings::blas::gemv(ftwo, A1, v1, fzero, v2);
+	::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+	BLAS_DGEMV("n",&m,&m,&ftwo,R,&m,dptr1,&ione,&fzero,dptr,&ione);
+#endif // 0
     dptr = dptr+m; dptr1 = dptr1+m;
 //	F77_CALL(dgemv)("n",&n,&n,&ftwo,Qf,&n,dptr1,&ione,&fzero,dptr,&ione);
+#if 0
 	A1 = matrix_type(n, n, array_type(nn, Qf));
 	v1 = vector_type(n, array_type(n, dptr1));
 	v2 = vector_type(n, array_type(n, dptr));
 	bindings::blas::gemv(ftwo, A1, v1, fzero, v2);
+	::std::copy(v2.data().begin(), v2.data().end(), dptr);
+#else
+	BLAS_DGEMV("n",&n,&n,&ftwo,Qf,&n,dptr1,&ione,&fzero,dptr,&ione);
+#endif // 0
 
     delete[] gp1;
 	delete[] gp2;
@@ -896,20 +1198,32 @@ void resdresp(RealT* rd, RealT* rp, SizeT T, SizeT n, SizeT nz, RealT* resd, Rea
 
 	typedef RealT real_type;
 	typedef SizeT size_type;
+#if 0
 	typedef ublas::array_adaptor<real_type> array_type;
 	typedef ublas::vector<real_type,array_type> vector_type;
+#endif // 0
 
     size_type nnu = T*n;
 
+#if 0
 	// auxiliary vector
 	vector_type v;
+#endif // 0
 
 //	*resp = F77_CALL(dnrm2)(&nnu,rp,&ione);
+#if 0
 	v = vector_type(nnu, array_type(nnu, rp));
 	*resp = bindings::blas::nrm2(v);
+#else
+	*resp = BLAS_DNRM2(&nnu,rp,&ione);
+#endif // 0
 //	*resd = F77_CALL(dnrm2)(&nz,rd,&ione);
+#if 0
 	v = vector_type(nz, array_type(nz, rd));
 	*resd = bindings::blas::nrm2(v);
+#else
+	*resd = BLAS_DNRM2(&nz,rd,&ione);
+#endif // 0
     *res = ::std::sqrt((*resp)*(*resp)+(*resd)*(*resd));
 }
 
@@ -923,6 +1237,7 @@ template <
 	typename ZMaxVectorT,
 	typename XVectorT,
 	typename Z0VectorT,
+	typename SizeT,
 	typename RealT
 >
 void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
@@ -934,8 +1249,8 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 					 ::boost::numeric::ublas::vector_expression<ZMaxVectorT> const& zmax,
 					 ::boost::numeric::ublas::vector_expression<XVectorT> const& x,
 					 ::boost::numeric::ublas::vector_container<Z0VectorT>& z0,
-					 ::std::size_t T,
-					 ::std::size_t niters,
+					 SizeT T,
+					 SizeT niters,
 					 RealT kappa)
 {
 	namespace ublas = ::boost::numeric::ublas;
@@ -950,7 +1265,7 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 	typedef ZMaxVectorT zmax_vector_type;
 	typedef XVectorT x_vector_type;
 	typedef Z0VectorT z0_vector_type;
-	typedef ::std::size_t size_type;
+	typedef SizeT size_type;
 	typedef RealT real_type;
 	//TODO: type promotion among all matrices for the real_type
 	typedef ublas::vector<real_type> work_vector_type;
@@ -980,6 +1295,7 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 	work_matrix_type eyem(ublas::identity_matrix<real_type>(m, m));
 
 	DCS_DEBUG_TRACE(std::endl << "iteration \t step \t\t rd \t\t\t rp");
+std::cerr << std::endl << "iteration \t step \t\t rd \t\t\t rp" << std::endl;//XXX
 
     for (size_type k = 0; k < niters; ++k)
     {
@@ -993,6 +1309,11 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 		real_type resp;
 		real_type res;
 
+//::std::cerr << "Q= " << Q << std::endl;//XXX
+//::std::cerr << "R= " << R << std::endl;//XXX
+//::std::cerr << "Qf= " << Qf << std::endl;//XXX
+//::std::cerr << "zmax= " << zmax << std::endl;//XXX
+//::std::cerr << "zmin= " << zmin << std::endl;//XXX
 		gfgphp(const_cast<matrix_array_type&>(Q().data()).begin(),
 			   const_cast<matrix_array_type&>(R().data()).begin(),
 			   const_cast<matrix_array_type&>(Qf().data()).begin(),
@@ -1006,6 +1327,9 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 			   gf.data().begin(),
 			   gp.data().begin(),
 			   hp.data().begin());
+//::std::cerr << "gf= " << gf << std::endl;//XXX
+//::std::cerr << "gp= " << gp << std::endl;//XXX
+//::std::cerr << "hp= " << hp << std::endl;//XXX
 		rdrp(const_cast<matrix_array_type&>(A().data()).begin(),
 			 const_cast<matrix_array_type&>(B().data()).begin(),
 //			 const_cast<matrix_array_type&>(Q().data()).begin(),
@@ -1024,6 +1348,9 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 			 rd.data().begin(),
 			 rp.data().begin(),
 			 Ctnu.data().begin());
+//::std::cerr << "rd= " << rd << std::endl;//XXX
+//::std::cerr << "rp= " << rp << std::endl;//XXX
+//::std::cerr << "Ctnu= " << Ctnu << std::endl;//XXX
 		resdresp(rd.data().begin(),
 				 rp.data().begin(),
 				 T,
@@ -1032,6 +1359,9 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 				 &resd,
 				 &resp,
 				 &res);
+//::std::cerr << "resd= " << resd << std::endl;//XXX
+//::std::cerr << "resp= " << resp << std::endl;//XXX
+//::std::cerr << "res= " << res << std::endl;//XXX
 
         if (res < tol) break;
 
@@ -1057,6 +1387,8 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 			  kappa,
 			  dnu.data().begin(),
 			  dz.data().begin()); 
+//::std::cerr << "dnu= " << dnu << std::endl;//XXX
+//::std::cerr << "dz= " << dz << std::endl;//XXX
 
     	real_type s(1); 
 
@@ -1132,6 +1464,7 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 				 newrd.data().begin(),
 				 newrp.data().begin(),
 				 newCtnu.data().begin());
+//::std::cerr << "HERE.3" << std::endl;//XXX
 			resdresp(newrd.data().begin(),
 					 newrp.data().begin(),
 					 T,
@@ -1140,6 +1473,7 @@ void fmpc_solve_impl(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 					 &newresd,
 					 &newresp,
 					 &newres);
+//::std::cerr << "HERE.4" << std::endl;//XXX
 
             if (newres <= (1-alpha*s)*res) break;
 
@@ -1208,11 +1542,15 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 	namespace ublas = ::boost::numeric::ublas;
 	namespace bindings = ::boost::numeric::bindings;
 
-	typedef SizeT size_type; //TODO: type promotion
+	//typedef SizeT size_type;
+	typedef typename ublas::promote_traits<SizeT,fortran_int_t>::promote_type size_type; //TODO: type promotion
+	//typedef fortran_int_t size_type;
 	typedef RealT real_type; //TODO: type promotion
 	typedef ublas::matrix<real_type, ublas::column_major> work_matrix_type;
 	typedef ublas::vector<real_type> work_vector_type;
 
+	size_type TT(T);
+	size_type nn(niters);
 	size_type nx(ublas::num_columns(A));
 	size_type nu(ublas::num_columns(B));
     size_type nz(T*(nx+nu));
@@ -1251,7 +1589,7 @@ void fmpc_step(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A,
 
 	x() = x0;
 
-    fmpc_solve_impl(A, B, Q, R, Qf, zmin, zmax, x, z, T, niters, kappa);
+    fmpc_solve_impl(A, B, Q, R, Qf, zmin, zmax, x, z, TT, nn, kappa);
 
 	if (want_X || want_U)
 	{
