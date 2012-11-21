@@ -83,12 +83,12 @@
 #include <cmath>
 #include <dcs/assert.hpp>
 #include <dcs/debug.hpp>
-#include <dcs/math/la/operation/matrix_basic_operations.hpp>
-#include <dcs/math/la/operation/num_columns.hpp>
-#include <dcs/math/la/operation/num_rows.hpp>
-#include <dcs/math/la/operation/size.hpp>
-#include <dcs/math/la/traits/vector.hpp>
-#include <dcs/math/la/operation/vector_basic_operations.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/traits.hpp>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublasx/operation/num_columns.hpp>
+#include <boost/numeric/ublasx/operation/num_rows.hpp>
+#include <boost/numeric/ublasx/operation/size.hpp>
 #include <functional>
 #include <limits>
 #include <stdexcept>
@@ -289,24 +289,24 @@ class multiloop_pid_controller
 		  kd_(kd),
 		  ts_(step_time),
 		  err_thresh_(err_thresh),
-		  prev_err_(::dcs::math::la::size(kp), 0),
-		  integral_(::dcs::math::la::size(ki), 0),
+		  prev_err_(::boost::numeric::ublasx::size(kp), 0),
+		  integral_(::boost::numeric::ublasx::size(ki), 0),
 		  started_(false)
 	{
 		// preconditions
 		DCS_ASSERT(
-			::dcs::math::la::size(kp) == ::dcs::math::la::size(ki)
+			::boost::numeric::ublasx::size(kp) == ::boost::numeric::ublasx::size(ki)
 			&&
-			::dcs::math::la::size(kp) == ::dcs::math::la::size(kd),
+			::boost::numeric::ublasx::size(kp) == ::boost::numeric::ublasx::size(kd),
 			throw ::std::invalid_argument("Non conformant dimensions for K_P, K_I and K_D gains.")
 		);
 
 		// Make sure the error threshold vector has a compliant size.
 
-		typedef typename ::dcs::math::la::vector_traits<vector_type>::size_type size_type;
+		typedef typename ::boost::numeric::ublas::vector_traits<vector_type>::size_type size_type;
 
-		size_type n = ::dcs::math::la::size(kp);
-		size_type m = ::dcs::math::la::size(err_thresh_);
+		size_type n = ::boost::numeric::ublasx::size(kp);
+		size_type m = ::boost::numeric::ublasx::size(err_thresh_);
 		if (m < n)
 		{
 			err_thresh_.resize(n, true);
@@ -359,14 +359,14 @@ class multiloop_pid_controller
 	{
 		// preconditions
 		DCS_ASSERT(
-			::dcs::math::la::size(error) == ::dcs::math::la::size(err_thresh_),
+			::boost::numeric::ublasx::size(error) == ::boost::numeric::ublasx::size(err_thresh_),
 			throw ::std::invalid_argument("Wrong length of error vector.")
 		);
 
 		typedef typename vector_type::size_type size_type;
 
 		// Update if the error magnitude is below the threshold.
-		size_type err_len = ::dcs::math::la::size(error);
+		size_type err_len = ::boost::numeric::ublasx::size(error);
 		for (size_type i = 0; i < err_len; ++i)
 		{
 			if (
@@ -398,9 +398,9 @@ class multiloop_pid_controller
 		}
 
 		// Return the PID controller actuator command
-		return ::dcs::math::la::element_prod(kp_, error)
-			   + ::dcs::math::la::element_prod(ki_, integral_)
-			   + ::dcs::math::la::element_prod(kd_, deriv);
+		return ::boost::numeric::ublas::element_prod(kp_, error)
+			   + ::boost::numeric::ublas::element_prod(ki_, integral_)
+			   + ::boost::numeric::ublas::element_prod(kd_, deriv);
 	}
 
 
@@ -471,28 +471,28 @@ class mimo_pid_controller
 		  kd_(kd),
 		  ts_(step_time),
 		  err_thresh_(err_thresh),
-		  prev_err_(::dcs::math::la::num_rows(kp), 0),
-		  integral_(::dcs::math::la::num_rows(ki), 0),
+		  prev_err_(::boost::numeric::ublasx::num_rows(kp), 0),
+		  integral_(::boost::numeric::ublasx::num_rows(ki), 0),
 		  started_(false)
 	{
 		// preconditions
 		DCS_ASSERT(
-			::dcs::math::la::num_rows(kp) == ::dcs::math::la::num_rows(ki)
+			::boost::numeric::ublasx::num_rows(kp) == ::boost::numeric::ublasx::num_rows(ki)
 			&&
-			::dcs::math::la::num_columns(kp) == ::dcs::math::la::num_columns(ki)
+			::boost::numeric::ublasx::num_columns(kp) == ::boost::numeric::ublasx::num_columns(ki)
 			&&
-			::dcs::math::la::num_rows(kp) == ::dcs::math::la::num_rows(kd)
+			::boost::numeric::ublasx::num_rows(kp) == ::boost::numeric::ublasx::num_rows(kd)
 			&&
-			::dcs::math::la::num_columns(kp) == ::dcs::math::la::num_columns(kd),
+			::boost::numeric::ublasx::num_columns(kp) == ::boost::numeric::ublasx::num_columns(kd),
 			throw ::std::invalid_argument("Non conformant dimensions for K_P, K_I and K_D gains.")
 		);
 
 		// Make sure the error threshold vector has a compliant size.
 
-		typedef typename ::dcs::math::la::vector_traits<vector_type>::size_type size_type;
+		typedef typename ::boost::numeric::ublas::vector_traits<vector_type>::size_type size_type;
 
-		size_type n = ::dcs::math::la::num_rows(kp);
-		size_type m = ::dcs::math::la::size(err_thresh_);
+		size_type n = ::boost::numeric::ublasx::num_rows(kp);
+		size_type m = ::boost::numeric::ublasx::size(err_thresh_);
 		if (m < n)
 		{
 			err_thresh_.resize(n, true);
@@ -545,14 +545,14 @@ class mimo_pid_controller
 	{
 		// preconditions
 		DCS_ASSERT(
-			::dcs::math::la::size(error) == ::dcs::math::la::size(err_thresh_),
+			::boost::numeric::ublasx::size(error) == ::boost::numeric::ublasx::size(err_thresh_),
 			throw ::std::invalid_argument("Wrong length of error vector.")
 		);
 
 		typedef typename vector_type::size_type size_type;
 
 		// Update if the error magnitude is below the threshold.
-		size_type err_len = ::dcs::math::la::size(error);
+		size_type err_len = ::boost::numeric::ublasx::size(error);
 		for (size_type i = 0; i < err_len; ++i)
 		{
 			if (
@@ -584,9 +584,9 @@ class mimo_pid_controller
 		}
 
 		// Return the PID controller actuator command
-		return ::dcs::math::la::prod(kp_, error)
-			   + ::dcs::math::la::prod(ki_, integral_)
-			   + ::dcs::math::la::prod(kd_, deriv);
+		return ::boost::numeric::ublas::prod(kp_, error)
+			   + ::boost::numeric::ublas::prod(ki_, integral_)
+			   + ::boost::numeric::ublas::prod(kd_, deriv);
 	}
 
 

@@ -24,9 +24,9 @@
 
 #include <cstddef>
 #include <dcs/control/design/pid_controller.hpp>
-#include <dcs/math/la/container/dense_matrix.hpp>
-#include <dcs/math/la/container/dense_vector.hpp>
-#include <dcs/math/la/operation/io.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 #include <dcs/debug.hpp>
 #include <dcs/test.hpp>
 #include <vector>
@@ -114,7 +114,7 @@ DCS_TEST_DEF( test_multiloop_pid_controller )
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
-	typedef ::dcs::math::la::dense_vector<real_type> vector_type;
+	typedef ::boost::numeric::ublas::vector<real_type> vector_type;
 
 
 	vector_type Kp(3);
@@ -224,7 +224,7 @@ DCS_TEST_DEF( test_multiloop_pid_controller_nonunit_step_time )
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
-	typedef ::dcs::math::la::dense_vector<real_type> vector_type;
+	typedef ::boost::numeric::ublas::vector<real_type> vector_type;
 
 
 	vector_type Kp(3);
@@ -333,8 +333,8 @@ DCS_TEST_DEF( test_mimo_pid_controller )
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
-	typedef ::dcs::math::la::dense_vector<real_type> vector_type;
-	typedef ::dcs::math::la::dense_matrix<real_type> matrix_type;
+	typedef ::boost::numeric::ublas::vector<real_type> vector_type;
+	typedef ::boost::numeric::ublas::matrix<real_type> matrix_type;
 
 
 	matrix_type Kp(3,3);
@@ -451,8 +451,8 @@ DCS_TEST_DEF( test_mimo_pid_controller_nonunit_step_time )
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
-	typedef ::dcs::math::la::dense_vector<real_type> vector_type;
-	typedef ::dcs::math::la::dense_matrix<real_type> matrix_type;
+	typedef ::boost::numeric::ublas::vector<real_type> vector_type;
+	typedef ::boost::numeric::ublas::matrix<real_type> matrix_type;
 
 
 	matrix_type Kp(3,3);
