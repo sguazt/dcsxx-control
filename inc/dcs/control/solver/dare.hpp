@@ -284,8 +284,11 @@ template <typename AMatrixExprT, typename LMatrixExprT, typename RMatrixExprT>
 	size_type nr(ublasx::num_rows(A));
 	size_type nc(ublasx::num_columns(A));
 
+#if 0 // Slower solution
 	if (!ublasx::empty(L))
 	{
+		// Transforms L into a nr-by-nc matrix LL=[L L ... L] and
+		// computes X=LL.*X
 		X = ublas::element_prod(
 					ublasx::rep(
 							ublasx::reshape(L, nr, 1),
@@ -295,8 +298,11 @@ template <typename AMatrixExprT, typename LMatrixExprT, typename RMatrixExprT>
 					X
 				);
 	}
+	// else: L=I_{nr,nc} and X=L.*X
 	if (!ublasx::empty(R))
 	{
+		// Transforms R into a nr-by-nc matrix RR=[R'; R'; ... R'] and
+		// computes X=X.*RR
 		X = ublas::element_prod(
 				X,
 				ublasx::rep(
@@ -306,6 +312,38 @@ template <typename AMatrixExprT, typename LMatrixExprT, typename RMatrixExprT>
 					)
 			);
 	}
+	// else: R=I_{nr,nc} and X=X.*R
+#else // Faster solution (2*nr*nc flops) for small-to-midsize arrays
+	ublas::matrix<value_type> LL;
+	ublas::matrix<value_type> RR;
+
+	if (!ublasx::empty(L))
+	{
+		// Transforms L (which we assume is a 1-by-nr matrix) into
+		// a nr-by-1 matrix LL=L'
+		LL = ublasx::trans(L);
+	}
+	else
+	{
+		// Creates L=[1; 1; ... 1]
+		LL = ublas::scalar_matrix<value_type>(nr, 1, 1);
+	}
+
+	if (!ublasx::empty(R))
+	{
+		// Transforms R (which we assume is a nc-by-1 matrix) into
+		// a 1-by-nc matrix RR=R'
+		RR = ublasx::trans(R, 1, nc);
+	}
+	else
+	{
+		// Creates R=[1 1 ... 1]
+		RR = ublas::scalar_matrix<value_type>(1, nc, 1);
+	}
+
+	// Computes X=X.*(LL*RR)
+	X = ublas::element_prod(X, ublas::prod(LL, RR));
+#endif
 
 	return X;
 }
