@@ -86,6 +86,7 @@
 #include <cmath>
 #include <dcs/assert.hpp>
 #include <dcs/debug.hpp>
+#include <dcs/math/traits/float.hpp>
 #include <functional>
 #include <iostream>
 #include <stdexcept>
@@ -93,19 +94,18 @@
 
 namespace dcs { namespace control {
 
-namespace ublas = ::boost::numeric::ublas;
-namespace ublasx = ::boost::numeric::ublasx;
-
-
 namespace detail { namespace /*<unnamed>*/ {
 
 template <typename MatrixExprT, typename SVectorT, typename PVectorT>
-typename ublasx::balance_traits<MatrixExprT>::balanced_matrix_type mat_scale(ublas::matrix_expression<MatrixExprT> const& A,
+typename ::boost::numeric::ublasx::balance_traits<MatrixExprT>::balanced_matrix_type mat_scale(::boost::numeric::ublas::matrix_expression<MatrixExprT> const& A,
 																			 SVectorT& s,
 																			 PVectorT& p,
 																			 bool full_balance,
 																			 bool permute)
 {
+	namespace ublas = ::boost::numeric::ublas;
+	namespace ublasx = ::boost::numeric::ublasx;
+
 	typedef typename ublasx::balance_traits<MatrixExprT>::balanced_matrix_type balanced_matrix_type;
 	typedef typename ublas::matrix_traits<MatrixExprT>::size_type size_type;
 
@@ -172,12 +172,15 @@ typename ublasx::balance_traits<MatrixExprT>::balanced_matrix_type mat_scale(ubl
 
 
 template <typename AMatrixExprT, typename LVectorExprT, typename RVectorExprT>
-ublas::matrix<
-	typename ublas::matrix_traits<AMatrixExprT>::value_type
-> left_right_mat_scale(ublas::matrix_expression<AMatrixExprT> const& A,
-					   ublas::vector_expression<LVectorExprT> const& l,
-					   ublas::vector_expression<RVectorExprT> const& r)
+::boost::numeric::ublas::matrix<
+	typename ::boost::numeric::ublas::matrix_traits<AMatrixExprT>::value_type
+> left_right_mat_scale(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A,
+					   ::boost::numeric::ublas::vector_expression<LVectorExprT> const& l,
+					   ::boost::numeric::ublas::vector_expression<RVectorExprT> const& r)
 {
+	namespace ublas = ::boost::numeric::ublas;
+	namespace ublasx = ::boost::numeric::ublasx;
+
 	typedef typename ublas::matrix_traits<AMatrixExprT>::value_type value_type;
 	typedef typename ublas::matrix_traits<AMatrixExprT>::size_type size_type;
 
@@ -210,12 +213,15 @@ ublas::matrix<
 
 
 template <typename AMatrixExprT, typename LMatrixExprT, typename RMatrixExprT>
-ublas::matrix<
-	typename ublas::matrix_traits<AMatrixExprT>::value_type
-> left_right_mat_scale(ublas::matrix_expression<AMatrixExprT> const& A,
-					   ublas::matrix_expression<LMatrixExprT> const& L,
-					   ublas::matrix_expression<RMatrixExprT> const& R)
+::boost::numeric::ublas::matrix<
+	typename ::boost::numeric::ublas::matrix_traits<AMatrixExprT>::value_type
+> left_right_mat_scale(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A,
+					   ::boost::numeric::ublas::matrix_expression<LMatrixExprT> const& L,
+					   ::boost::numeric::ublas::matrix_expression<RMatrixExprT> const& R)
 {
+	namespace ublas = ::boost::numeric::ublas;
+	namespace ublasx = ::boost::numeric::ublasx;
+
 	typedef typename ublas::matrix_traits<AMatrixExprT>::value_type value_type;
 	typedef typename ublas::matrix_traits<AMatrixExprT>::size_type size_type;
 
@@ -258,6 +264,10 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 	//   - outputs:
 	//      - X1, X2, sx, L (if 'factorize' == true)
 	//      - X, L (otherwise)
+
+	namespace ublas = ::boost::numeric::ublas;
+	namespace ublasx = ::boost::numeric::ublasx;
+
 	typedef typename ublas::promote_traits<
 				typename ublas::matrix_traits<HMatrixT>::size_type,
 				typename ublas::matrix_traits<JMatrixT>::size_type>::promote_type size_type;
@@ -282,7 +292,11 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 	ublas::vector<size_type> p; // permutation vector
 	if (balance)
 	{
-		// BEGIN of MATLAB arescale
+		// Computes diagonal scaling: computes a state vector scaling S that
+		//  balances the Hamiltonian/Symplectic matrix or pencil.
+		//  The original state matrix A is transformed to D*A/D where D=diag(S),
+		//  and the solutions X and Y to the original and rescaled equations are
+		//  related by X=D*Y*D.
 
 		// Form matrix M to be balanced
 		work_matrix_type M;
@@ -327,7 +341,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 		}
 
 		// Small parasitic entries can trick scaling into making X1 nearly
-		// singular (see tare:lvlTwo_Hinf1).
+		// singular.
 		// Zero out such entries in the magnitude matrix M
 		// Also helps identifying near-triangularizing permutation, e.g.,
 		//  [1 eps;1/eps 1] -> (ignore eps) -> [1 1/eps;eps 1]
@@ -343,7 +357,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 			{
 				for (size_type c = 0; c < nc_M; ++c)
 				{
-					if (::std::abs(M(r,c)) < Mu(r,c))
+					if (::dcs::math::float_traits<real_type>::definitely_less(::std::abs(M(r,c)), Mu(r,c)))
 					{
 						M(r,c) = real_type/*zero*/();
 					}
@@ -352,8 +366,8 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 		}
 
 		// Rescale magnitude matrix.
-		// 1. Use two-step approach to acquire permutation, see g162709
-		// 2. Acquire permutation making H(perm,perm) more upper triangular.
+		// 1. Use two-step approach to acquire permutation
+		// 2. Acquire permutation making H(p,p) more upper triangular.
 		//    This enhances numerics when H can be permuted to nearly
 		//    upper-triangular (the Schur method may underperform the eigenvalue
 		//    one without this permutation).
@@ -387,8 +401,6 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 		{
 		   J = detail::left_right_mat_scale(J, s, real_type(1)/s);
 		}
-
-		// END of MATLAB arescale
 	}
 	else
 	{
@@ -527,7 +539,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 							);
 		if (has_abs_le_1
 			|| has_abs_gt_1
-			|| asym > ::std::max(1.0e3*eps, 0.1*ublas::norm_1(X12)))
+			|| ::dcs::math::float_traits<real_type>::definitely_greater(asym, ::std::max(1.0e3*eps, 0.1*ublas::norm_1(X12))))
 		{
 			// Could not (reliably) isolate stable invariant subspace of
 			// dimension n
@@ -541,7 +553,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 		else
 		{
 			//report = 0;
-			if (asym > ::std::sqrt(eps))
+			if (::dcs::math::float_traits<real_type>::definitely_greater(asym, ::std::sqrt(eps)))
 			{
 				::std::clog << "[Warning] Solution may be inaccurate due to poor scaling or eigenvalues near the stability boundary." << ::std::endl;
 			}
@@ -636,9 +648,9 @@ template <typename ValueT>
 class dare_solver
 {
 	public: typedef ValueT value_type;
-	public: typedef typename ublas::type_traits<value_type>::real_type real_type;
-	private: typedef ublas::matrix<value_type,ublas::column_major> work_matrix_type;
-	private: typedef ublas::vector<
+	public: typedef typename ::boost::numeric::ublas::type_traits<value_type>::real_type real_type;
+	private: typedef ::boost::numeric::ublas::matrix<value_type,::boost::numeric::ublas::column_major> work_matrix_type;
+	private: typedef ::boost::numeric::ublas::vector<
 						typename ::boost::mpl::if_<
 							::boost::is_complex<value_type>,
 							value_type,
@@ -647,7 +659,7 @@ class dare_solver
 					> work_vector_type;
 	public: typedef work_matrix_type matrix_type;
 	public: typedef work_vector_type vector_type;
-	private: typedef typename ublas::matrix_traits<work_matrix_type>::size_type size_type;
+	private: typedef typename ::boost::numeric::ublas::matrix_traits<work_matrix_type>::size_type size_type;
 
 
 	// Default constructor
@@ -662,7 +674,7 @@ class dare_solver
 				typename BMatrixExprT,
 				typename QMatrixExprT
 			>
-		dare_solver(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_expression<BMatrixExprT> const& B, ublas::matrix_expression<QMatrixExprT> const& Q)
+		dare_solver(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q)
 	{
 		solve(A, B, Q);
 	}
@@ -674,7 +686,7 @@ class dare_solver
 				typename QMatrixExprT,
 				typename RMatrixExprT
 			>
-		dare_solver(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_expression<BMatrixExprT> const& B, ublas::matrix_expression<QMatrixExprT> const& Q, ublas::matrix_expression<RMatrixExprT> const& R)
+		dare_solver(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q, ::boost::numeric::ublas::matrix_expression<RMatrixExprT> const& R)
 	{
 		solve(A, B, Q, R);
 	}
@@ -687,7 +699,7 @@ class dare_solver
 				typename RMatrixExprT,
 				typename SMatrixExprT
 			>
-		dare_solver(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_expression<BMatrixExprT> const& B, ublas::matrix_expression<QMatrixExprT> const& Q, ublas::matrix_expression<RMatrixExprT> const& R, ublas::matrix_expression<SMatrixExprT> const& S)
+		dare_solver(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q, ::boost::numeric::ublas::matrix_expression<RMatrixExprT> const& R, ::boost::numeric::ublas::matrix_expression<SMatrixExprT> const& S)
 	{
 		solve(A, B, Q, R, S);
 	}
@@ -701,7 +713,7 @@ class dare_solver
 				typename SMatrixExprT,
 				typename EMatrixExprT
 			>
-		dare_solver(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_expression<BMatrixExprT> const& B, ublas::matrix_expression<QMatrixExprT> const& Q, ublas::matrix_expression<RMatrixExprT> const& R, ublas::matrix_expression<SMatrixExprT> const& S, ublas::matrix_expression<EMatrixExprT> const& E)
+		dare_solver(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q, ::boost::numeric::ublas::matrix_expression<RMatrixExprT> const& R, ::boost::numeric::ublas::matrix_expression<SMatrixExprT> const& S, ::boost::numeric::ublas::matrix_expression<EMatrixExprT> const& E)
 	{
 		solve(A, B, Q, R, S, E);
 	}
@@ -712,8 +724,10 @@ class dare_solver
 				typename BMatrixExprT,
 				typename QMatrixExprT
 			>
-		void solve(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_expression<BMatrixExprT> const& B, ublas::matrix_expression<QMatrixExprT> const& Q)
+		void solve(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q)
 	{
+		namespace ublas = ::boost::numeric::ublas;
+
 		work_matrix_type R = ublas::identity_matrix<value_type>(ublas::num_columns(B));
 
 		solve(A, B, Q, R);
@@ -726,8 +740,10 @@ class dare_solver
 				typename QMatrixExprT,
 				typename RMatrixExprT
 			>
-		void solve(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_expression<BMatrixExprT> const& B, ublas::matrix_expression<QMatrixExprT> const& Q, ublas::matrix_expression<RMatrixExprT> const& R)
+		void solve(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q, ::boost::numeric::ublas::matrix_expression<RMatrixExprT> const& R)
 	{
+		namespace ublas = ::boost::numeric::ublas;
+
 		work_matrix_type S = ublas::zero_matrix<value_type>(ublas::num_rows(B), ublas::num_columns(B));
 
 		solve(A, B, Q, R, S);
@@ -741,8 +757,10 @@ class dare_solver
 				typename RMatrixExprT,
 				typename SMatrixExprT
 			>
-		void solve(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_expression<BMatrixExprT> const& B, ublas::matrix_expression<QMatrixExprT> const& Q, ublas::matrix_expression<RMatrixExprT> const& R, ublas::matrix_expression<SMatrixExprT> const& S)
+		void solve(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q, ::boost::numeric::ublas::matrix_expression<RMatrixExprT> const& R, ::boost::numeric::ublas::matrix_expression<SMatrixExprT> const& S)
 	{
+		namespace ublas = ::boost::numeric::ublas;
+
 		work_matrix_type E = ublas::identity_matrix<value_type>(ublas::num_rows(B));
 
 		solve(A, B, Q, R, S, E);
@@ -757,9 +775,10 @@ class dare_solver
 				typename SMatrixExprT,
 				typename EMatrixExprT
 			>
-		void solve(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_expression<BMatrixExprT> const& B, ublas::matrix_expression<QMatrixExprT> const& Q, ublas::matrix_expression<RMatrixExprT> const& R, ublas::matrix_expression<SMatrixExprT> const& S, ublas::matrix_expression<EMatrixExprT> const& E)
+		void solve(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q, ::boost::numeric::ublas::matrix_expression<RMatrixExprT> const& R, ::boost::numeric::ublas::matrix_expression<SMatrixExprT> const& S, ::boost::numeric::ublas::matrix_expression<EMatrixExprT> const& E)
 	{
-		// BEGIN of MATLAB dare
+		namespace ublas = ::boost::numeric::ublas;
+		namespace ublasx = ::boost::numeric::ublasx;
 
 		size_type n = ublasx::num_rows(B);
 		size_type m = ublasx::num_columns(B);
@@ -899,8 +918,6 @@ class dare_solver
 //		T2_ = ublas::prod((ublas::prod(AtX, B) + S), G_);
 //		work_matrix_type Res = T1 - T2 + Q;
 //		report = ublas::norm_1(Res)/(1+ublas::norm_1(T1_)+ublas::norm_1(T2_)+ublas::norm_1(Q));
-
-		// END of MATLAB dare
 	}
 
 
@@ -942,7 +959,7 @@ class dare_solver
 
 
 template <typename ValueT>
-const typename ublas::type_traits<ValueT>::real_type dare_solver<ValueT>::eps_ = ::std::numeric_limits<typename ublas::type_traits<ValueT>::real_type>::epsilon();
+const typename ::boost::numeric::ublas::type_traits<ValueT>::real_type dare_solver<ValueT>::eps_ = ::std::numeric_limits<typename ::boost::numeric::ublas::type_traits<ValueT>::real_type>::epsilon();
 
 
 /**
@@ -987,8 +1004,10 @@ template <
 	typename EMatrixExprT,
 	typename XMatrixT
 >
-void dare(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_expression<BMatrixExprT> const& B, ublas::matrix_expression<QMatrixExprT> const& Q, ublas::matrix_expression<RMatrixExprT> const& R, ublas::matrix_expression<SMatrixExprT> const& S, ublas::matrix_expression<EMatrixExprT> const& E, XMatrixT& X)
+void dare(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q, ::boost::numeric::ublas::matrix_expression<RMatrixExprT> const& R, ::boost::numeric::ublas::matrix_expression<SMatrixExprT> const& S, ::boost::numeric::ublas::matrix_expression<EMatrixExprT> const& E, XMatrixT& X)
 {
+	namespace ublas = ::boost::numeric::ublas;
+
 	typedef typename ublas::promote_traits<
 				typename ublas::matrix_traits<AMatrixExprT>::value_type,
 				typename ublas::promote_traits<
