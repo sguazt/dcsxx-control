@@ -183,6 +183,11 @@ typename ::boost::numeric::ublasx::balance_traits<MatrixExprT>::balanced_matrix_
 }
 
 
+/**
+ * \brief Applies left and right scaling matrices.
+ *
+ * Forms Y=diag(L)*X*diag(R).
+ */
 template <typename AMatrixExprT, typename LVectorExprT, typename RVectorExprT>
 ::boost::numeric::ublas::matrix<
 	typename ::boost::numeric::ublas::matrix_traits<AMatrixExprT>::value_type
@@ -201,15 +206,22 @@ template <typename AMatrixExprT, typename LVectorExprT, typename RVectorExprT>
 	size_type nr(ublasx::num_rows(A));
 	size_type nc(ublasx::num_columns(A));
 
+#if 0 // Slower solution
 	if (!ublasx::empty(l))
 	{
+		// Transforms l into a nr-by-nc matrix L=[l l ... l] and
+		// computes X=L.*X
 		X = ublas::element_prod(
 					ublasx::rep(l, 1, nc),
 					X
 				);
 	}
+	// else: L=I_{nr,nc} and X=L.*X
+
 	if (!ublasx::empty(r))
 	{
+		// Transforms r into a nr-by-nc matrix R=[r'; r'; ... r'] and
+		// computes X=X.*R
 		X = ublas::element_prod(
 				X,
 				ublasx::rep(
@@ -219,6 +231,36 @@ template <typename AMatrixExprT, typename LVectorExprT, typename RVectorExprT>
 					)
 			);
 	}
+	// else: R=I_{nr,nc} and X=X.*R
+#else // Faster solution (2*nr*nc flops) for small-to-midsize arrays
+	ublas::matrix<value_type> L;
+	ublas::matrix<value_type> R;
+
+	if (!ublasx::empty(l))
+	{
+		// Transforms l into a nr-by-1 matrix L=[l]
+		L = ublasx::reshape(l, nr, 1);
+	}
+	else
+	{
+		// Creates L=[1; 1; ... 1]
+		L = ublas::scalar_matrix<value_type>(nr, 1, 1);
+	}
+
+	if (!ublasx::empty(r))
+	{
+		// Transforms r into a 1-by-nc matrix R=[r']
+		R = ublasx::reshape(r, 1, nc);
+	}
+	else
+	{
+		// Creates R=[1 1 ... 1]
+		R = ublas::scalar_matrix<value_type>(1, nc, 1);
+	}
+
+	// Computes X=X.*(L*R)
+	X = ublas::element_prod(X, ublas::prod(L, R));
+#endif
 
 	return X;
 }
