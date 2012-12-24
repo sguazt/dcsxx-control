@@ -96,12 +96,23 @@ namespace dcs { namespace control {
 
 namespace detail { namespace /*<unnamed>*/ {
 
+/**
+ * \brief Performs row/column scaling of 2D matrix.
+ *
+ * \param A The matrix to be scaled
+ * \param s The scaling vector
+ * \param p The permutation vector
+ * \param full_balance Performs full row/column balancing
+ * \param permute Enables row/column permutation
+ * \return The scaled matrix B=T\\A*T together with the scaling S and
+ *  permutation P such that T(:,P)=diag(S).
+ */
 template <typename MatrixExprT, typename SVectorT, typename PVectorT>
 typename ::boost::numeric::ublasx::balance_traits<MatrixExprT>::balanced_matrix_type mat_scale(::boost::numeric::ublas::matrix_expression<MatrixExprT> const& A,
-																			 SVectorT& s,
-																			 PVectorT& p,
-																			 bool full_balance,
-																			 bool permute)
+																							   SVectorT& s,
+																							   PVectorT& p,
+																							   bool full_balance,
+																							   bool permute)
 {
 	namespace ublas = ::boost::numeric::ublas;
 	namespace ublasx = ::boost::numeric::ublasx;
