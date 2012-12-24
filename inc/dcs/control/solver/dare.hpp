@@ -119,6 +119,7 @@ typename ::boost::numeric::ublasx::balance_traits<MatrixExprT>::balanced_matrix_
 
 	typedef typename ublasx::balance_traits<MatrixExprT>::balanced_matrix_type balanced_matrix_type;
 	typedef typename ublas::matrix_traits<MatrixExprT>::size_type size_type;
+	typedef typename ublas::matrix_traits<MatrixExprT>::value_type value_type;
 
 	balanced_matrix_type B;
 
@@ -141,12 +142,12 @@ typename ::boost::numeric::ublasx::balance_traits<MatrixExprT>::balanced_matrix_
 	}
 	if (permute)
 	{
-		if (ublas::norm_1(ublasx::tril(A,-2)) == 0)
+		if (::dcs::math::float_traits<value_type>::essentially_equal(ublas::norm_1(ublasx::tril(A,-2)), 0))
 		{
 			// Real upper Hessenberg: no permutation
 			p = ublasx::sequence_vector<size_type>(0, n);
 		}
-		else if (ublas::norm_1(ublasx::triu(A,2)) == 0)
+		else if (::dcs::math::float_traits<value_type>::essentially_equal(ublas::norm_1(ublasx::triu(A,2)), 0))
 		{
 			// Real lower Hessenberg
 			p = ublasx::sequence_vector<size_type>(n-1, -1, n);
