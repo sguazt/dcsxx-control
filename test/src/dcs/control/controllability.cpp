@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * \author Marco Guazzone, &lt;marco.guazzone@mfn.unipmn.it&gt;
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
  */
 
 #include <boost/numeric/ublas/io.hpp>
@@ -39,7 +39,7 @@ const double tol = 1.0e-5;
 
 DCS_TEST_DEF( state_controllability_matrix )
 {
-	DCS_DEBUG_TRACE("Test Case: State Controllability Matrix");
+	DCS_TEST_CASE("State Controllability Matrix");
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
@@ -71,7 +71,7 @@ DCS_TEST_DEF( state_controllability_matrix )
 
 DCS_TEST_DEF( state_controllability_check )
 {
-	DCS_DEBUG_TRACE("Test Case: State Controllability Check");
+	DCS_TEST_CASE("State Controllability Check");
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
@@ -124,7 +124,7 @@ DCS_TEST_DEF( state_controllability_check )
 
 DCS_TEST_DEF( output_controllability_matrix )
 {
-	DCS_DEBUG_TRACE("Test Case: Output Controllability Matrix");
+	DCS_TEST_CASE("Output Controllability Matrix");
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
@@ -163,7 +163,7 @@ DCS_TEST_DEF( output_controllability_matrix )
 
 DCS_TEST_DEF( output_controllability_check )
 {
-	DCS_DEBUG_TRACE("Test Case: Output Controllability Check");
+	DCS_TEST_CASE("Output Controllability Check");
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
@@ -238,7 +238,7 @@ DCS_TEST_DEF( output_controllability_check )
 
 DCS_TEST_DEF( controllable_decomposition )
 {
-	DCS_DEBUG_TRACE("Test Case: Controllable Decomposition");
+	DCS_TEST_CASE("Controllable Decomposition");
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
@@ -255,22 +255,22 @@ DCS_TEST_DEF( controllable_decomposition )
 		matrix_type A(n,n);
 //		A(0,0) = 1; A(0,1) =  1;
 //		A(1,0) = 4; A(1,1) = -2;
-A(0,0) = 1; A(0,1) = 0; A(0,2) = 0;
-A(1,0) = 0; A(1,1) = 2; A(1,2) = 0;
-A(2,0) = 0; A(2,1) = 0; A(2,2) = 3;
+		A(0,0) = 1; A(0,1) = 0; A(0,2) = 0;
+		A(1,0) = 0; A(1,1) = 2; A(1,2) = 0;
+		A(2,0) = 0; A(2,1) = 0; A(2,2) = 3;
 
 		matrix_type B(n,m);
 //		B(0,0) = 1; B(0,1) = -1;
 //		B(1,0) = 1; B(1,1) = -1;
-B(0,0) = 0; B(0,1) = 0;
-B(1,0) = 4; B(1,1) = 5;
-B(2,0) = 0; B(2,1) = 0;
+		B(0,0) = 0; B(0,1) = 0;
+		B(1,0) = 4; B(1,1) = 5;
+		B(2,0) = 0; B(2,1) = 0;
 
 		matrix_type C(p,n);
 //		C(0,0) = 1; C(0,1) = 0;
 //		C(1,0) = 0; C(1,1) = 1;
-C(0,0) = 6; C(0,1) = 0; C(0,2) = 0;
-C(1,0) = 0; C(1,1) = 0; C(1,2) = 7;
+		C(0,0) = 6; C(0,1) = 0; C(0,2) = 0;
+		C(1,0) = 0; C(1,1) = 0; C(1,2) = 7;
 
 
 		dcs::control::controllable_decomposition<value_type> ctrbf;
@@ -292,6 +292,8 @@ C(1,0) = 0; C(1,1) = 0; C(1,2) = 7;
 
 int main()
 {
+	DCS_TEST_SUITE("DCS Control :: Controllability");
+
 	DCS_TEST_BEGIN();
 
 	DCS_TEST_DO( state_controllability_matrix );

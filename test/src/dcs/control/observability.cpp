@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * \author Marco Guazzone, &lt;marco.guazzone@mfn.unipmn.it&gt;
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
  */
 
 #include <boost/numeric/ublas/io.hpp>
@@ -39,7 +39,7 @@ const double tol = 1.0e-5;
 
 DCS_TEST_DEF( observability_matrix )
 {
-	DCS_DEBUG_TRACE("Test Case: Observability Matrix");
+	DCS_TEST_CASE("Observability Matrix");
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
@@ -72,7 +72,7 @@ DCS_TEST_DEF( observability_matrix )
 
 DCS_TEST_DEF( observability_check )
 {
-	DCS_DEBUG_TRACE("Test Case: Observability Check");
+	DCS_TEST_CASE("Observability Check");
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
@@ -126,6 +126,8 @@ DCS_TEST_DEF( observability_check )
 
 int main()
 {
+	DCS_TEST_SUITE("DCS Control :: Observability");
+
 	DCS_TEST_BEGIN();
 
 	DCS_TEST_DO( observability_matrix );

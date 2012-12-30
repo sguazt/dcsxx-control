@@ -1,3 +1,35 @@
+/**
+ * \file test/src/dcs/control/dlqr.cpp
+ *
+ * \brief Test suite for DLQR controllers.
+ *
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
+ *
+ * <hr/>
+ *
+ * Copyright (C) 2012       Marco Guazzone (marco.guazzone@gmail.com)
+ *                          [Distributed Computing System (DCS) Group,
+ *                           Computer Science Institute,
+ *                           Department of Science and Technological Innovation,
+ *                           University of Piemonte Orientale,
+ *                           Alessandria (Italy)]
+ *
+ * This file is part of dcsxx-control (below referred to as "this program").
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <algorithm>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -19,7 +51,7 @@ const double tol = 1.0e-5;
 
 DCS_TEST_DEF( free_func )
 {
-	DCS_DEBUG_TRACE("Test Case: test_free_func");
+	DCS_TEST_CASE("test_free_func");
 
 	typedef double value_type;
 	typedef ublas::matrix<value_type> matrix_type;
@@ -72,7 +104,7 @@ DCS_TEST_DEF( free_func )
 
 DCS_TEST_DEF( oo )
 {
-	DCS_DEBUG_TRACE("Test Case: test_oo");
+	DCS_TEST_CASE("test_oo");
 
 	typedef double value_type;
 	typedef ::std::complex<value_type> complex_value_type;
@@ -169,7 +201,7 @@ DCS_TEST_DEF( mathematica_1 )
 	// See:
 	//   http://reference.wolfram.com/mathematica/ref/LQRegulatorGains.html
 
-	DCS_DEBUG_TRACE("Test Case: Mathematica #1");
+	DCS_TEST_CASE("Mathematica #1");
 
 	typedef double value_type;
 	typedef ::std::complex<value_type> complex_value_type;
@@ -244,7 +276,7 @@ DCS_TEST_DEF( mathematica_2 )
 	// See:
 	//   http://reference.wolfram.com/mathematica/ref/LQRegulatorGains.html
 
-	DCS_DEBUG_TRACE("Test Case: Mathematica #2");
+	DCS_TEST_CASE("Mathematica #2");
 
 	typedef double value_type;
 	typedef ::std::complex<value_type> complex_value_type;
@@ -312,7 +344,7 @@ DCS_TEST_DEF( mathematica_3 )
 	// See:
 	//   http://reference.wolfram.com/mathematica/ref/LQRegulatorGains.html
 
-	DCS_DEBUG_TRACE("Test Case: Mathematica #3");
+	DCS_TEST_CASE("Mathematica #3");
 
 	typedef double value_type;
 	typedef ::std::complex<value_type> complex_value_type;
@@ -382,7 +414,7 @@ DCS_TEST_DEF( mathematica_4 )
 	// See:
 	//   http://reference.wolfram.com/mathematica/ref/LQRegulatorGains.html
 
-	DCS_DEBUG_TRACE("Test Case: Mathematica #4");
+	DCS_TEST_CASE("Mathematica #4");
 
 	typedef double value_type;
 	typedef ::std::complex<value_type> complex_value_type;
@@ -460,6 +492,8 @@ int main()
 	//
 	// All tests has been validated with MATLAB 2009b
  
+	DCS_TEST_SUITE("DCS Control :: DLQR");
+
 	DCS_TEST_BEGIN();
 
 	DCS_TEST_DO( free_func );

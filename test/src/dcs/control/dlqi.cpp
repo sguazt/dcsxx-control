@@ -1,3 +1,35 @@
+/**
+ * \file test/src/dcs/control/dlqi.cpp
+ *
+ * \brief Test suite for DLQI controllers.
+ *
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
+ *
+ * <hr/>
+ *
+ * Copyright (C) 2012       Marco Guazzone (marco.guazzone@gmail.com)
+ *                          [Distributed Computing System (DCS) Group,
+ *                           Computer Science Institute,
+ *                           Department of Science and Technological Innovation,
+ *                           University of Piemonte Orientale,
+ *                           Alessandria (Italy)]
+ *
+ * This file is part of dcsxx-control (below referred to as "this program").
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
@@ -18,7 +50,7 @@ const double tol = 1.0e-5;
 
 DCS_TEST_DEF( matlab_1 )
 {
-	DCS_DEBUG_TRACE("Test Case: MATLAB #1");
+	DCS_TEST_CASE("MATLAB #1");
 
 	typedef double real_type;
 	typedef real_type value_type;
@@ -90,7 +122,7 @@ DCS_TEST_DEF( matlab_1 )
 /*
 DCS_TEST_DEF( free_func_ill_cond )
 {
-	DCS_DEBUG_TRACE("Test Case: free function - ill-conditioned problem");
+	DCS_TEST_CASE("free function - ill-conditioned problem");
 
 	typedef double real_type;
 	typedef real_type value_type;
@@ -197,6 +229,8 @@ int main()
 	//
 	// All tests has been validated with MATLAB 2009b
  
+	DCS_TEST_SUITE("DCS Control :: DLQI");
+
 	DCS_TEST_BEGIN();
 
 	DCS_TEST_DO( matlab_1 );

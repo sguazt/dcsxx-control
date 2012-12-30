@@ -1,5 +1,5 @@
 /**
- * \file src/dcs/control/analysis/stabilizability.hpp
+ * \file dcs/control/analysis/stabilizability.hpp
  *
  * \brief Stabilizability analysis for linear systems.
  *
@@ -65,7 +65,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * \author Marco Guazzone, &lt;marco.guazzone@mfn.unipmn.it&gt;
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
  */
 
 #ifndef DCS_CONTROL_ANALYSIS_STABILIZABILITY_HPP

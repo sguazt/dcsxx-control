@@ -1,5 +1,5 @@
 /**
- * \file src/dcs/control/solver/dare.hpp
+ * \file dcs/control/solver/dare_matlab2009b.hpp
  *
  * \brief Discrete-time Algebraic Riccati Equations solver.
  *
@@ -39,11 +39,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * \author Marco Guazzone, &lt;marco.guazzone@mfn.unipmn.it&gt;
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
  */
 
-#ifndef DCS_CONTROL_DARE_HPP
-#define DCS_CONTROL_DARE_HPP
+#ifndef DCS_CONTROL_SOLVER_DARE_MATLAB2009B_HPP
+#define DCS_CONTROL_SOLVER_DARE_MATLAB2009B_HPP
 
 
 #include <algorithm>
@@ -1019,4 +1019,4 @@ void dare(ublas::matrix_expression<AMatrixExprT> const& A, ublas::matrix_express
 }} // Namespace dcs::control
 
 
-#endif // DCS_CONTROL_DARE_HPP
+#endif // DCS_CONTROL_SOLVER_DARE_MATLAB2009B_HPP

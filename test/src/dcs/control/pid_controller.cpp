@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * \author Marco Guazzone, &lt;marco.guazzone@mfn.unipmn.it&gt;
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
  */
 
 #include <cstddef>
@@ -34,7 +34,7 @@
 
 DCS_TEST_DEF( test_single_pid_controller )
 {
-	DCS_DEBUG_TRACE("Test Case: Single-loop PID Controller");
+	DCS_TEST_CASE("Single-loop PID Controller");
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
@@ -72,7 +72,7 @@ DCS_TEST_DEF( test_single_pid_controller )
 
 DCS_TEST_DEF( test_single_pid_controller_nonunit_step_time )
 {
-	DCS_DEBUG_TRACE("Test Case: Single-loop PID Controller with non-unit step-time");
+	DCS_TEST_CASE("Single-loop PID Controller with non-unit step-time");
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
@@ -110,7 +110,7 @@ DCS_TEST_DEF( test_single_pid_controller_nonunit_step_time )
 
 DCS_TEST_DEF( test_multiloop_pid_controller )
 {
-	DCS_DEBUG_TRACE("Test Case: Multi-loop PID Controller");
+	DCS_TEST_CASE("Multi-loop PID Controller");
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
@@ -220,7 +220,7 @@ DCS_TEST_DEF( test_multiloop_pid_controller )
 
 DCS_TEST_DEF( test_multiloop_pid_controller_nonunit_step_time )
 {
-	DCS_DEBUG_TRACE("Test Case: Multi-loop PID Controller with non-unit step-time");
+	DCS_TEST_CASE("Multi-loop PID Controller with non-unit step-time");
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
@@ -329,7 +329,7 @@ DCS_TEST_DEF( test_multiloop_pid_controller_nonunit_step_time )
 
 DCS_TEST_DEF( test_mimo_pid_controller )
 {
-	DCS_DEBUG_TRACE("Test Case: MIMO PID Controller");
+	DCS_TEST_CASE("MIMO PID Controller");
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
@@ -447,7 +447,7 @@ DCS_TEST_DEF( test_mimo_pid_controller )
 
 DCS_TEST_DEF( test_mimo_pid_controller_nonunit_step_time )
 {
-	DCS_DEBUG_TRACE("Test Case: MIMO PID Controller with non-unit step-time");
+	DCS_TEST_CASE("MIMO PID Controller with non-unit step-time");
 
 	typedef double real_type;
 	typedef ::std::size_t size_type;
@@ -566,7 +566,7 @@ DCS_TEST_DEF( test_mimo_pid_controller_nonunit_step_time )
 
 int main()
 {
-	DCS_TEST_SUITE("Test Suite for DCS++ Control System Library");
+	DCS_TEST_SUITE("DCS Control :: PID Controller");
 
 	DCS_TEST_BEGIN();
 

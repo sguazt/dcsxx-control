@@ -1,3 +1,35 @@
+/**
+ * \file test/src/dcs/control/fmpc.cpp
+ *
+ * \brief Test suite for Fast-MPC controllers.
+ *
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
+ *
+ * <hr/>
+ *
+ * Copyright (C) 2012       Marco Guazzone (marco.guazzone@gmail.com)
+ *                          [Distributed Computing System (DCS) Group,
+ *                           Computer Science Institute,
+ *                           Department of Science and Technological Innovation,
+ *                           University of Piemonte Orientale,
+ *                           Alessandria (Italy)]
+ *
+ * This file is part of dcsxx-control (below referred to as "this program").
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_expression.hpp>
@@ -15,6 +47,8 @@
 
 DCS_TEST_DEF( free_func )
 {
+	DCS_TEST_CASE("Free Function");
+
 	namespace ublas = ::boost::numeric::ublas;
 	namespace ublasx = ::boost::numeric::ublasx;
 
@@ -227,6 +261,8 @@ DCS_TEST_DEF( free_func )
 
 DCS_TEST_DEF( oo )
 {
+	DCS_TEST_CASE("Object-Oriented");
+
 	namespace ublas = ::boost::numeric::ublas;
 	namespace ublasx = ::boost::numeric::ublasx;
 
@@ -425,6 +461,8 @@ DCS_TEST_DEF( oo )
 
 int main()
 {
+	DCS_TEST_SUITE("DCS Control :: Fast-MPC");
+
 	DCS_TEST_BEGIN();
 
 	DCS_TEST_DO( free_func );

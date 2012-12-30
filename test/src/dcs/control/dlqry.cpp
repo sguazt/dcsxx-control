@@ -1,9 +1,33 @@
 /**
  * \file test/src/dcs/control/dlqry.cpp
  *
- * \brief Test suite for the DLQRY controller.
+ * \brief Test suite for the DLQRY controllers.
  *
- * \author Marco Guazzone, &lt;marco.guazzone@mfn.unipmn.it&gt;
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
+ *
+ * <hr/>
+ *
+ * Copyright (C) 2012       Marco Guazzone (marco.guazzone@gmail.com)
+ *                          [Distributed Computing System (DCS) Group,
+ *                           Computer Science Institute,
+ *                           Department of Science and Technological Innovation,
+ *                           University of Piemonte Orientale,
+ *                           Alessandria (Italy)]
+ *
+ * This file is part of dcsxx-control (below referred to as "this program").
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <boost/numeric/ublas/io.hpp>
@@ -26,7 +50,7 @@ const double tol = 1.0e-5;
 
 DCS_TEST_DEF( free_func )
 {
-	DCS_DEBUG_TRACE("Test Case: test_free_func");
+	DCS_TEST_CASE("free_func");
 
 	typedef double value_type;
 	typedef std::complex<double> complex_type;
@@ -81,7 +105,7 @@ DCS_TEST_DEF( free_func )
 
 DCS_TEST_DEF( oo )
 {
-	DCS_DEBUG_TRACE("Test Case: test_oo");
+	DCS_TEST_CASE("oo");
 
 	typedef double value_type;
 	typedef ::std::complex<value_type> complex_type;
@@ -153,7 +177,7 @@ DCS_TEST_DEF( oo )
 
 DCS_TEST_DEF( mathematica_1 )
 {
-	DCS_DEBUG_TRACE("Test Case: Mathematica #1");
+	DCS_TEST_CASE("Mathematica #1");
 
 	// This is the third example for discrete-time systems found in the
 	// Mathematica 8 doc.
@@ -229,7 +253,7 @@ DCS_TEST_DEF( mathematica_1 )
 
 DCS_TEST_DEF( mathematica_2 )
 {
-	DCS_DEBUG_TRACE("Test Case: Mathematica #2");
+	DCS_TEST_CASE("Mathematica #2");
 
 	// This is the third example for discrete-time systems found in the
 	// Mathematica 8 doc.
@@ -311,7 +335,7 @@ DCS_TEST_DEF( mathematica_2 )
 
 DCS_TEST_DEF( eesim )
 {
-	DCS_DEBUG_TRACE("Test Case: Mathematica #2");
+	DCS_TEST_CASE("Mathematica #2");
 
 	typedef double value_type;
 	typedef ::std::complex<value_type> complex_type;
@@ -367,6 +391,57 @@ DCS_TEST_DEF( eesim )
 }
 
 
+DCS_TEST_DEF( xxx )
+{
+	DCS_TEST_CASE("XXX");
+
+	typedef double value_type;
+	typedef ::std::complex<value_type> complex_type;
+	typedef ublas::matrix<value_type> matrix_type;
+	typedef ublas::vector<complex_type> vector_type;
+
+	const std::size_t nx = 3; // number of states
+	const std::size_t nu = 1; // number of inputs
+	const std::size_t ny = 1; // number of outputs
+
+	matrix_type A(nx,nx);
+	A(0,0) = 0;        A(0,1) =  0;        A(0,2) =  1;
+	A(1,0) = 0;        A(1,1) =  0;        A(1,2) =  0;
+	A(2,0) = 0.243365; A(2,1) = -0.563735; A(2,2) = -0.932137;
+
+	matrix_type B(nx,nu);
+	B(0,0) = 1;
+	B(1,0) = 0;
+	B(2,0) = 0.811669;
+
+	matrix_type C(ny,nx);
+	C(0,0) = 0; C(0,1) = 0; C(0,2) = 1;
+
+	matrix_type D(ny,nu);
+	D(0,0) = 0;
+
+	matrix_type Q(ublas::identity_matrix<value_type>(ny,ny));
+
+	matrix_type R(ublas::identity_matrix<value_type>(nu,nu));
+
+	//matrix_type N(ublas::identity_matrix<value_type>(ny,nu));
+	matrix_type N(ublas::zero_matrix<value_type>(ny,nu));
+
+
+	DCS_DEBUG_TRACE("A = " << A);
+	DCS_DEBUG_TRACE("B = " << B);
+	DCS_DEBUG_TRACE("C = " << C);
+	DCS_DEBUG_TRACE("D = " << D);
+	DCS_DEBUG_TRACE("Q = " << Q);
+	DCS_DEBUG_TRACE("R = " << R);
+	DCS_DEBUG_TRACE("N = " << N);
+	dcs_ctrl::dlqry_controller<value_type> dlqry(Q, R, N);
+	dlqry.solve(A, B, C, D);
+	DCS_DEBUG_TRACE("Gain = " << dlqry.gain());
+	DCS_DEBUG_TRACE("Riccati's Solution = " << dlqry.are_solution());
+	DCS_DEBUG_TRACE("Closed-loop Eigenvalues = " << dlqry.eigenvalues());
+}
+
 int main()
 {
 	// Tests labeled with 'mathematica' keyword are taken from the Wolfram
@@ -382,6 +457,7 @@ int main()
 	DCS_TEST_DO( mathematica_1 );
 	DCS_TEST_DO( mathematica_2 );
 	DCS_TEST_DO( eesim );
+	DCS_TEST_DO( xxx );
 
 	DCS_TEST_END();
 }
