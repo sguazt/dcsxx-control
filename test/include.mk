@@ -18,7 +18,8 @@ test-build: $(test_OBJS) $(test_TARGETS)
 
 $(test_bindir)/%: $(test_buildtmpdir)/%.$(obj_ext)
 	mkdir -p $(dir $@)
-	$(CXX) $(LDFLAGS) -o $@ $<
+	#$(CXX) $(LDFLAGS) -o $@ $<
+	$(CXX) -o $@ $< $(LDFLAGS)
 
 
 ## Source to Object rules
