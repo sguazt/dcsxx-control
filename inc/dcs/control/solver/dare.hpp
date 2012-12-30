@@ -1,5 +1,5 @@
 /**
- * \file src/dcs/control/solver/dare.hpp
+ * \file dcs/control/solver/dare.hpp
  *
  * \brief Discrete-time Algebraic Riccati Equations solver.
  *
@@ -39,11 +39,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * \author Marco Guazzone, &lt;marco.guazzone@mfn.unipmn.it&gt;
+ * \author Marco Guazzone (marco.guazzone@gmail.com)
  */
 
-#ifndef DCS_CONTROL_DARE_HPP
-#define DCS_CONTROL_DARE_HPP
+#ifndef DCS_CONTROL_SOLVER_DARE_HPP
+#define DCS_CONTROL_SOLVER_DARE_HPP
 
 
 #include <algorithm>
@@ -525,6 +525,9 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 				ublas::subrange(J, 0, n2pm, 0, n2)
 			);
 	}
+//XXX DCS_DEBUG_TRACE("After QR");
+//XXX DCS_DEBUG_TRACE("H=" << H);
+//XXX DCS_DEBUG_TRACE("J=" << J);
 
 	// QZ algorithm
 	//
@@ -552,26 +555,45 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 		}
 	}
 	// QZ decompose
+//XXX DCS_DEBUG_TRACE("Before QZ");
+//XXX DCS_DEBUG_TRACE("H(perm,perm)=" << HH);
+//XXX DCS_DEBUG_TRACE("J(perm,perm)=" << JJ);
 	ublasx::qz_decomposition<value_type> qz;
 	qz.decompose(JJ, HH);
+//XXX DCS_DEBUG_TRACE("After QZ");
+//XXX DCS_DEBUG_TRACE("HH=" << HH);
+//XXX DCS_DEBUG_TRACE("JJ=" << JJ);
+//XXX DCS_DEBUG_TRACE("q=" << qz.Q());
+//XXX DCS_DEBUG_TRACE("z=" << qz.Z());
+//XXX DCS_DEBUG_TRACE("S=" << qz.S());
+//XXX DCS_DEBUG_TRACE("T=" << qz.T());
 	// Reorder eigenvalues to push eigenvalues outside the unit circle
 	// (inside for (H,J)) to the top
 	qz.reorder(ublasx::udo_qz_eigenvalues);
 	JJ = qz.S();
 	HH = qz.T();
+//XXX DCS_DEBUG_TRACE("After QZ Reorder");
+//XXX DCS_DEBUG_TRACE("HH=" << HH);
+//XXX DCS_DEBUG_TRACE("JJ=" << JJ);
 	work_matrix_type ZZ;
 	work_matrix_type Z(n_p,n_p);
 	ZZ = qz.Z();
+//XXX DCS_DEBUG_TRACE("ZZ=" << ZZ);
+//XXX DCS_DEBUG_TRACE("perm=" << p);
 	for (size_type i = 0; i < n_p; ++i)
 	{
-		ublas::row(Z, i) = ublas::row(ZZ, p[i]);
+		//ublas::row(Z, i) = ublas::row(ZZ, p[i]);
+		ublas::row(Z, p[i]) = ublas::row(ZZ, i);
 	}
+	ZZ.resize(0, 0, false);
 	// Compute the n stable closed-loop eigenvalues of the system matrix
 	// A-BG, where G is the optimal feedback matrix computed based on the
 	// solution matrix X.
 	// These eigenvalues correspond to the the trailing n generalized
 	// eigenvalues of the QZ decomposition
 	l = qz.eigenvalues();
+//XXX DCS_DEBUG_TRACE("L=" << l);
+//XXX DCS_DEBUG_TRACE("Z=" << Z);
 
 //	if (ublasx::any(ublasx::isinf(l)))
 //	{
@@ -650,6 +672,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 				::std::clog << "[Warning] Solution may be inaccurate due to poor scaling or eigenvalues near the stability boundary." << ::std::endl;
 			}
 		}
+
 		// END of MATLAB arecheckout
 
 		// Last n eigenvalues are inside the unit circle
@@ -816,6 +839,21 @@ class dare_solver
 				typename BMatrixExprT,
 				typename QMatrixExprT
 			>
+		void solve(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B)
+	{
+		namespace ublas = ::boost::numeric::ublas;
+
+		work_matrix_type Q = ublas::identity_matrix<value_type>(ublas::num_rows(B));
+
+		solve(A, B, Q);
+	}
+
+
+	public: template <
+				typename AMatrixExprT,
+				typename BMatrixExprT,
+				typename QMatrixExprT
+			>
 		void solve(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::boost::numeric::ublas::matrix_expression<BMatrixExprT> const& B, ::boost::numeric::ublas::matrix_expression<QMatrixExprT> const& Q)
 	{
 		namespace ublas = ::boost::numeric::ublas;
@@ -924,6 +962,7 @@ class dare_solver
 
 		// reset state
 		X_.resize(0, 0, false);
+		l_.resize(0, false);
 		G_.resize(0, 0, false);
 
 
@@ -1130,4 +1169,4 @@ void dare(::boost::numeric::ublas::matrix_expression<AMatrixExprT> const& A, ::b
 }} // Namespace dcs::control
 
 
-#endif // DCS_CONTROL_DARE_HPP
+#endif // DCS_CONTROL_SOLVER_DARE_HPP
