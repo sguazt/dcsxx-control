@@ -261,7 +261,6 @@ typename output_controllability_matrix_traits<
 	namespace ublasx = ::boost::numeric::ublasx;
 
 	typedef typename output_controllability_matrix_traits<AMatrixT,BMatrixT,CMatrixT,DMatrixT>::type matrix_type;
-	typedef typename ublas::matrix_traits<matrix_type>::value_type value_type;
 	typedef typename ublas::matrix_traits<matrix_type>::size_type size_type;
 
 	size_type n = ublasx::num_rows(B);
@@ -430,16 +429,16 @@ class controllable_decomposition
 					>::promote_type,
 					size_type
 				>::promote_type work_size_type;
-		typedef typename ublas::promote_traits<
-					typename ublas::matrix_traits<AMatrixT>::value_type,
-					typename ublas::promote_traits<
-						typename ublas::matrix_traits<BMatrixT>::value_type,
-						typename ublas::promote_traits<
-							RealT,
-							value_type
-						>::promote_type
-					>::promote_type
-				>::promote_type work_value_type;
+//		typedef typename ublas::promote_traits<
+//					typename ublas::matrix_traits<AMatrixT>::value_type,
+//					typename ublas::promote_traits<
+//						typename ublas::matrix_traits<BMatrixT>::value_type,
+//						typename ublas::promote_traits<
+//							RealT,
+//							value_type
+//						>::promote_type
+//					>::promote_type
+//				>::promote_type work_value_type;
 
 		size_type A_nr(ublasx::num_rows(A));
 //		size_type A_nc(ublasx::num_columns(A));
