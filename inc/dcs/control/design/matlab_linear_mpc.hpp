@@ -493,7 +493,7 @@ class matlab_linear_mpc_controller
 			<< "  Hc = " << Hc_ << ";"
 			<< "  ctrl = mpc(sys, sys.Ts, Hp, Hc);"
 			<< "  if use_custom_state_est,"
-			<< "   ctrl.setEstimator(ctrl,'custom');"
+			<< "   setEstimator(ctrl,'custom');"
 			<< "  end;"
 			<< "  ctrl.Weights.MVRate = reshape(diag(" << detail::to_matlab_str(Wdu_) << "), nu, Hc)';"
 			<< "  ctrl.Weights.OV = reshape(diag(" << detail::to_matlab_str(Wy_) << "), ny, Hp)';";
