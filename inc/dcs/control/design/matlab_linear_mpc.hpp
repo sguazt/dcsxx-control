@@ -480,6 +480,7 @@ class matlab_linear_mpc_controller
 
 		std::ostringstream oss;
 		oss << "-r \""
+			<< " use_custom_state_est = 1;" //FIXME: this disable the MATLAB's default state estimation (i.e., steady-state kalman filter) in favor of custom state estimation
 			<< " try"
 			<< "  nu = " << nu << ";"
 			<< "  ny = " << ny << ";"
@@ -491,6 +492,9 @@ class matlab_linear_mpc_controller
 			<< "  Hp = " << Hp_ << ";"
 			<< "  Hc = " << Hc_ << ";"
 			<< "  ctrl = mpc(sys, sys.Ts, Hp, Hc);"
+			<< "  if use_custom_state_est,"
+			<< "   ctrl.setEstimator(ctrl,'custom');"
+			<< "  end;"
 			<< "  ctrl.Weights.MVRate = reshape(diag(" << detail::to_matlab_str(Wdu_) << "), nu, Hc)';"
 			<< "  ctrl.Weights.OV = reshape(diag(" << detail::to_matlab_str(Wy_) << "), ny, Hp)';";
 		for (std::size_t i = 0; i < nu; ++i)
@@ -510,6 +514,9 @@ class matlab_linear_mpc_controller
 			<< "  y = sys.C*x+sys.D*u;"
 			<< "  r = " << detail::to_matlab_str(Yref) << ";"
 			<< "  ctrlstate = mpcstate(ctrl, x, [], [], u);"
+			<< "  if use_custom_state_est,"
+			<< "   ctrlstate.Plant = x;"
+			<< "  end;"
 			<< "  [uopt, info] = mpcmove(ctrl, ctrlstate, y, r);"
 			<< "  format long;"
 			<< "  disp('--- [dcs::control::matlab_linear_mpc] ---');"
