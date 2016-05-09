@@ -437,7 +437,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 		//  [1 eps;1/eps 1] -> (ignore eps) -> [1 1/eps;eps 1]
 		if (m == 0)
 		{
-			work_matrix_type Mu(n2,2);
+			work_matrix_type Mu(n2,2,0);
 			ublas::column(Mu, 1) = ublasx::abs(ublasx::diag(M));
 			ublas::column(Mu, 2) = ublas::scalar_vector<real_type>(n2, 1);
 			Mu = tol_zero * (Mu+ublas::trans(Mu));
@@ -541,8 +541,8 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 	//       circle of the matrix pair (H,J).
 
 	size_type n_p(ublasx::size(p));
-	work_matrix_type HH(n_p,n_p);
-	work_matrix_type JJ(n_p,n_p);
+	work_matrix_type HH(n_p,n_p,0);
+	work_matrix_type JJ(n_p,n_p,0);
 	// permute H and J
 	for (size_type r = 0; r < n_p; ++r)
 	{
@@ -574,7 +574,7 @@ void gdare(HMatrixT& H, JMatrixT& J, ::std::size_t n, ::std::size_t m, LVectorT&
 //XXX DCS_DEBUG_TRACE("HH=" << HH);
 //XXX DCS_DEBUG_TRACE("JJ=" << JJ);
 	work_matrix_type ZZ;
-	work_matrix_type Z(n_p,n_p);
+	work_matrix_type Z(n_p,n_p,0);
 	ZZ = qz.Z();
 //XXX DCS_DEBUG_TRACE("ZZ=" << ZZ);
 //XXX DCS_DEBUG_TRACE("perm=" << p);

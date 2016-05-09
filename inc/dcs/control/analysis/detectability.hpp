@@ -155,7 +155,7 @@ bool is_detectable(::boost::numeric::ublas::matrix_expression<AMatrixT> const& A
 		}
 
 		//ublas::matrix<complex_type> AA(ublas::matrix<complex_type>(A)-v(i)*I);
-		ublas::matrix<complex_type> S(ns,na);
+		ublas::matrix<complex_type> S(ns,na,0);
 		ublas::subrange(S, 0, na, 0, na) = cA-v(i)*I;
 		ublas::subrange(S, na, ns, 0, na) = C;
 

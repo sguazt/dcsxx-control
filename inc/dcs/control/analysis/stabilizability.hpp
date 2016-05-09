@@ -151,7 +151,7 @@ bool is_stabilizable(::boost::numeric::ublas::matrix_expression<AMatrixT> const&
 		}
 
 		//ublas::matrix<complex_type> AA(ublas::matrix<complex_type>(A)-v(i)*I);
-		ublas::matrix<complex_type> S(na,ns);
+		ublas::matrix<complex_type> S(na,ns,0);
 		ublas::subrange(S, 0, na, 0, na) = cA-v(i)*I;
 		ublas::subrange(S, 0, na, na, ns) = B;
 
